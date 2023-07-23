@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@root/*": [ "./*" ],
+      "@typings/*": [ "./typings/*" ],
+      "@delta": [ "./src/delta/index.ts" ],
+      "@delta/*": [ "./src/delta/*" ],
+      "@mappers/*": [ "./src/mappers/*" ],
+      "@mappers": [ "./src/mappers/index.ts" ],
+      "@bonfire": [ "./src/bonfire/index.ts" ],
+      "@bonfire/*": [ "./src/bonfire/*" ],
+      "@utils": [ "./src/utils/index.ts" ],
+      "@utils/*": [ "./src/utils/*" ]
+    }
+  }
+}

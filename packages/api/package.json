@@ -1,0 +1,38 @@
+{
+  "name": "@ierik/revolt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lib/revolt.umd.js",
+  "author": "Erik Isidore <ericssonico@proton.me>",
+  "license": "GPL-3.0",
+  "typings": "typings/main.d.ts",
+  "files": [
+    "lib/",
+    "typings/"
+  ],
+  "engines": {
+    "node": ">=14.18.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/revolt.mjs",
+      "require": "./lib/revolt.umd.js"
+    },
+    "./types": {
+      "import": "./typings/",
+      "require": "./typings/"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "watch": "vite build --watch --config vite.config.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.3",
+    "vite": "^4.2.1"
+  },
+  "dependencies": {
+    "camelcase-keys": "^8.0.2",
+    "@ierik/datura-utils": "workspace:^"
+  }
+}

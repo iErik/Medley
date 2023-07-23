@@ -1,0 +1,57 @@
+{
+  "name": "@ierik/discordance",
+  "productName": "Discordance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/main/index.cjs",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=14.18.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.21.4",
+    "@ierik/concord-generics": "workspace:^",
+    "@ierik/discordance-api": "workspace:^",
+    "@reduxjs/toolkit": "^1.9.3",
+    "@stitches/react": "^1.2.8",
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
+    "@types/react-redux": "^7.1.25",
+    "@types/redux-logger": "^3.0.9",
+    "@vitejs/plugin-react": "^3.1.0",
+    "babel-loader": "^9.1.2",
+    "electron": "^24.0.0",
+    "electron-builder": "^23.6.0",
+    "electron-devtools-installer": "^3.2.0",
+    "immer": "^9.0.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
+    "react-router-dom": "6.10.0",
+    "redux": "^4.2.1",
+    "redux-logger": "^3.0.6",
+    "redux-saga": "^1.2.3",
+    "sass": "^1.60.0",
+    "typescript": "^5.0.3",
+    "vite": "^4.2.1",
+    "vite-plugin-resolve": "^2.3.0",
+    "vite-plugin-svgr": "^2.4.0"
+  },
+  "env": {
+    "//": "Used in build scripts",
+    "HOST": "127.0.0.1",
+    "PORT": 3344
+  },
+  "dependencies": {
+    "@lexical/react": "^0.9.1",
+    "lexical": "^0.9.1",
+    "overlayscrollbars-react": "^0.5.0",
+    "slate": "^0.93.0",
+    "slate-react": "^0.93.0",
+    "typed-redux-saga": "^1.5.0"
+  }
+}

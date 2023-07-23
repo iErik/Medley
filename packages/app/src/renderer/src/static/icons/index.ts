@@ -1,0 +1,13 @@
+export { ReactComponent as addFriend } from './add-friend.svg'
+export { ReactComponent as chat } from './chat.svg'
+export { ReactComponent as friends } from './friends.svg'
+export { ReactComponent as gear } from './gear.svg'
+export { ReactComponent as gif } from './gif.svg'
+export { ReactComponent as gift } from './gift.svg'
+export { ReactComponent as headphone } from './headphone.svg'
+export { ReactComponent as microphone } from './microphone.svg'
+export { ReactComponent as stickers } from './stickers.svg'
+export { ReactComponent as userProfile } from './user-profile.svg'
+export { ReactComponent as users } from './users.svg'
+export { ReactComponent as discordLogo } from './discord-logo.svg'
+

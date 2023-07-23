@@ -1,0 +1,53 @@
+{
+  "name": "@iErik/medley",
+  "private": true,
+  "description": "Medley's App monorepo",
+  "author": "Erik Isidore <ericssonico@proton.me>",
+  "license": "GPL-3",
+  "homepage": "https://github.com/iErik/Medley#readme",
+  "scripts": {
+    "watch-api": "yarn workspace @ierik/discordance-api watch",
+    "dev-app": "yarn workspace @ierik/discordance dev",
+    "docs": "yarn workspace docs run next",
+    "storybook": "storybook dev -p 5000",
+    "build-storybook": "storybook build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iErik/Medley.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iErik/Medley/issues"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.21.4",
+    "@mdx-js/react": "^2.3.0",
+    "@storybook/addon-actions": "^7.0.2",
+    "@storybook/addon-docs": "^7.0.2",
+    "@storybook/addon-essentials": "^7.0.2",
+    "@storybook/addon-interactions": "^7.0.2",
+    "@storybook/addon-links": "^7.0.2",
+    "@storybook/addon-mdx-gfm": "^7.0.2",
+    "@storybook/builder-vite": "^7.0.2",
+    "@storybook/manager-api": "^7.0.2",
+    "@storybook/react": "^7.0.2",
+    "@storybook/react-vite": "^7.0.2",
+    "@storybook/react-webpack5": "^7.0.2",
+    "@storybook/testing-library": "^0.1.0",
+    "@storybook/theming": "^7.0.2",
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
+    "babel-loader": "^9.1.2",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.0.2",
+    "storybook-dark-mode": "^3.0.0",
+    "typescript": "^5.0.3",
+    "vite": "^4.2.1",
+    "vite-plugin-svgr": "^2.4.0"
+  },
+  "dependencies": {
+    "@babel/preset-typescript": "^7.21.4"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/renderer/src/*"],
+      "src/*": ["src/*"],
+      "root/*": ["./*"],
+      "@hooks/*": ["src/renderer/src/hooks/*"],
+      "@hooks": ["src/renderer/src/hooks/index.ts"],
+      "@parser/*": ["src/renderer/src/parser/*"],
+      "@parser": ["src/renderer/src/parser/index.ts"],
+      "@components/*": ["src/renderer/src/components/*"],
+      "@components": ["src/renderer/src/components/index.ts"],
+      "@containers/*": ["src/renderer/src/containers/*"],
+      "@containers": ["src/renderer/src/containers/index.ts"],
+      "@store/*": ["src/renderer/src/store/*"],
+      "@store": ["src/renderer/src/store/index.ts"],
+      "@styles/*": ["src/renderer/src/styles/*"],
+      "@styles": ["src/renderer/src/styles/index.ts"],
+      "@static/*": ["src/renderer/src/static/*"],
+      "@static": ["src/renderer/src/static/index.ts"],
+      "@utils/*": ["src/renderer/src/utils/*"],
+      "@utils": ["src/renderer/src/utils/index.ts"],
+      "@modules/*": ["src/renderer/src/modules/*"],
+      "@modules": ["src/renderer/src/modules/index.ts"],
+      "@views/*": ["src/renderer/src/views/*"],
+      "@views": ["src/renderer/src/views/index.ts"]
+    }
+  }
+}

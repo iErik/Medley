@@ -1,0 +1,4 @@
+
+@function color-var($pallete: 'primary', $variant: 'base') {
+  @return var(--color-#{$pallete}-#{$variant});
+}
