@@ -1,14 +1,13 @@
 {
-  "name": "@iErik/medley",
+  "name": "@ierik/medley",
   "private": true,
   "description": "Medley's App monorepo",
   "author": "Erik Isidore <ericssonico@proton.me>",
   "license": "GPL-3",
   "homepage": "https://github.com/iErik/Medley#readme",
   "scripts": {
-    "watch-api": "yarn workspace @ierik/discordance-api watch",
-    "dev-app": "yarn workspace @ierik/discordance dev",
-    "docs": "yarn workspace docs run next",
+    "watch-api": "pnpm -C packages/api watch",
+    "dev-app": "pnpm -C packages/app dev",
     "storybook": "storybook dev -p 5000",
     "build-storybook": "storybook build"
   },
