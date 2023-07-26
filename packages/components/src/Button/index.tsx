@@ -1,6 +1,6 @@
 import type * as Stitches from '@stitches/react'
 import { BaseButton } from '@ierik/react-generics'
-import { styled } from '../stitches.config'
+import { styled } from '../stitched'
 
 // -> Types
 // --------

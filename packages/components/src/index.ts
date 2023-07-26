@@ -1,5 +1,4 @@
 import 'overlayscrollbars/overlayscrollbars.css'
-import './fonts.css'
 
 import { utils } from '@ierik/react-generics'
 import config from './config'

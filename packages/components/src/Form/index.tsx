@@ -1,6 +1,6 @@
 
 import { useForm, InputType, FieldSchema } from '@ierik/react-generics'
-import { styled } from '../stitches.config'
+import { styled } from '../stitched'
 
 import Input from '../Input'
 import Button from '../Button'

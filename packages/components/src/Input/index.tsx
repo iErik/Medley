@@ -1,4 +1,4 @@
-import { styled } from '../stitches.config'
+import { styled } from '../stitched'
 
 const TextInputEl = styled('input', {
   minHeight: 50,

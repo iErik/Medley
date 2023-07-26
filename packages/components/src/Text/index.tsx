@@ -1,5 +1,5 @@
 import { BaseText } from '@ierik/react-generics';
-import { styled } from '../stitches.config'
+import { styled } from '../stitched'
 
 const TextEl = styled(BaseText, {
   fontFamily: '$sans',

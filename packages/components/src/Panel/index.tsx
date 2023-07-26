@@ -7,7 +7,7 @@ import {
 } from 'react'
 
 import ScrollView from '../ScrollView'
-import { styled } from '../stitches.config'
+import { styled } from '../stitched'
 
 // -> Types
 // --------

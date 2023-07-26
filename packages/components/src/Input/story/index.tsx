@@ -1,6 +1,6 @@
 import { BaseWrapper } from '@ierik/react-generics'
 import Input from '..'
-import '../../fonts.css'
+import '../../fonts.ts'
 
 export default {
   title: 'Concord Generics/Input',

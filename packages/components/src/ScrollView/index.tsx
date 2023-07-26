@@ -11,7 +11,7 @@ import {
 
 import 'overlayscrollbars/overlayscrollbars.css'
 
-import { styled } from '../stitches.config'
+import { styled } from '../stitched'
 
 // -> Types
 // --------

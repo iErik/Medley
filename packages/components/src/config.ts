@@ -6,7 +6,7 @@ const toRgba = (
 ): string | undefined =>
   utils.hexToRgb(color, opacity)?.css
 
-const theme = {
+export default {
   colors: {
     primaryBase: '#3BB0E2',
     secondaryBase: '#F9BAFF',
@@ -38,8 +38,3 @@ const theme = {
     decorative: '$mono'
   },
 }
-
-export default utils.extendConfig({
-  theme
-})
-
