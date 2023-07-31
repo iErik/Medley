@@ -13,7 +13,7 @@
   "typings": "src/main.d.ts",
   "license": "GPL-3",
   "dependencies": {
-    "@ierik/react-generics": "^0.1.2",
+    "@ierik/react-generics": "link:/home/Erik/Git/react-generics",
     "@ierik/ts-utils": "^1.0.1",
     "@stitches/react": "^1.2.8",
     "overlayscrollbars": "^2.1.1",

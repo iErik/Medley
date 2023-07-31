@@ -1,5 +1,5 @@
 {
-  "name": "@ierik/discordance",
+  "name": "@ierik/medley",
   "productName": "Discordance",
   "version": "1.0.0",
   "description": "",
@@ -14,8 +14,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
-    "@ierik/concord-generics": "workspace:^",
-    "@ierik/discordance-api": "workspace:^",
+    "@ierik/medley-components": "workspace:^",
+    "@ierik/revolt": "workspace:^",
     "@reduxjs/toolkit": "^1.9.3",
     "@stitches/react": "^1.2.8",
     "@types/react": "^18.0.33",

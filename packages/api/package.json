@@ -32,7 +32,7 @@
     "vite": "^4.2.1"
   },
   "dependencies": {
-    "camelcase-keys": "^8.0.2",
-    "@ierik/datura-utils": "workspace:^"
+    "@ierik/ts-utils": "^1.0.1",
+    "camelcase-keys": "^8.0.2"
   }
 }
