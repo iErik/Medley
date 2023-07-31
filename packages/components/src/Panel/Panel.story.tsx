@@ -1,9 +1,9 @@
 import { BaseWrapper } from '@ierik/react-generics'
-import Text from '../../Text'
-import Panel from '..'
+import Text from '../Text'
+import Panel from '.'
 
 export default {
-  title: 'Concord Generics/Panel',
+  title: 'Components/Panel',
   component: Panel
 }
 

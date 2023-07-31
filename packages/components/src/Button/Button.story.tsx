@@ -1,9 +1,8 @@
 import { BaseWrapper } from '@ierik/react-generics'
-import Button, { ButtonProps } from '..'
-import '../../fonts.ts'
+import Button, { ButtonProps } from '.'
 
 export default {
-  title: 'Concord Generics/Button',
+  title: 'Components/Button',
   component: Button
 }
 
@@ -15,7 +14,11 @@ const Template = (args: ButtonProps) =>
     <Button { ...args } />
   </BaseWrapper>
 
-export const Default = Template.bind({})
-Default.args = {
+export const Default = Template.bind(null, {
   text: 'Login'
-}
+})
+
+export const Squared = Template.bind(null, {
+  text: 'Squared',
+  square: true
+})

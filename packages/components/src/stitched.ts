@@ -1,4 +1,4 @@
-import { mkStitches } from '@ierik/react-generics'
+import { utils } from '@ierik/react-generics'
 import config from './config'
 
 export const {
@@ -9,4 +9,4 @@ export const {
   theme,
   createTheme,
   getCssText,
-} = mkStitches(config)
+} = utils.mkStitches(config)

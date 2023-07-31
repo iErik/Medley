@@ -3,7 +3,7 @@ import { styled } from '../stitched'
 const TextInputEl = styled('input', {
   minHeight: 50,
   height: '100%',
-  borderRadius: 50,
+  borderRadius: 10,
   backgroundColor: '$bgDark',
 
   padding: '0 30px',
@@ -17,7 +17,7 @@ const TextInputEl = styled('input', {
 })
 
 const TextInputWrapperEl = styled('div', {
-  borderRadius: 50,
+  borderRadius: 10,
   padding: 1,
 
   //maxHeight: 50,
@@ -37,15 +37,15 @@ const TextInputWrapperEl = styled('div', {
   [`& > ${TextInputEl}`]: { width: '100%' },
 
   variants: {
-    square: {
+    round: {
       true: {
-        borderRadius: 10,
+        borderRadius: 50,
 
         [`& > ${TextInputEl}`]: {
-          borderRadius: 10
+          borderRadius: 50
         }
       }
-    }
+    },
   }
 })
 

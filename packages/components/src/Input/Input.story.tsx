@@ -1,9 +1,8 @@
 import { BaseWrapper } from '@ierik/react-generics'
-import Input from '..'
-import '../../fonts.ts'
+import Input from '.'
 
 export default {
-  title: 'Concord Generics/Input',
+  title: 'Components/Input',
   component: Input
 }
 

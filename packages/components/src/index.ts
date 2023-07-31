@@ -1,5 +1,12 @@
 import 'overlayscrollbars/overlayscrollbars.css'
 
+export { default as globalStyles } from './global'
+export {
+  styled as stitch,
+  keyframes
+} from './stitched'
+
+
 import { utils } from '@ierik/react-generics'
 import config from './config'
 

@@ -1,0 +1,5 @@
+export { default as Bold } from './Chillax-Bold.woff2'
+export { default as Medium } from './Chillax-Medium.woff2'
+export { default as Regular } from './Chillax-Regular.woff2'
+export { default as Semibold } from './Chillax-Semibold.woff2'
+export { default as Variable } from './Chillax-Variable.woff2'
