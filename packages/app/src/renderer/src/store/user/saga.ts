@@ -7,22 +7,26 @@ import {
 } from 'typed-redux-saga'
 
 import { types, actions, AuthState } from '@store/user'
-import { auth, user, gateway } from '@ierik/discordance-api'
+import { delta, bonfire } from '@/revolt'
 
 function* loginHandler (
   credentials: { email: string, password: string }
 ) {
   put(actions.setLoading(true))
   const [ err, data ] = yield* call(
-    auth.login,
+    delta.auth.login,
     credentials)
   put(actions.setLoading(false))
 
   if (err)
     yield* put(actions.setErrors([ 'Oops, something went wrong' ]))
-  else if (data?.mfa)
-    yield* put(actions.authState(AuthState.PendingMFA))
-  else if (data?.token)
+
+  if (
+    data?.result === 'MFA' &&
+    data?.allowed_methods.includes('Totp')
+  ) yield* put(actions.authState(AuthState.PendingMFA))
+
+  if (data?.token)
     yield* put(actions.authState(AuthState.Authenticated, data))
 
   return data || {}
@@ -32,25 +36,21 @@ function* mfaHandler (code: string, ticket: string) {
   if (!code || !ticket) return
 
   put(actions.setLoading(true))
-  const [ err, data ] = yield* call(
-    auth.multiFactor,
-    code,
-    ticket)
+  const [ err, data ] = yield* call(delta.auth.login, {
+    mfa_ticket: ticket,
+    mfa_response: { totp_code: code }
+  })
+
   put(actions.setLoading(false))
 
-  if (err)
-    yield* put(actions.setErrors([
+  if (err) yield* put(actions.setErrors([
       'Oops, something went wrong'
-    ]))
+  ]))
   else if (data?.token)
     yield* put(actions.authState(
       AuthState.Authenticated,
       data
     ))
-}
-
-function* logoutHandler () {
-
 }
 
 function* loginFlow () {
@@ -69,14 +69,7 @@ function* fetchUserData ({ args }: ReduxAction) {
   if (args?.authState !== AuthState.Authenticated)
     return
 
-  const [ err, data ] = yield* call(user.getUserInfo)
-
-  if (err) {
-
-  } else {
-    yield* put(actions.userData(data))
-    yield* call(gateway.initSocket)
-  }
+  yield* call(bonfire.connect)
 }
 
 export default function* userSaga() {

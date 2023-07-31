@@ -4,7 +4,7 @@ import { styled } from '@/stitches.config'
 
 import MemberPanel from '@components/Members/Panel'
 
-import { Wrapper, ScrollView } from '@ierik/concord-generics'
+import { Wrapper, ScrollView } from '@ierik/medley-components'
 import {
   MappedOperationItem,
   MappedGroup,

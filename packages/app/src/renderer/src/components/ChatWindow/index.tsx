@@ -1,7 +1,7 @@
 import { useSelector } from '@store'
 import { useEffect, useRef, memo } from 'react'
 
-import { Wrapper, ScrollView } from '@ierik/concord-generics'
+import { Wrapper, ScrollView } from '@ierik/medley-components'
 import { Chat } from '@ierik/discordance-api'
 
 import { styled } from '@/stitches.config'

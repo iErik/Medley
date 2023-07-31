@@ -1,5 +1,5 @@
 import commonProps from '@/themes/common'
-import { extendConfig } from '@ierik/concord-generics'
+import { extendConfig } from '@ierik/medley-components'
 
 
 const extended = extendConfig({

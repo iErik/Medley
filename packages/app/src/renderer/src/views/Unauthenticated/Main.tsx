@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom'
-import { Wrapper, Heading } from '@ierik/concord-generics'
+import { Wrapper, Text } from '@ierik/medley-components'
 
 const Unauthenticated = () => {
   return (
@@ -8,15 +8,16 @@ const Unauthenticated = () => {
       hAlign="center"
       vAlign="top"
     >
-      <Heading
+      <Text
+        mono
+        type="h2"
         css={{
           marginTop: '300px',
           marginBottom: '50px',
-          fontWeight: '700'
         }}
       >
         You should totally log in
-      </Heading>
+      </Text>
 
       <Outlet />
    </Wrapper>

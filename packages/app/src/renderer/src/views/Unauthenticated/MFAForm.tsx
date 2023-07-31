@@ -1,6 +1,6 @@
 import { useAction } from '@hooks'
 import { actions } from '@store/user'
-import { Wrapper, Form } from '@ierik/concord-generics'
+import { Wrapper, Form } from '@ierik/medley-components'
 
 // -> MultiFactor Authentication Form
 // ----------------------------------

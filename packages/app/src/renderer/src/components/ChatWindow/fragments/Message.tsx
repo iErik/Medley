@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useSelector } from '@store'
 
-import { Wrapper, Text }  from '@ierik/concord-generics'
+import { Wrapper, Text }  from '@ierik/medley-components'
 import { styled } from '@/stitches.config'
 import parseMsg from '@parser'
 

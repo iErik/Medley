@@ -1,5 +1,5 @@
 import { styled } from '@/stitches.config'
-import { Wrapper } from '@ierik/concord-generics'
+import { Wrapper } from '@ierik/medley-components'
 
 const Avatar = styled('img', {
   height: 35,

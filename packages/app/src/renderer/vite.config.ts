@@ -12,7 +12,6 @@ import pkg from '../../package.json'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-
 export default defineConfig(({ mode }) => {
   const env = Object.entries(
     loadEnv(mode, process.cwd(), 'VIT_') || {}

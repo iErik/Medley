@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import { Panel } from '@ierik/concord-generics'
+import { Panel } from '@ierik/medley-components'
 import { styled } from '@/stitches.config'
 
 import { OpMember, MappedGroup } from '@store/chat'

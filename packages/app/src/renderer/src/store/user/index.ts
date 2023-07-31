@@ -1,8 +1,6 @@
 import { createReducer } from '@utils/redux'
-import {
-  ReceiveEvent,
-  User
-} from '@ierik/discordance-api'
+import { bonfire } from '@/revolt'
+import type { Events } from '@ierik/revolt'
 
 // -> Type Aliases
 // ----------------
@@ -73,16 +71,6 @@ const {
     handler: genericHandler
   },
 
-  setErrors: {
-    args: [ 'errors' ],
-    handler: genericHandler
-  },
-
-  setRelationships: {
-    args: [ 'relationships' ],
-    handler: genericHandler
-  },
-
   authState: {
     args: [ 'authState', 'authData' ],
     handler: <UserState>(
@@ -95,25 +83,17 @@ const {
       userId: authData?.user_id || ''
     })
   },
-
-  userData: {
-    args: [ 'userData' ],
-    handler: <UserState>(
-      state: UserState,
-      { userData }: HandlerArgs
-    ) => ({
-      ...state,
-      connections: [ ...(userData?.connections || []) ],
-      relationships: { ...(userData?.relationships || {}) }
-    })
-  }
 }, 'user')
 
-export const gatewayListeners = {
-  [ReceiveEvent.Ready]: ({ relationships } = {}) => [
-    actions.setRelationships(relationships)
-  ]
-}
+// -> Mappers
+// ----------
+
+// -> WS Event handlers
+// --------------------
+
+bonfire.onEvent('Ready', (data: Events.ReadyEvent) => {
+
+})
 
 export { actions, types }
 export default rootReducer

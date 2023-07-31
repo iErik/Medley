@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux'
 
-import { Wrapper, Heading } from '@ierik/concord-generics'
+import { Wrapper, Heading } from '@ierik/medley-components'
 
 import { styled } from '@/stitches.config'
 import { productName } from '@pkg/package.json'
