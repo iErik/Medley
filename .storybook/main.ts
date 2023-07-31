@@ -5,16 +5,18 @@ import svgr from 'vite-plugin-svgr'
 
 
 const packagesPaths = [
-  '../packages/generics',
-  '../packages/discordance',
-  '../packages/concord-generics'
+  '../packages/components',
+//  '../packages/app',
 ];
 
-const appPath = resolve('./packages/discordance/src/renderer')
+const appPath = resolve('./packages/app/src/renderer')
 
 export default {
-  stories: packagesPaths.map(path =>
-    `${path}/**/*/story/index.@(js|jsx|ts|tsx|mdx)`),
+  stories: packagesPaths.flatMap(path => [
+    `${path}/**/*/story/index.@(js|jsx|ts|tsx|mdx)`,
+    `${path}/**/*.story.@(js|jsx|ts|tsx|mdx)`,
+    `${path}/**/*.stories.@(js|jsx|ts|tsx|mdx)`
+  ]),
 
   storyIndexers: (indexers: any[]) => ([
     {
