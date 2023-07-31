@@ -1,4 +1,4 @@
-import { isType } from '@ierik/datura-utils'
+import { isType } from '@ierik/ts-utils'
 
 import Bonfire from '@bonfire'
 import * as delta from '@delta'
@@ -27,12 +27,23 @@ const createClient = () => {
   }
 
   const setContext = (context: ContextPartial) => {
+    console.log('setContext: ', { context, clientContext })
     Object.entries(context).forEach(([ key, value ]) => {
+      const currentValue = clientContext[key]
+
+      if (isType(currentValue, 'Object')) deepMerge(
+        ((clientContext as Record<string, any>)[key] || {}),
+        value as Record<string, any>)
+      else
+        (clientContext as Record<string, any>)[key] = value
+
+      /*
       if (isType(value, 'Object')) deepMerge(
         ((clientContext as Record<string, any>)[key] || {}),
         value as Record<string, any>)
       else
         (clientContext as Record<string, any>)[key] = value
+      */
     })
   }
 

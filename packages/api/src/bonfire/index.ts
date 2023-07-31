@@ -1,7 +1,7 @@
 import {
   secondsToMs,
   executeMap
-} from '@ierik/datura-utils'
+} from '@ierik/ts-utils'
 
 import { ClientEvent, ServerEvent } from '@typings/Bonfire'
 import type {
@@ -80,6 +80,7 @@ const Bonfire = (
     const socket = clientContext?.socket
     const listeners = socket?.eventListeners
 
+    console.log('onEvent: ', { clientContext })
     if (!socket) return
 
     setSocket({
@@ -91,6 +92,8 @@ const Bonfire = (
         ]
       }
     })
+
+    console.log('has socket: ', { clientContext })
   }
 
   const onMsg = (listener: BonfireListener) => {
@@ -144,16 +147,32 @@ const Bonfire = (
     connection.addEventListener('open', () => beginPing())
 
     connection.addEventListener('message', (message) => {
+      const socket = clientContext?.socket
       const contents = JSON.parse(message?.data || '')
       const { type: eventType } = contents || {}
 
       const eventMap = {
         [ServerEvent.Authenticated]: (
           msg: Record<string, any>
-        ) => { console.log('Authenticated: ', { msg })}
+        ) => { console.log('Authenticated: ', { msg }) },
+
+        ...Object.entries(socket?.eventListeners || {})
+          .reduce((acc, [ evName, listeners ]) => ({
+            ...acc,
+            [evName]: (contents: any, message: string) =>
+              listeners.forEach((listener: BonfireListener) =>
+                listener(contents, message))
+          }), {})
       }
 
+      console.log({ eventMap })
+
       executeMap(eventMap, eventType, [ contents, message ])
+
+      if (socket && socket?.catchallListeners?.length)
+        socket?.catchallListeners
+          .forEach((listener: BonfireListener) =>
+            listener(contents, message))
     })
 
     setSocket({ connection })
