@@ -9,6 +9,7 @@ export type BonfireSocket = {
   pingIntervalId: number | null
   eventListeners: Record<string, BonfireListener[]>
   catchallListeners: BonfireListener[]
+  connect: () => void
 }
 
 // -> General Client

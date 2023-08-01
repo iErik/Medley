@@ -35,13 +35,6 @@ const Bonfire = (
   const PING_INTERVAL = secondsToMs(15)
   const { VITE_BONFIRE_API: BONFIRE_API } = import.meta.env
 
-  const initialSocketState: BonfireSocket = {
-    connection: null,
-    active: false,
-    pingIntervalId: null,
-    eventListeners: {},
-    catchallListeners: []
-  }
 
   const setSocket = (socket: Partial<BonfireSocket>) =>
     setContext({
@@ -80,7 +73,6 @@ const Bonfire = (
     const socket = clientContext?.socket
     const listeners = socket?.eventListeners
 
-    console.log('onEvent: ', { clientContext })
     if (!socket) return
 
     setSocket({
@@ -92,8 +84,6 @@ const Bonfire = (
         ]
       }
     })
-
-    console.log('has socket: ', { clientContext })
   }
 
   const onMsg = (listener: BonfireListener) => {
@@ -165,8 +155,6 @@ const Bonfire = (
           }), {})
       }
 
-      console.log({ eventMap })
-
       executeMap(eventMap, eventType, [ contents, message ])
 
       if (socket && socket?.catchallListeners?.length)
@@ -176,6 +164,15 @@ const Bonfire = (
     })
 
     setSocket({ connection })
+  }
+
+  const initialSocketState: BonfireSocket = {
+    connection: null,
+    active: false,
+    pingIntervalId: null,
+    eventListeners: {},
+    catchallListeners: [],
+    connect
   }
 
   setSocket(initialSocketState)
