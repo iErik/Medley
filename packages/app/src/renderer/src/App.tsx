@@ -3,12 +3,16 @@ import { useEffect } from 'react'
 import { useSelector } from '@store'
 
 import { AuthState } from '@store/user'
-import { stitch } from '@ierik/medley-components'
+import { styled } from '@stitched'
+import globalStyles from '@stitched/global'
+import { useBonfire } from '@hooks'
+
+import Header from '@components/Header'
 
 // -> Elements
 // -----------
 
-const MainContainer = stitch('div', {
+const MainContainer = styled('div', {
   display: 'flex',
   flexDirection: 'column',
   width: '100vw',
@@ -17,7 +21,7 @@ const MainContainer = stitch('div', {
   backgroundColor: '$bgBase',
 })
 
-const ContentWrapper = stitch('div', {
+const ContentWrapper = styled('div', {
   backgroundColor: '$bgBase',
 
   flexGrow: 1,
@@ -37,6 +41,9 @@ const locationMap = {
 // -------------------
 
 const App = () => {
+  globalStyles()
+  useBonfire()
+
   const navigate = useNavigate()
   const forceLocation = useSelector(state =>
     locationMap[state.user.authState])
@@ -47,6 +54,7 @@ const App = () => {
 
   return (
     <MainContainer>
+      <Header />
       <ContentWrapper>
         <Outlet />
       </ContentWrapper>

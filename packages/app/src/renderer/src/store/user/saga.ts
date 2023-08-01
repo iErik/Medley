@@ -74,5 +74,5 @@ function* fetchUserData ({ args }: ReduxAction) {
 
 export default function* userSaga() {
   yield spawn(loginFlow)
-  yield takeEvery(types.authState, fetchUserData)
+  // yield takeEvery(types.authState, fetchUserData)
 }
