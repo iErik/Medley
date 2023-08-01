@@ -1,8 +1,7 @@
 import { createReducer } from '@utils/redux'
-import { bonfire } from '@/revolt'
-import type { Chat, Events } from '@ierik/revolt'
+import { getAssetUrl } from '@ierik/revolt'
+import type { Common, Chat, Events } from '@ierik/revolt'
 
-import { useDispatch } from '@store'
 
 // -> Type Aliases
 // ---------------
@@ -10,8 +9,13 @@ import { useDispatch } from '@store'
 // -> Types
 // --------
 
+type MappedAsset = Common.Asset & {
+  src: string
+}
+
 type MappedServer = Chat.RevoltServer & {
   channels: Chat.RevoltChannel
+  icon: MappedAsset
 }
 
 type ActiveChannel = {
@@ -63,25 +67,34 @@ const {
   actions,
   rootReducer
 } = createReducer<ChatState>(initialState, {
+  setServers: {
+    args: [ 'servers' ],
+    handler: genericHandler
+  },
 }, 'chat')
 
-// -> Mappers
-// ----------
+// -> Types
+// --------
 
-const mapServerChannels = (
-  { servers, channels }: Events.ReadyEvent
-) => servers.map((server) => ({
-  ...server,
-  channels: server.channels.map(channel => channels
-    .find(ch => ch._id === channel))
-}))
 
 // -> WS Event Handlers
 // --------------------
 
-bonfire.onEvent('Ready', (data: Events.ReadyEvent) => {
+const bonfireEvents = {
+  Ready: (data: Events.ReadyEvent) => {
+    const servers = data?.servers?.map((server) => ({
+      ...server,
+      icon: {
+        ...(server?.icon || {}),
+        src: getAssetUrl(server?.icon?.tag, server?.icon?._id)
+      },
+      channels: server.channels.map(channel => data?.channels
+        ?.find(ch => ch._id === channel))
+    }))
 
-})
+    return [ actions.setServers(servers) ]
+  }
+}
 
-export { actions, types }
+export { actions, types, bonfireEvents }
 export default rootReducer
