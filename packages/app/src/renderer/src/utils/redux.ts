@@ -4,7 +4,7 @@ import { camelToSnake } from '@utils/helpers'
 // -> Types
 // --------
 
-type ActionSignature = {
+export type ActionSignature = {
   type: string,
   args: HandlerArgs
 }
