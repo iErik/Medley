@@ -47,6 +47,8 @@ export default defineConfig(({ mode }) => {
         '@utils': join(__dirname, 'src/utils'),
         '@modules': join(__dirname, 'src/modules'),
         '@views': join(__dirname, 'src/views'),
+        '@stitched': join(__dirname, 'src/stitched'),
+        '@middlewares': join(__dirname, 'src/middlewares'),
       }
     },
     server: {

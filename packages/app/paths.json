@@ -25,7 +25,11 @@
       "@modules/*": ["src/renderer/src/modules/*"],
       "@modules": ["src/renderer/src/modules/index.ts"],
       "@views/*": ["src/renderer/src/views/*"],
-      "@views": ["src/renderer/src/views/index.ts"]
+      "@views": ["src/renderer/src/views/index.ts"],
+      "@stitched/*": ["src/renderer/src/stitched/*"],
+      "@stitched": ["src/renderer/src/stitched/index.ts"],
+      "@middlewares/*": ["src/renderer/src/middlewares/*"],
+      "@middlewares": ["src/renderer/src/middlewares/index.ts"]
     }
   }
 }
