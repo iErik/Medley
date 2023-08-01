@@ -1,18 +1,32 @@
 import 'overlayscrollbars/overlayscrollbars.css'
-
-export { default as globalStyles } from './global'
-export {
-  styled as stitch,
-  keyframes
-} from './stitched'
-
-
+import { createStitches } from '@stitches/react'
 import { utils } from '@ierik/react-generics'
 import config from './config'
 
+export * from '@ierik/react-generics'
+
+// -> CSS Helpers Exports
+// ----------------------
+
 export { config }
+export { default as globalStyles } from './global'
+export { globalConfig } from './global'
+export {
+  styled as stitch,
+  keyframes,
+  globalCss
+} from './stitched'
+
+// -> General utils
+// ----------------
+
+export const extendObj = utils.extendObj
+
 export const extendConfig = (theme: Record<string, any>) =>
   utils.extendObj(config, theme)
+
+export const mkStitches = (config: Record<string, any>) =>
+  createStitches(extendConfig(config))
 
 // -> Type Exports
 // ---------------
