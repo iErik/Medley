@@ -3,8 +3,6 @@ import { memo } from 'react'
 import { Panel } from '@ierik/medley-components'
 import { styled } from '@/stitches.config'
 
-import { OpMember, MappedGroup } from '@store/chat'
-
 // -> Elements
 // -----------
 
@@ -73,10 +71,13 @@ const PanelBody = styled(Panel.Body, {
 // -> Types
 // --------
 
+// Temporary types
 type MemberPanelProps = JSX.IntrinsicAttributes & {
-  group: MappedGroup
+  group: Record<string, any>
   css?: Record<string, any>
 }
+
+type OpMember = Record<string, any>
 
 // -> Component Export
 // -------------------
