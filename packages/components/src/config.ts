@@ -32,7 +32,7 @@ export default {
 
     fonts: {
       mono: 'Share Tech Mono, monospace',
-      sans: 'sans-serif',
+      sans: 'Chillax',
       serif: 'serif',
 
       decorative: '$mono'
