@@ -4,6 +4,7 @@ export as namespace RevoltAPI
 // -> Imports
 // ----------
 
+import * as Common from './Common'
 import * as Chat from './Chat'
 import * as User from './User'
 import * as Emoji from './Emoji'
@@ -20,6 +21,7 @@ import * as Events from './Bonfire/Events'
 
 declare namespace RevoltAPI {
   export {
+    Common,
     Chat,
     User,
     Emoji,
