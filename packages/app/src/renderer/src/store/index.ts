@@ -7,6 +7,12 @@ import {
 
 import createSagaMiddleware from 'redux-saga'
 import logger from 'redux-logger'
+import serializer from '@middlewares/serializer'
+
+import {
+  loadSerializedStore,
+  hasPreloadedState
+} from '@utils/redux'
 
 import rootSaga from '@store/rootSaga'
 import userReducer from '@store/user'
@@ -24,8 +30,13 @@ const store = configureStore({
 
   middleware: [
     sagaMiddleware,
+    serializer,
     logger
   ],
+
+  ...(hasPreloadedState()
+     ? { preloadedState: loadSerializedStore() }
+     : {}),
 
   devTools: true
 })
