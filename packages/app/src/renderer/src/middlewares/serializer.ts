@@ -1,9 +1,8 @@
 import { serializeStore } from '@utils/redux'
 
-const gatewayMid = store => next => action => {
+const serialize = store => next => action => {
   serializeStore(store.getState())
-
   next(action)
 }
 
-export default gatewayMid
+export default serialize
