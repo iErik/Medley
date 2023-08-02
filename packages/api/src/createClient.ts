@@ -88,7 +88,7 @@ const createClient = (options: ClientOptions = {}) => {
 
   const setContext = (context: ContextPartial) => {
     Object.entries(context).forEach(([ key, value ]) => {
-      const currentValue = clientContext[key]
+      const currentValue = clientContext[key as keyof ClientContext]
 
       if (isType(currentValue, 'Object')) deepMerge(
         ((clientContext as Record<string, any>)[key] || {}),
@@ -100,7 +100,7 @@ const createClient = (options: ClientOptions = {}) => {
     if (options?.cache) cacheContext(clientContext)
   }
 
-  return {
+  const boundClient = {
     bonfire: Bonfire(clientContext, setContext),
     delta: Object
       .entries(delta)
@@ -109,6 +109,16 @@ const createClient = (options: ClientOptions = {}) => {
         [key]: value(clientContext, setContext)
       }), {})
   }
+
+  console.log({ clientContext })
+
+  if (
+    options?.autoConnect &&
+    clientContext?.token &&
+    clientContext?.socket?.connect
+  ) clientContext?.socket?.connect()
+
+  return boundClient
 }
 
 export default createClient
