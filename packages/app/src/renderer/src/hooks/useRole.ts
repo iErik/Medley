@@ -1,15 +1,14 @@
 import { useSelector } from '@store'
 
 const useRole = (roleId: string) => {
-  const activeChannel = useSelector(state =>
-    state.chat.activeChannel)
-  const { guildId } = activeChannel || {}
+  const activeServer = useSelector(state =>
+    state.chat.activeServer)
 
-  if (!guildId) return null
+  if (!activeServer) return null
 
   const guild = useSelector(state =>
-    state.chat.guilds.find(g => g?.id === guildId))
-  const role = guild?.roles?.find(r => r?.id === roleId)
+    state.chat.servers.find(g => g?._id === activeServer))
+  const role = (guild?.roles || {})[roleId]
 
   return role
 }
