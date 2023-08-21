@@ -1,10 +1,11 @@
 import { useSelector } from '@store'
 import { useEffect, useRef, memo } from 'react'
+import { decodeTime } from 'ulid'
 
 import { Wrapper, ScrollView } from '@ierik/medley-components'
-import { Chat } from '@ierik/discordance-api'
+import { Chat } from '@ierik/revolt'
 
-import { styled } from '@/stitches.config'
+import { styled } from '@stitched'
 import ChatMessage from './fragments/Message'
 import ChatHeader from './fragments/Header'
 
@@ -19,7 +20,7 @@ type ClumpedMessageContent = {
 }
 
 interface ClumpedMessage extends Omit<
-  Chat.ChatMessage,
+  Chat.RevoltMessage,
   'content'
 > { content: ClumpedMessageContent[] }
 
@@ -32,24 +33,24 @@ const lastItem = (list: Array<any>) =>
   (list || [])[(list?.length || 0) - 1]
 
 const timeLimitCheck = (
-  msg: Chat.ChatMessage,
+  msg: Chat.RevoltMessage,
   msgClump: ClumpedMessage
 ) => {
-  const msgTime = new Date(msg?.timestamp).getTime()
+  const msgTime = new Date(decodeTime(msg?._id)).getTime()
   const previousMsg = msgClump.content[0]
-  const previousTime = new Date(previousMsg.timestamp)
+  const previousTime = new Date(decodeTime(previousMsg._id))
     .getTime()
 
   return (msgTime - previousTime) < clumpTimeLimit
 }
 
 const authorCheck = (
-  msg: Chat.ChatMessage,
+  msg: Chat.RevoltMessage,
   lastMsg: ClumpedMessage
-): boolean => lastMsg?.author?.id === msg?.author?.id
+): boolean => lastMsg?.author === msg?.author
 
 const shouldClump = (
-  msg: Chat.ChatMessage,
+  msg: Chat.RevoltMessage,
   lastMsg: ClumpedMessage
 ) =>
   lastMsg
@@ -57,17 +58,17 @@ const shouldClump = (
   && timeLimitCheck(msg, lastMsg)
 
 const clumpContent = (
-  message: Chat.ChatMessage
+  message: Chat.RevoltMessage
 ): ClumpedMessageContent => ({
-  id: message.id,
-  key: `${message.id}-${message.timestamp}`,
-  text: message.content,
-  timestamp: message.timestamp
+  id: message._id,
+  key: message._id,
+  text: message.content || '',
+  timestamp: new Date (decodeTime(message._id)).getTime()
 })
 
 const mapMessage = (
-  message: Chat.ChatMessage,
-  subMessage?: Chat.ChatMessage
+  message: Chat.RevoltMessage,
+  subMessage?: Chat.RevoltMessage
 ) => ({
   ...message,
   content: [
@@ -84,10 +85,10 @@ const mapMessage = (
  *
  */
 const clumpMessages = (
-  messages: Chat.ChatMessage[]
+  messages: Chat.RevoltMessage[]
 ): ClumpedMessage[] => (messages || []).reduce((
   acc: ClumpedMessage[],
-  msg: Chat.ChatMessage
+  msg: Chat.RevoltMessage
 ) => {
   if (lastItem(acc) && shouldClump(msg, lastItem(acc))) {
     acc[acc.length - 1] = mapMessage(lastItem(acc), msg)
@@ -125,18 +126,18 @@ const ChatWindow = (props: JSX.IntrinsicAttributes) => {
   const activeChannelId = useSelector(state =>
     state.chat.activeChannel?.id)
 
-  const channels = useSelector(state => state.chat.guilds
+  const channels = useSelector(state => state.chat.servers
     .flatMap(g => g.categories)
-    .flatMap(c => c.children))
+    .flatMap(c => c.channels))
 
-  const activeChannel = channels.find(({ id }) =>
-    id === activeChannelId)
+  const activeChannel = channels.find(({ _id }) =>
+    _id === activeChannelId)
 
   const messages =
     clumpMessages(activeChannel?.messages || [])
       ?.map((message: ClumpedMessage) =>
         <ChatMessage
-          key={message?.id}
+          key={message?._id}
           message={message}
         />)
 
@@ -160,7 +161,7 @@ const ChatWindow = (props: JSX.IntrinsicAttributes) => {
       { activeChannelId &&
         <ChatHeader
           channelName={activeChannel?.name || ''}
-          channelDescription={activeChannel?.topic || ''}
+          channelDescription={activeChannel?.description || ''}
         />
       }
 
