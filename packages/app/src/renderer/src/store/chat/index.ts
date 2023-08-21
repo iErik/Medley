@@ -2,21 +2,32 @@ import { createReducer } from '@utils/redux'
 import { getAssetUrl } from '@ierik/revolt'
 import type { Common, Chat, Events } from '@ierik/revolt'
 
-
-// -> Type Aliases
-// ---------------
-
 // -> Types
 // --------
 
-type MappedAsset = Common.Asset & {
+export type MappedAsset = Common.Asset & {
   src: string
 }
 
-type MappedServer = Chat.RevoltServer & {
-  channels: Chat.RevoltChannel
-  icon: MappedAsset
+type MappedChannel = Chat.RevoltChannel & {
+
 }
+
+type MappedCategory = Omit<Chat.ServerCategory,
+  'channels'
+> & {
+  channels: Array<MappedChannel>
+}
+
+export type MappedServer = Omit<
+  Chat.RevoltServer,
+  'categories'
+  > & {
+  icon: MappedAsset
+  banner: MappedAsset
+  categories: Array<MappedCategory>
+}
+
 
 type ActiveChannel = {
   id: string
@@ -29,6 +40,7 @@ type ActiveChannel = {
 type ChatState = {
   isLoading: boolean
   activeChannel: ActiveChannel
+  activeServer: string | null
   privateMessages: any[]
   servers: MappedServer[]
 }
@@ -58,6 +70,8 @@ const initialState: ChatState = {
     messageCount: 0
   },
 
+  activeServer: null,
+
   privateMessages: [],
   servers: [],
 }
@@ -71,6 +85,11 @@ const {
     args: [ 'servers' ],
     handler: genericHandler
   },
+
+  setActiveServer: {
+    args: [ 'activeServer' ],
+    handler: genericHandler
+  }
 }, 'chat')
 
 // -> Types
@@ -88,8 +107,20 @@ const bonfireEvents = {
         ...(server?.icon || {}),
         src: getAssetUrl(server?.icon?.tag, server?.icon?._id)
       },
-      channels: server.channels.map(channel => data?.channels
-        ?.find(ch => ch._id === channel))
+      banner: {
+        ...(server?.banner || {}),
+        src: getAssetUrl(server?.banner?.tag, server?.banner?._id)
+      },
+      categories: server.categories?.map(category => ({
+        ...(category || {}),
+        channels: category?.channels
+          ?.map(channel => data?.channels
+            ?.find(ch => ch._id === channel))
+          // Some channels will not be found if the user doesn't
+          // have permission to see them, so they will be
+          // undefined, we have to filter that out.
+          ?.filter(channel => !!channel)
+      }))
     }))
 
     return [ actions.setServers(servers) ]

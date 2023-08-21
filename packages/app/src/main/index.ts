@@ -35,9 +35,11 @@ async function createWindow() {
     show: false,
     frame: false,
     transparent: true,
+    hasShadow: true,
 
     webPreferences: {
       //preload: join(__dirname, '../preload/index.cjs'),
+      experimentalFeatures: true,
       sandbox: false,
     }
   })

@@ -6,6 +6,7 @@ import {
 
 import App from './App'
 import Home from '@views/Home'
+import ServerView from '@views/ServerView'
 
 import Unauthenticated from '@views/Unauthenticated/Main'
 import LoginForm from '@views/Unauthenticated/LoginForm'
@@ -21,6 +22,11 @@ export default () =>
     <Routes>
       <Route path="/" element={<App />}>
         <Route index element={<Home />} />
+
+        <Route
+          path="servers/:serverId/:channelId?"
+          element={<ServerView />}
+        />
 
         <Route path="/auth" element={<Unauthenticated />}>
           <Route index element={<LoginForm />} />

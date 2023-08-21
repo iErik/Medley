@@ -1,6 +1,5 @@
 import { createReducer } from '@utils/redux'
-import { bonfire } from '@/revolt'
-import type { Chat, Events } from '@ierik/revolt'
+import type { User, Common } from '@ierik/revolt'
 
 // -> Type Aliases
 // ---------------
@@ -8,10 +7,25 @@ import type { Chat, Events } from '@ierik/revolt'
 // -> Types
 // --------
 
+type MappedUser = Omit<User.RevoltUser,
+  'avatar' | 'profile'
+> & {
+  avatar: Common.Asset & { src: string }
+  profile: Omit<User.UserProfile, 'background'> & {
+    background: Common.Asset & { src: string }
+  }
+}
+
+type UserMention = {
+  id: string
+  loading: boolean
+  user: MappedUser | null
+
+}
 
 type GlobalState = {
   isLoading: boolean
-  //userMentions: UserMention[]
+  userMentions: UserMention[]
   users: any
 }
 
@@ -20,7 +34,7 @@ type GlobalState = {
 
 const initialState: GlobalState = {
   isLoading: false,
-  //userMentions: [],
+  userMentions: [],
   users: {}
 }
 
@@ -29,26 +43,28 @@ const {
   actions,
   rootReducer
 } = createReducer<GlobalState>(initialState, {
+  fetchUser: { args: [ 'userId' ] },
+
+  addMention: {
+    args: [ 'userId' ],
+    handler: (
+      state: GlobalState,
+      { userId }
+    ) => {
+      const mentionExists = !!state.userMentions
+        .find(user => user.id === userId)
+
+      if (!mentionExists) state.userMentions.push({
+        id: userId,
+        loading: true,
+        user: null
+      })
+    }
+  },
 })
-
-// -> Mappers
-// ----------
-
-const mapServerChannels = (
-  { servers, channels }: Events.ReadyEvent
-) =>
-  servers.map((server) => ({
-    ...server,
-    channels: server.channels.map(channel => channels
-      .find(ch => ch._id === channel))
-  }))
 
 // -> WS Event Handlers
 // --------------------
-
-bonfire.onEvent('Ready', (data: Events.ReadyEvent) => {
-  console.log('Ready: ', { data })
-})
 
 export { actions, types }
 export default rootReducer

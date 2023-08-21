@@ -1,5 +1,6 @@
-import { Guild } from '@ierik/discordance-api'
 import { useRole, useChannel, useUser } from '@hooks'
+
+import { Chat } from '@ierik/revolt'
 
 import {
   Bold,
@@ -12,7 +13,7 @@ import {
   Channel,
 } from './elements'
 
-const ENV = __APP_ENV__
+// const ENV = __APP_ENV__
 
 // -> Types
 // --------
@@ -46,9 +47,9 @@ interface RoleToken extends ProtoToken {
 
 interface ChannelToken extends ProtoToken {
   channelId: string
-  guildId: string
+  serverId: string
   name: string
-  type: Guild.ChannelType | null
+  type: Chat.ChannelType | null
   exists: boolean
   unread: boolean
   kind: TokenType.Channel
@@ -180,7 +181,7 @@ export const emojiExtractor = (
   const animated = /^<a:/.test(token)
   const format = animated ? '.gif' : '.webp'
   const src = [
-    `${ENV.DISCORD_CDN}/emojis/${id}`,
+    //`${ENV.DISCORD_CDN}/emojis/${id}`,
     `${format}?size=96&quality=lossless`
   ].join('')
 
@@ -241,9 +242,9 @@ export const roleExtractor = (token: string): RoleToken => {
 
   return {
     roleId,
-    exists: !!role?.id,
+    exists: !!role,
     name: role?.name || '',
-    color: role?.color || '',
+    color: role?.colour || '',
     kind: TokenType.Role
   }
 }
@@ -255,9 +256,9 @@ export const mentionExtractor = (token: string): MentionToken => {
   return {
     exists: !user?.loading && !!user?.id,
     loading: !!user?.loading,
-    name: user?.username || '',
-    avatar: user?.avatar_src || '',
-    banner: user?.banner || '',
+    name: user?.user?.username || '',
+    avatar: user?.user?.avatar?.src || '',
+    banner: user?.user?.profile?.background?.src || '',
     kind: TokenType.Mention
   }
 }
@@ -268,10 +269,10 @@ export const channelExtractor = (token: string): ChannelToken => {
 
   return {
     channelId,
-    exists: !!channel?.id,
-    guildId: channel?.guild_id || '',
+    exists: !!channel?._id,
+    serverId: channel?.server || '',
     name: channel?.name || '',
-    type: channel?.type || null,
+    type: channel?.channel_type || null,
     unread: !!channel?.unread,
     kind: TokenType.Channel
   }
