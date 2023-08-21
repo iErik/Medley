@@ -18,6 +18,15 @@ export enum UserPresence {
   Invisible = 'Invisible'
 }
 
+export enum FieldsUser {
+  Avatar            = 'Avatar',
+  StatusText        = 'StatusText',
+  StatusPresence    = 'StatusPresence',
+  ProfileContent    = 'ProfileContent',
+  ProfileBackground = 'ProfileBackground',
+  DisplayName       = 'DisplayName'
+}
+
 export type UserRelation = {
   _id: string
   status: RelationshipType
