@@ -1,12 +1,12 @@
 import { useSelector } from '@store'
 
 const useChannel = (channelId: string) => {
-  const channels = useSelector(state => state.chat.guilds
+  const channels = useSelector(state => state.chat.servers
     .flatMap(g => g.categories)
-    .flatMap(c => c.children))
+    .flatMap(c => c.channels))
 
   const channel = channels.find(channel =>
-    channel.id === channelId)
+    channel._id === channelId)
 
   return channel
 }
