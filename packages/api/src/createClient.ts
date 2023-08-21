@@ -26,8 +26,13 @@ type ClientOptions = {
 }
 
 /**
- * @param options.cache
- * @param options.autoConnect
+ * @param options.cache - Makes it so the clientContext state
+ * object gets saved onto the localStorage after every change
+ * and such state is also recovered when the client is re-created
+ *
+ * @param options.autoConnect - Will attempt to initiate the
+ * bonfire websocket connection whenever the user authetication
+ * token becomes available in the clientContext
  *
  * @returns
  */
