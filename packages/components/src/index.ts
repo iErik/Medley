@@ -22,11 +22,15 @@ export {
 
 export const extendObj = utils.extendObj
 
-export const extendConfig = (theme: Record<string, any>) =>
-  utils.extendObj(config, theme)
+export const extendConfig = (theme: Record<string, any>) => {
+  const mergedConfig = utils.extendObj(config, theme)
+  return utils.extendConfig(mergedConfig)
+}
 
-export const mkStitches = (config: Record<string, any>) =>
-  createStitches(extendConfig(config))
+export const mkStitches = (config: Record<string, any>) => {
+  const result = extendConfig(config)
+  return createStitches(result)
+}
 
 // -> Type Exports
 // ---------------
