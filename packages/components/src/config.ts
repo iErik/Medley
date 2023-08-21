@@ -23,6 +23,7 @@ export default {
       fg80: toRgba('#FFFFFF', .8) as string,
       fg90: toRgba('#FFFFFF', .9) as string,
 
+      bgLight: '#15181F',
       bgBase: '#141720',
       bgDark: '#101218',
     },
