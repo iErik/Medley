@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@store'
 
 export default function useAction (action: Function): Function {
   const dispatch = useDispatch()
