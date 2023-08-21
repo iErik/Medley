@@ -42,7 +42,10 @@ const mkBgStyles = (backgroundUrl: string) => ({
   backgroundImage: `url(${backgroundUrl})`,
 })
 
-const ServerBtn = (props: { background: string }) => {
+const ServerBtn = (props: {
+  background: string,
+  onClick: Function
+}) => {
   const ServerBtnEl = styled('div', {
     width: 45,
     height: 45,
@@ -67,7 +70,7 @@ const ServerBtn = (props: { background: string }) => {
 
       filter: 'blur(10px) opacity(.8)',
 
-      top: 10,
+      top: 6,
       left: '50%',
       // translate3d is to stop GIF's from beind deformed
       transform: 'translate3d(1px, 1px, 1px) translateX(-50%)',
@@ -102,7 +105,7 @@ const ServerBtn = (props: { background: string }) => {
   })
 
 
-  return <ServerBtnEl />
+  return <ServerBtnEl onClick={props?.onClick} />
 }
 
 const GuildsContainer = styled(Flexbox, {
@@ -118,7 +121,9 @@ const GuildsContainer = styled(Flexbox, {
   }
 })
 
-const Header = () => {
+const Header = ({
+  onSelectServer
+}: { onSelectServer: Function }) => {
   const authState = useSelector(state => state.user.authState)
   const servers = useSelector(state => state?.chat?.servers)
   const isAuthenticated = authState === AuthState.Authenticated
@@ -127,6 +132,9 @@ const Header = () => {
     <ServerBtn
       key={server?._id}
       background={server?.icon?.src}
+      onClick={onSelectServer
+        ? onSelectServer.bind(null, server)
+        : null}
     />)
 
   return (
