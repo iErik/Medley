@@ -96,12 +96,16 @@ export const mkSlimRequest = (
 
 interface HttpFn {
   post: SlimRequestFn
+  put: SlimRequestFn
   get: SlimRequestFn
   delete: SlimRequestFn
+  patch: SlimRequestFn
 }
 
 export default {
   get: mkSlimRequest('GET'),
   post: mkSlimRequest('POST'),
+  put: mkSlimRequest('PUT'),
   delete: mkSlimRequest('DELETE'),
+  patch: mkSlimRequest('PATCH'),
 } as HttpFn
