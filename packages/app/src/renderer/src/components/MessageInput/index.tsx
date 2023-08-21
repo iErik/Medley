@@ -1,5 +1,5 @@
 import { ReactEditor } from 'slate-react'
-import { styled } from '@/stitches.config'
+import { styled } from '@stitched'
 import Editor from './Editor'
 
 // -> Elements

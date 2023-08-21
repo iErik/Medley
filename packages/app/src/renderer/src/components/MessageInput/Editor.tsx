@@ -29,7 +29,7 @@ import {
 
 import * as parser from '@parser'
 
-import { styled } from '@/stitches.config'
+import { styled } from '@stitched'
 
 // -> Types
 // --------
