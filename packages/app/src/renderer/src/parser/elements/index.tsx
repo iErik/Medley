@@ -4,7 +4,7 @@ import type {
 } from 'react'
 
 import { useState } from 'react'
-import { styled } from '@/stitches.config'
+import { styled } from '@/stitched'
 
 // We have to wrap Stitches components otherwise
 // typescript gets really confused about their typing
