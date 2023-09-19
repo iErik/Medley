@@ -1,4 +1,5 @@
 import http from '@utils/http'
+import { withQueryParams } from '@utils/queryParams'
 
 import type {
   ClientContext,
@@ -6,6 +7,104 @@ import type {
 } from '@typings/Client'
 
 import { ServiceReturn } from '@typings/Delta'
+
+import type {
+  RevoltChannel,
+  ChannelInvite,
+  RevoltMessage
+} from '@typings/Chat'
+
+// -> Types
+// --------
+
+type RemoveArg = 'Description' | 'Icon' | 'DefaultPermissions'
+
+type EditChannelParams = {
+  /**
+   * Channel name ([ 1 .. 32 ] characters)
+   */
+  name: string | null
+
+  /**
+   * Channel description ([ 0 .. 1024 ] characters)
+   */
+  description: string | null
+
+  /**
+   * Group owner
+   */
+  owner: string | null
+
+  /**
+   * The icon. Provide an Autumn attachment ID
+   * ([ 1 .. 128 ] characters)
+   */
+  icon: string | null
+
+  /**
+   * Whether this channel is age-restricted
+   */
+  nsfw: boolean | null
+
+  /**
+   * Whether this channel is archived
+   */
+  archived: boolean | null
+
+  /**
+   * Array of strings (FieldsChannel) [????]
+   */
+  remove: RemoveArg[] | null
+}
+
+type GetMessagesQueryParams = {
+  /**
+   * Maximum number of messages to fetch [1..100]
+   * For fetching nearby messages, this is (limit + 1)
+   */
+  limit: number | null
+
+  /**
+   * Message ID before which messages should be fetched
+   * = 26 characters
+   */
+  before: string | null
+
+  /**
+   * Message ID after which messages should be fetched
+   * = 26 characters
+   */
+  after: string | null
+
+  /**
+   * Message sort direction
+   */
+  sort: 'Relevance' | 'Latest' | 'Oldest'
+
+  /**
+   * Message ID to search around
+   *
+   * Specifying 'nearby' ignores 'before', 'after' and 'sort'.
+   * It will also take half of limite rounded as the limits
+   * to each side. It also fetches the message ID specified.
+   */
+  nearby: string | null
+
+  /**
+   * Whether to include user (and member, if server channel)
+   * objects
+   */
+  include_users: boolean | null
+}
+
+type GetMessagesResponse = RevoltMessage[] | {
+  messages: RevoltMessage[]
+  users: Array<Record<string, any>>
+  members: Array<Record<string, any>>
+}
+
+// -> Module definition
+// --------------------
 
 const DeltaChannels = (
   _: ClientContext,
@@ -15,29 +114,41 @@ const DeltaChannels = (
   // -> Channel information
   // ----------------------
 
-  // Returns channel object
+  /**
+   * Fetch channel by its id.
+   */
   const getChannel = async (
     channelId: string
-  ): ServiceReturn<any> => {
+  ): ServiceReturn<RevoltChannel> => {
     const [ err, data ] = await http.get(`channels/${channelId}`)
     return [ err, data ]
   }
 
+  /**
+   * Deletes a server channel, leaves a group or closes a group.
+   *
+   * @param queryParams.leave_silently - Whether or not to send
+   * a leave message
+   */
   const closeChannel = async (
-    channelId: string
+    channelId: string,
+    queryParams?: { leave_silently?: boolean }
   ): ServiceReturn<null> => {
-    const [ err, data ] = await http
-      .delete(`channels/${channelId}`)
+    const [ err, data ] = await http.delete(withQueryParams(
+      `channels/${channelId}`, queryParams || {}))
 
     return [ err, data ]
   }
 
+  /**
+   * Edit a channel object by its id.
+   */
   const editChannel = async (
     channelId: string,
-    params: any
-  ) => {
+    params: EditChannelParams
+  ): ServiceReturn<RevoltChannel> => {
     const [ err, data ] = await http
-      .patch(`channels/${channelId}`)
+      .patch(`channels/${channelId}`, params)
 
     return [ err, data ]
   }
@@ -45,9 +156,13 @@ const DeltaChannels = (
   // -> Channel invites
   // ------------------
 
+  /**
+   * Creates an invite to this channel. Channel must be a
+   * TextChannel type.
+   */
   const createInvite = async (
     channelId: string
-  ): ServiceReturn<object> => {
+  ): ServiceReturn<ChannelInvite> => {
     const [ err, data ] = await http
       .post(`channels/${channelId}/invites`)
 
@@ -92,10 +207,11 @@ const DeltaChannels = (
 
   const getMessages = async (
     channelId: string,
-    params: Record<string, any>
-  ): ServiceReturn<Record<string, any>> => {
-    const [ err, data ] = await http
-      .get(`channels/${channelId}/messages`)
+    queryParams: GetMessagesQueryParams
+  ): ServiceReturn<GetMessagesResponse> => {
+    const [ err, data ] = await http.get(withQueryParams(
+      `channels/${channelId}/messages`,
+      queryParams))
 
     return [ err, data ]
   }
