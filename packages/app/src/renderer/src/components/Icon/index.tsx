@@ -1,4 +1,4 @@
-import { styled } from '@/stitches.config'
+import { styled } from '@stitched'
 import * as icons from '@static/icons'
 
 // -> Types

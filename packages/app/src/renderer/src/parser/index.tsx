@@ -1,4 +1,5 @@
-import { useRole, useChannel, useUser } from '@hooks'
+import { useRole } from '@hooks'
+import { useChannel, useUser } from '@store/chat'
 
 import { Chat } from '@ierik/revolt'
 
@@ -65,9 +66,7 @@ interface TextToken extends ProtoToken {
 }
 
 interface EmojiToken extends ProtoToken {
-  name: string
   id: string
-  animated: boolean
   jumboable: boolean
   src: string
   size: number
@@ -89,10 +88,11 @@ type ExtractorOptions = {
 // -> Regular expressions
 // ----------------------
 
-export const emojiRegex = '<a?:\\w+:\\d+>'
+export const emojiRegex = ':\\w+:'
 export const roleRegex = '<@&\\d+>'
-export const mentionRegex = '<@\\d+>'
-export const channelRegex = '<#\\d+>'
+export const mentionRegex = '<@.+>'
+//export const channelRegex = '<#([A-Z0-9])+>'
+export const channelRegex = '<#.+>'
 
 // -> Text Regexes
 // ---------------
@@ -175,23 +175,15 @@ export const emojiExtractor = (
     return regex.test(token)
   }
 
-  const id = token.match(/^<a?:.+:(\d+)>/)?.[1]  || ''
-  const name = token.match(/^<a?:(.+):/)?.[1] || ''
+  const id = token.replace(/:/g, '')
   const jumboable = origin.every(isEmojiToken)
-  const animated = /^<a:/.test(token)
-  const format = animated ? '.gif' : '.webp'
-  const src = [
-    //`${ENV.DISCORD_CDN}/emojis/${id}`,
-    `${format}?size=96&quality=lossless`
-  ].join('')
+  const src = `https://autumn.revolt.chat/emojis/${id}`
 
   const size = jumboable ? 60 : 22
 
   return {
     id,
-    name,
     jumboable,
-    animated,
     src,
     size,
     kind: TokenType.Emoji as TokenType.Emoji,
@@ -250,7 +242,7 @@ export const roleExtractor = (token: string): RoleToken => {
 }
 
 export const mentionExtractor = (token: string): MentionToken => {
-  const userId = token.replace(/\D+/g, '')
+  const userId = token.match(/([A-Z0-9])+/)?.[0] || ''
   const user = useUser(userId)
 
   return {
@@ -264,7 +256,7 @@ export const mentionExtractor = (token: string): MentionToken => {
 }
 
 export const channelExtractor = (token: string): ChannelToken => {
-  const channelId = token.replace(/\D+/g, '')
+  const channelId = token.match(/([A-Z0-9])+/)?.[0] || ''
   const channel = useChannel(channelId)
 
   return {
@@ -333,7 +325,7 @@ const parseEmoji = (token: EmojiToken) =>
     className="emoji"
     key={token.id + randomStr()}
     src={token.src}
-    alt={token.name}
+    alt={token.id}
     style={{ width: token.size, height: token.size }}
   />
 

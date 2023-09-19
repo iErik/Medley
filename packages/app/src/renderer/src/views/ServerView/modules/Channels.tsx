@@ -1,17 +1,21 @@
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSelector } from '@store'
+import { useAction } from '@hooks'
+import { useServer } from '@store/chat'
+
+import { actions } from '@store/chat'
 
 import ServerPanel from '@components/ServerPanel'
 
 const ChannelsContainer = () => {
-  const { serverId } = useParams()
-  const activeServer = useSelector(state => {
-    // If there's no server id, we should redirect instead
-    if (!serverId) return null
+  const selectChannel = useAction(actions.selectChannel)
+  const { serverId, channelId } = useParams()
+  const activeServer = useServer(serverId || '')
 
-    return state?.chat?.servers?.find(({ _id }) =>
-      _id === serverId)
-  })
+  useEffect(() => {
+    if (channelId) selectChannel(channelId)
+  }, [ channelId ])
 
   // Can it ever be really null?
   return activeServer

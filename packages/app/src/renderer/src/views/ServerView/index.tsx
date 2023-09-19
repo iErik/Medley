@@ -13,7 +13,7 @@ const ServerView = () => {
   return (
     <ViewContainer>
       <Channels />
-      <Chat />
+      <Chat css={{ width: '100%' }} />
       <Members />
     </ViewContainer>
   )

@@ -1,14 +1,18 @@
 import { useNavigate } from 'react-router-dom'
-import { Chat } from '@ierik/revolt'
 import { Text, ScrollView } from '@ierik/medley-components'
 import { styled } from '@stitched'
 
-import type { MappedServer, MappedAsset } from '@store/chat'
+import type {
+  PopulatedServer,
+  PopulatedCategory,
+  ServerChannel,
+  Asset
+} from '@store/chat'
 
 // -> Elements
 // -----------
 
-type ServerBannerProps = { banner: MappedAsset }
+type ServerBannerProps = { banner: Asset }
 const ServerBanner = ({ banner }: ServerBannerProps) => {
   const bgUrl = banner?.src || ''
 
@@ -108,19 +112,21 @@ const PanelWrapper = styled('div', {
 // -> Component
 // ------------
 
-type ServerPanelProps = { server: MappedServer }
+type ServerPanelProps = { server: PopulatedServer }
 const ServerPanel = ({ server }: ServerPanelProps) => {
+  const navigate = useNavigate()
 
-  const onChannelSelect = (channel: Chat.RevoltChannel) => {
-
+  const onChannelSelect = (channel: ServerChannel) => {
+    const { server, _id } = channel
+    navigate(`/servers/${server}/${_id}`)
   }
 
   const mapChannels = (
-    channels: Array<Record<string, any>>
+    channels: ServerChannel[]
   ) => channels.map(channel =>
     <ChannelWrapper
       key={channel._id}
-      onClick={onChannelSelect}
+      onClick={onChannelSelect.bind(null, channel)}
     >
       <ChannelName>
         { channel?.name }
@@ -129,7 +135,7 @@ const ServerPanel = ({ server }: ServerPanelProps) => {
   )
 
   const categories = server?.categories
-    ?.map((cat: Record<string, any>) =>
+    ?.map((cat: PopulatedCategory) =>
       <CategoryWrapper key={cat.id}>
         <CategoryNameWrapper>
           <CategoryName>

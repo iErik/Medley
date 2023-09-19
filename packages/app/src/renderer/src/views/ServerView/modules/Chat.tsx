@@ -1,18 +1,26 @@
 import { styled } from '@stitched'
 
+import ChatWindow from '@components/ChatWindow'
 import MessageInput from '@components/MessageInput'
 
 // -> Elements
 // -----------
 
-const ContainerEl = styled('div', {})
+const ContainerEl = styled('div', {
+  height: '100%',
+
+  [`& > ${MessageInput}`]: {
+    margin: '0 10px'
+  }
+})
 
 // -> Component
 // ------------
 
-const ChatContainer = () => {
+const ChatContainer = (props: JSX.IntrinsicAttributes) => {
   return (
-    <ContainerEl>
+    <ContainerEl {...props}>
+      <ChatWindow />
       <MessageInput />
     </ContainerEl>
   )
