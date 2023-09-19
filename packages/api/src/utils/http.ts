@@ -61,6 +61,7 @@ export const mkRequest =
     const headers = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      'x-session-token': getUserToken(),
       Authorization: getUserToken(),
       ...headerExtends
     }
