@@ -5,3 +5,8 @@ export const toQueryParams = (
     ? `?${key}=${value}`
     : `${acc}&${key}=${value}`
   , '')
+
+export const withQueryParams = (
+  url: string,
+  object: Record<string, any>
+) => `${url}${toQueryParams(object || {})}`
