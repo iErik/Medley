@@ -236,29 +236,29 @@ export type MessageWebhook = {
 
 export type RevoltMessage = {
   _id: string
-  nonce: string | null
   channel: string
   author: string
-  webhook: MessageWebhook
-  content: string | null
-  system: SystemEventMsg | null
-  attachments: Asset[] | null
+  nonce?: string | null
+  webhook?: MessageWebhook
+  content?: string | null
+  system?: SystemEventMsg | null
+  attachments?: Asset[] | null
   edited?: string | null
-  embeds: MessageEmbed[] | null
-  mentions: string[] | null
-  replies: string[] | null
+  embeds?: MessageEmbed[] | null
+  mentions?: string[] | null
+  replies?: string[] | null
 
   /**
    * Hashmap of emoji IDs to array of user IDs
    */
-  reactions: {
+  reactions?: {
     [emojiId: string]: string[]
   }
 
   /**
    * Information to guide interactions on this message
    */
-  interactions: {
+  interactions?: {
     /**
      * Reactions which should always appear and be distinct
      */
@@ -272,7 +272,7 @@ export type RevoltMessage = {
   /**
    * name and/or avatar override information
    */
-  masquerade: {
+  masquerade?: {
     name: string | null
     avatar: string | null
     colour: string | null
