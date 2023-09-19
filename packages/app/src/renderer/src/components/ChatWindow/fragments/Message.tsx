@@ -1,15 +1,18 @@
 import { memo } from 'react'
 import { useSelector } from '@store'
+import { useUser } from '@store/chat'
 
 import { Wrapper, Text }  from '@ierik/medley-components'
-import { styled } from '@/stitches.config'
+import { styled } from '@stitched'
 import parseMsg from '@parser'
+
+import type { ClumpedMessage } from './types'
 
 // -> Types
 // --------
 
 interface ChatMessageProps extends JSX.IntrinsicAttributes {
-  message: Record<string, any>
+  message: ClumpedMessage
 }
 
 type AuthorProps = {
@@ -62,6 +65,9 @@ const Author = ({
   )
 }
 
+// -> Message
+// ----------
+
 const MessageText = styled(Text, {
   fontFamily:    '$sans',
   whiteSpace:    'pre-wrap',
@@ -80,45 +86,20 @@ const MessageBox = styled('div', {
   padding: '8px 0',
 })
 
-// -> Message
-// ----------
-
 export const ChatMessage = ({
   message,
   ...props
 }: ChatMessageProps) => {
-  const authorId = message.author?.id
-  const guildId = message.guild_id
+  const { user } = useUser(message.author, message.serverId)
+  const { masquerade } = message
 
-  const author = useSelector(state =>
-    state.global.users[authorId])
-  const member = author?.mergedMembers?.[guildId]
+  const avatarSrc = masquerade?.avatar || user?.avatar?.src
+  const authorName = masquerade?.name || user?.username
+  const authorDiscriminator = user?.discriminator
 
-  const userRoles = useSelector(state => {
-    const guild = state.chat.guilds.find(guild =>
-      guild.id === guildId)
-    const roles = guild?.roles
-
-    return roles?.filter(role => member?.roles
-      ?.includes(role.id))
-  })
-
-  const avatarSrc = member?.avatar_src || author?.avatar_src
-  const authorName = member?.nick || author?.username
-  const authorDiscriminator = author?.discriminator
-
-  const color = userRoles?.reduce((colorRole, role) =>
-    role.color && role.position > colorRole.position
-      ? role
-      : colorRole, { position: 0 })?.color
-
-  if (!author) console.log({
-    author,
-    member,
-    authorId,
-    guildId,
-    message
-  })
+  if (!avatarSrc) {
+    console.log({ message, masquerade, user })
+  }
 
   const messageList = message?.content?.map(content =>
     <MessageText key={content.key}>
@@ -130,7 +111,7 @@ export const ChatMessage = ({
       <AuthorAvatar src={avatarSrc} />
 
       <Wrapper column>
-        <AuthorName css={{ color }} children={authorName} />
+        <AuthorName children={authorName} />
         <Wrapper column children={messageList} />
       </Wrapper>
     </MessageBox>

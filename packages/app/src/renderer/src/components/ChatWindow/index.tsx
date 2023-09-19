@@ -1,28 +1,17 @@
 import { useSelector } from '@store'
+import { useMessages, useChannel } from '@store/chat'
+import type { Message } from '@store/chat'
 import { useEffect, useRef, memo } from 'react'
-import { decodeTime } from 'ulid'
 
 import { Wrapper, ScrollView } from '@ierik/medley-components'
-import { Chat } from '@ierik/revolt'
-
 import { styled } from '@stitched'
+
+import type {
+  ClumpedMessageContent,
+  ClumpedMessage
+} from './types'
+
 import ChatMessage from './fragments/Message'
-import ChatHeader from './fragments/Header'
-
-// -> Types
-// --------
-
-type ClumpedMessageContent = {
-  id: string
-  text: string
-  key: string
-  timestamp: string
-}
-
-interface ClumpedMessage extends Omit<
-  Chat.RevoltMessage,
-  'content'
-> { content: ClumpedMessageContent[] }
 
 // -> Helpers
 // ----------
@@ -30,27 +19,26 @@ interface ClumpedMessage extends Omit<
 const clumpTimeLimit = 360000
 
 const lastItem = (list: Array<any>) =>
-  (list || [])[(list?.length || 0) - 1]
+  (list || [])[(list?.length || 1) - 1]
 
 const timeLimitCheck = (
-  msg: Chat.RevoltMessage,
+  msg: Message,
   msgClump: ClumpedMessage
 ) => {
-  const msgTime = new Date(decodeTime(msg?._id)).getTime()
+  const msgTime = msg.createdAt.getTime()
   const previousMsg = msgClump.content[0]
-  const previousTime = new Date(decodeTime(previousMsg._id))
-    .getTime()
+  const previousTime = previousMsg.createdAt.getTime()
 
   return (msgTime - previousTime) < clumpTimeLimit
 }
 
 const authorCheck = (
-  msg: Chat.RevoltMessage,
+  msg: Message,
   lastMsg: ClumpedMessage
 ): boolean => lastMsg?.author === msg?.author
 
 const shouldClump = (
-  msg: Chat.RevoltMessage,
+  msg: Message,
   lastMsg: ClumpedMessage
 ) =>
   lastMsg
@@ -58,17 +46,17 @@ const shouldClump = (
   && timeLimitCheck(msg, lastMsg)
 
 const clumpContent = (
-  message: Chat.RevoltMessage
+  message: Message,
 ): ClumpedMessageContent => ({
   id: message._id,
   key: message._id,
   text: message.content || '',
-  timestamp: new Date (decodeTime(message._id)).getTime()
+  createdAt: message.createdAt
 })
 
 const mapMessage = (
-  message: Chat.RevoltMessage,
-  subMessage?: Chat.RevoltMessage
+  message: Message,
+  subMessage?: Message
 ) => ({
   ...message,
   content: [
@@ -85,10 +73,10 @@ const mapMessage = (
  *
  */
 const clumpMessages = (
-  messages: Chat.RevoltMessage[]
+  messages: Message[]
 ): ClumpedMessage[] => (messages || []).reduce((
   acc: ClumpedMessage[],
-  msg: Chat.RevoltMessage
+  msg: Message
 ) => {
   if (lastItem(acc) && shouldClump(msg, lastItem(acc))) {
     acc[acc.length - 1] = mapMessage(lastItem(acc), msg)
@@ -121,36 +109,20 @@ const ChatContainer = styled(Wrapper, {
 // -------------------
 
 const ChatWindow = (props: JSX.IntrinsicAttributes) => {
-  const messageListRef = useRef<HTMLDivElement|null>(null)
+//  const messageListRef = useRef<HTMLDivElement|null>(null)
 
   const activeChannelId = useSelector(state =>
     state.chat.activeChannel?.id)
 
-  const channels = useSelector(state => state.chat.servers
-    .flatMap(g => g.categories)
-    .flatMap(c => c.channels))
+  //const activeChannel = useChannel(activeChannelId)
+  const messages = useMessages(activeChannelId)
 
-  const activeChannel = channels.find(({ _id }) =>
-    _id === activeChannelId)
-
-  const messages =
-    clumpMessages(activeChannel?.messages || [])
-      ?.map((message: ClumpedMessage) =>
-        <ChatMessage
-          key={message?._id}
-          message={message}
-        />)
-
-  useEffect(() => {
-    const refEl = messageListRef.current
-    if (!activeChannelId || !refEl) return
-
-    refEl.scrollTo({
-      top: refEl.scrollHeight,
-      left: 0,
-      behavior: 'instant' as ScrollBehavior
-    })
-  }, [ activeChannelId ])
+  const clumpedMessages = clumpMessages(messages || [])
+    ?.map((message: ClumpedMessage) =>
+      <ChatMessage
+        key={message?._id}
+        message={message}
+      />)
 
   return (
     <ChatContainer
@@ -158,15 +130,8 @@ const ChatWindow = (props: JSX.IntrinsicAttributes) => {
       column
       {...props}
     >
-      { activeChannelId &&
-        <ChatHeader
-          channelName={activeChannel?.name || ''}
-          channelDescription={activeChannel?.description || ''}
-        />
-      }
-
-      <MessageList ref={messageListRef}>
-        { messages }
+      <MessageList>
+        { clumpedMessages }
       </MessageList>
     </ChatContainer>
   )
