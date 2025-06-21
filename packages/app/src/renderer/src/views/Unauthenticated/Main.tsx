@@ -12,7 +12,7 @@ const Unauthenticated = () => {
         mono
         type="h2"
         css={{
-          marginTop: '300px',
+          marginTop: '200px',
           marginBottom: '50px',
         }}
       >

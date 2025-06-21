@@ -6,7 +6,7 @@ import store from '@store'
 import AppRoutes from './routes'
 import '@styles/index.scss'
 
-createRoot(document.getElementById('root'))
+createRoot(document.getElementById('root') as Element)
   .render(
     <StrictMode>
       <Provider store={store}>

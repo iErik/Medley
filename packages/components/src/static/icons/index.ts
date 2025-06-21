@@ -1,0 +1,6 @@
+export { ReactComponent as arrowDown } from './arrow-down.svg'
+export { ReactComponent as arrowLeft } from './arrow-left.svg'
+export { ReactComponent as arrowRight } from './arrow-right.svg'
+export { ReactComponent as arrowUp } from './arrow-up.svg'
+export { ReactComponent as channelAlt } from './channel-alt.svg'
+export { ReactComponent as channel } from './channel.svg'

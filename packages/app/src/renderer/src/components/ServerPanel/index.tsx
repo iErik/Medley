@@ -1,6 +1,11 @@
 import { useNavigate } from 'react-router-dom'
-import { Text, ScrollView } from '@ierik/medley-components'
+
 import { styled } from '@stitched'
+import {
+  Text,
+  Icon,
+  ScrollView
+} from '@ierik/medley-components'
 
 import type {
   PopulatedServer,
@@ -36,6 +41,9 @@ const ServerBanner = ({ banner }: ServerBannerProps) => {
 // -------
 
 const ChannelWrapper = styled('div', {
+  display: 'flex',
+  alignItems: 'center',
+
   padding: '8px 8px 8px 15px',
   borderRadius: 5,
 
@@ -45,6 +53,12 @@ const ChannelWrapper = styled('div', {
 
   '&:hover': {
     backgroundColor: '$bgLight'
+  },
+
+  [`& > ${Icon}`]: {
+    marginRight: 10,
+
+    'svg path': { fill: '$fg40' }
   }
 })
 
@@ -71,13 +85,23 @@ const CategoryWrapper = styled('div', {
 
 
 const CategoryNameWrapper = styled('div', {
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: 12,
+
+  [`& > ${Icon}`]: {
+    marginRight: 5
+  },
+
+  [`& > ${Icon} svg path`]: {
+    fill: '#4CB0E3'
+  }
 })
 
 const CategoryName = styled(Text, {
   fontFamily: '$decorative',
   color: '$fg40',
   fontSize: 16,
-  marginBottom: 12
 })
 
 // -> Wrapper/ChannelBox
@@ -128,6 +152,10 @@ const ServerPanel = ({ server }: ServerPanelProps) => {
       key={channel._id}
       onClick={onChannelSelect.bind(null, channel)}
     >
+      <Icon
+        icnName="channel"
+        size={15}
+      />
       <ChannelName>
         { channel?.name }
       </ChannelName>
@@ -138,6 +166,11 @@ const ServerPanel = ({ server }: ServerPanelProps) => {
     ?.map((cat: PopulatedCategory) =>
       <CategoryWrapper key={cat.id}>
         <CategoryNameWrapper>
+          <Icon
+            icnName="arrowRight"
+            size={10}
+          />
+
           <CategoryName>
             { cat?.title }
           </CategoryName>

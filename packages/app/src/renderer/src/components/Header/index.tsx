@@ -140,7 +140,7 @@ const Header = ({
   return (
     <Container
       vAlign="center"
-      hAlign="left"
+      hAlign={ isAuthenticated ? 'left' : 'center' }
     >
       { isAuthenticated &&
         <GuildsContainer
