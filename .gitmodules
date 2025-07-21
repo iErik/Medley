@@ -1,0 +1,3 @@
+[submodule "packages/react-generics"]
+	path = packages/react-generics
+	url = git@github.com:iErik/react-generics.git
