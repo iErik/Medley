@@ -11,7 +11,7 @@ let mainWindow = null
 
 const installExtensions = async () => {
   const options = {
-    forceDownload: false,
+    forceDownload: true,
     loadExtensionOptions: { allowFileAccess: true }
   }
 
@@ -24,8 +24,6 @@ const installExtensions = async () => {
 }
 
 async function createWindow() {
-  await installExtensions()
-
   mainWindow = new BrowserWindow({
     width: 580,
     height: 780,
@@ -71,6 +69,7 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  await installExtensions()
   createWindow()
 })
 

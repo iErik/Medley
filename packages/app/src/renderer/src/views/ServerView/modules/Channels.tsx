@@ -1,10 +1,9 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useSelector } from '@store'
-import { useAction } from '@hooks'
-import { useServer } from '@store/chat'
 
-import { actions } from '@store/chat'
+import { useServer, actions } from '@store/chat'
+import { useAction } from '@hooks'
+
 
 import ServerPanel from '@components/ServerPanel'
 

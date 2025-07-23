@@ -4,7 +4,7 @@ export * from './getters'
 export {
   actions,
   types,
-  bonfireEvents,
+  bonfireListeners,
   default
 } from './reducer'
 

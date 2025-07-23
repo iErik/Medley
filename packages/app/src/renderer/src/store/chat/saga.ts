@@ -29,23 +29,6 @@ function* onSelectChannel ({ args }: SelectChannelParams) {
   yield* put(actions.setLoadingChannel(false))
 }
 
-// -> onSetActiveServer
-// --------------------
-
-type SetActiveServerParams = ReduxAction<{
-  activeServer: string
-}>
-function* onSetActiveServer ({ args }: SetActiveServerParams) {
-  console.log({ args })
-  const [ , data ] = yield* call(
-    delta.servers.getMembers,
-    args?.activeServer
-  )
-
-  yield* put(actions.setMembers(data?.members))
-  yield* put(actions.setUsers(data?.users))
-}
-
 // -> onSendMsg
 // ------------
 
@@ -57,9 +40,6 @@ type SendMsgParams = ReduxAction<{
 function* onSendMsg ({ args }: SendMsgParams) {
 }
 
-console.log({ types })
-
 export default function* chatSaga () {
   yield* takeLatest(types.selectChannel, onSelectChannel)
-  yield* takeLatest(types.setActiveServer, onSetActiveServer)
 }

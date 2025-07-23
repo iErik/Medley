@@ -1,22 +1,27 @@
 import type { Asset } from "../Common"
 
-export enum RelationshipType {
-  None         = 'None',
-  User         = 'User',
-  Friend       = 'Friend',
-  Outgoing     = 'Outgoing',
-  Incoming     = 'Incoming',
-  Blocked      = 'Blocked',
-  BlockedOther = 'BlockedOther',
-}
+export const RelationshipTypeEnum = {
+  None:         'None',
+  User:         'User',
+  Friend:       'Friend',
+  Outgoing:     'Outgoing',
+  Incoming:     'Incoming',
+  Blocked:      'Blocked',
+  BlockedOther: 'BlockedOther',
+} as const
 
-export enum UserPresence {
-  Online    = 'Online',
-  Idle      = 'Idle',
-  Focus     = 'Focus',
-  Busy      = 'Busy',
-  Invisible = 'Invisible'
-}
+export type RelationshipType =
+  keyof typeof RelationshipTypeEnum
+
+export const UserPresenceEnum = {
+  Online:     'Online',
+  Idle:       'Idle',
+  Focus:      'Focus',
+  Busy:       'Busy',
+  Invisible:  'Invisible'
+} as const
+
+export type UserPresence = keyof typeof UserPresenceEnum
 
 export enum FieldsUser {
   Avatar            = 'Avatar',
@@ -33,8 +38,8 @@ export type UserRelation = {
 }
 
 export type UserStatus = {
-  text: string
-  presence: UserPresence
+  text?: string | null
+  presence?: UserPresence | null
 }
 
 export type UserProfile = {
@@ -46,16 +51,16 @@ export type RevoltUser = {
   _id: string
   username: string
   discriminator: string
-  display_name: string | null
-  avatar: Asset | null
-  relations: UserRelation[] | null
-  badges: number | null
-  status: UserStatus | null
-  profile: UserProfile | null
-  flags: number | null
-  privileged: boolean
-  bot: { owner: string } | null
-  relationship: RelationshipType | null
+  display_name?: string | null
+  avatar?: Asset | null
+  relations?: UserRelation[] | null
+  badges?: number | null
+  status?: UserStatus | null
+  profile?: UserProfile | null
+  flags?: number | null
+  privileged?: boolean
+  bot?: { owner: string } | null
+  relationship: RelationshipType
   online: boolean | null
 }
 

@@ -4,7 +4,7 @@ import { bonfire } from '@/revolt'
 
 import { Bonfire } from '@ierik/revolt'
 
-import { bonfireEvents as chatListeners } from '@store/chat'
+import { bonfireListeners as chatListeners } from '@store/chat'
 
 const useBonfire = () => {
   const dispatch = useDispatch()

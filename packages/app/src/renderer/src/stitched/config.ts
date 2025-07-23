@@ -1,6 +1,12 @@
 export default {
   theme: {
     colors: {
+      bg100: '#1A1D25',
+      bg200: '#1A1D25',
+      bg300: '#1A1D25',
+      bg400: '#1A1D25',
+      bg500: '#15181F',
+
       headerBgDark: '#101218',
       channelsPanelBgDark: '#101218',
 
@@ -11,8 +17,14 @@ export default {
     },
 
     sizes: {
+      serverBtn: '45px',
+      serverList: '55px',
       headerHeight: '70px',
       panelWidth: '230px'
+    },
+
+    space: {
+      serverListPad: '5px'
     },
 
     fontWeights: {
@@ -28,7 +40,8 @@ export default {
     },
 
     radii: {
-      panelBorderRadius: '10px'
+      panelBorderRadius: '10px',
+      baseRadius: '5px',
     }
   }
 }

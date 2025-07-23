@@ -8,6 +8,7 @@ import type {
   ClientContext,
 } from '@typings/Client'
 
+
 const deepMerge = (
   objA: Record<string, any>,
   objB: Record<string, any>
@@ -37,6 +38,7 @@ type ClientOptions = {
  * @returns
  */
 const createClient = (options: ClientOptions = {}) => {
+  // What is the return type?
   const getCache = () => {
     const serializedState = localStorage
       .getItem('revoltClientCtx' || 'null')
@@ -47,6 +49,8 @@ const createClient = (options: ClientOptions = {}) => {
       return parsedState
   }
 
+
+  // What does this do?
   const cacheContext = (context: ClientContext) => {
     const { socket: _, ...serializable } = context
     const savedState = localStorage

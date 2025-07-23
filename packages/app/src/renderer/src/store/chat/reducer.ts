@@ -1,8 +1,14 @@
 import { decodeTime } from 'ulid'
 
-import { createReducer } from '@utils/redux'
-import { getAssetUrl } from '@ierik/revolt'
-import type { Common, Chat, Events, User } from '@ierik/revolt'
+//import { createReducer } from '@utils/redux'
+import { createSlice } from '@utils/redux'
+import {
+  getAssetUrl,
+  type Common,
+  type Chat,
+  type Events,
+  type User
+} from '@ierik/revolt'
 
 // -> Types
 // --------
@@ -46,27 +52,21 @@ type ActiveChannel = {
 type ChatState = {
   activeChannel: ActiveChannel
   activeServer: string | null
-  privateMessages: PrivateChannel[]
-  servers: Server[]
-  channels: ServerChannel[]
-  members: Member[]
-  users: User.RevoltUser[]
+
+  // We should prolly keep all channels in a single
+  // collection, that way, whenever Channel events come
+  // through the WebSocket we don't have to guess in which
+  // collection the relevant channel is stored. Ideally we
+  // Channel collection should be flat
+  channels: Record<string, Channel>
+  servers: Record<string, Server>
 }
-
-type HandlerArgs = Record<string, any>
-
-// -> Helpers
-// ----------
-
-const genericHandler = <ChatState>(
-  state: ChatState,
-  args: HandlerArgs
-) => ({ ...state, ...args })
 
 // -> Store Definition
 // -------------------
 
 const initialState: ChatState = {
+  activeServer: null,
   activeChannel: {
     id: '',
     serverId: '',
@@ -75,105 +75,55 @@ const initialState: ChatState = {
     messageCount: 0
   },
 
-  activeServer: null,
-
-  privateMessages: [],
-  servers: [],
-  channels: [],
-  members: [],
-  users: []
+  channels: {},
+  servers: {},
 }
 
 const {
   types,
   actions,
   rootReducer
-} = createReducer<ChatState>(initialState, {
-  selectChannel: { args: [ 'channelId', 'serverId' ] },
+} = createSlice({
+  name: 'chat',
+  state: initialState,
+  reducers: {
+    setActiveServer(state, activeServer: string | null) {
+      state.activeServer = activeServer
+    },
 
-  setServers: {
-    args: [ 'servers' ],
-    handler: genericHandler
-  },
+    setServers(state, servers: Server[]) {
+      for (const server of servers) {
+        state.servers[server._id] = server
+      }
+    },
 
-  setChannels: {
-    args: [ 'channels' ],
-    handler: genericHandler
-  },
+    setChannels(state, channels: ServerChannel[]) {
+      for (const channel of channels) {
+        state.channels[channel._id] = channel
+      }
+    },
 
-  setActiveServer: {
-    args: [ 'activeServer' ],
-    handler: genericHandler
-  },
-
-  setUsers: {
-    args: [ 'users' ],
-    handler: (
-      state: ChatState,
-      { users }: { users: User.RevoltUser[] }
-    ) => {
-      state.users = [
-        ...state.users,
-        ...users.filter(({ _id }) =>
-          !state.users.find(u => u._id === _id))
-      ]
-    }
-  },
-
-  setMembers: {
-    args: [ 'members' ],
-    handler: (
-      state: ChatState,
-      { members }: { members: User.RevoltMember[] }
-    ) => {
-      state.members = [
-        ...state.members,
-        ...members
-          .filter(({ _id }) => {
-            const fullId = `${_id.server}-${_id.user}`
-            return !state.members.find(m => m.fullId === fullId)
-          })
-          .map(m => ({
-            ...m,
-            fullId: `${m._id.server}-${m._id.user}`
-          }))
-      ]
-    }
-  },
-
-  setActiveChannel: {
-    args: [ 'channelId', 'serverId' ],
-    handler: (
-      state: ChatState,
-      { channelId, serverId }: HandlerArgs
-    ) => {
+    setActiveChannel(
+      state,
+      channelId: string,
+      serverId: string
+    ) {
       state.activeChannel.id = channelId
       state.activeChannel.serverId = serverId
-    }
-  },
+    },
 
-  setLoadingChannel:  {
-    args: [ 'loading' ],
-    handler: (
-      state: ChatState,
-      { loading }: HandlerArgs
-    ) => {
+    setLoadingChannel(state, loading: boolean) {
       state.activeChannel.loading = loading
-    }
-  },
+    },
 
-  appendMessages: {
-    args: [ 'messages', 'serverId', 'channelId' ],
-    handler: (
-      state: ChatState,
-      { messages, serverId, channelId }: {
-        messages: Chat.RevoltMessage[]
-        serverId: string
-        channelId: string
-      }
-    ) => {
-      const channel = state.channels
-        ?.find(channel => channel._id === channelId)
+    appendMessages(
+      state,
+      messages: Chat.RevoltMessage[],
+      serverId: string,
+      channelId: string
+    ) {
+      console.log('STORE: APPENDING MESSAGES...')
+      const channel = state.channels[channelId]
 
       if (!channel) return
 
@@ -197,23 +147,32 @@ const {
       if (channelId === state.activeChannel.id)
         state.activeChannel.messageCount = channel.messages
           .length
+
+      console.log('STORE: MESSAGES APPENDED!')
     }
   },
-
-}, 'chat')
+  actions: {
+    selectChannel(channelId: string, serverId: string) {
+      return {
+        channelId,
+        serverId
+      }
+    }
+  },
+})
 
 // -> WS Event Handlers
 // --------------------
 
-const bonfireEvents = {
-  Ready: (data: Events.ReadyEvent) => {
-    console.log({ data })
-
+const bonfireListeners = {
+  Ready: (store, data: Events.ReadyEvent) => {
     const servers = data?.servers?.map(server => ({
       ...server,
       icon: {
         ...(server?.icon || {}),
-        src: getAssetUrl(server?.icon?.tag, server?.icon?._id)
+        src: server?.icon || server?.icon?._id
+          ? getAssetUrl(server?.icon?.tag, server?.icon?._id)
+          : null
       },
       banner: {
         ...(server?.banner || {}),
@@ -226,15 +185,13 @@ const bonfireEvents = {
 
     const channels = data?.channels?.map(channel => ({
       ...channel,
-      messages: []
+      messages: [] as Message[]
     }))
 
-    return [
-      actions.setServers(servers),
-      actions.setChannels(channels)
-    ]
+    store.dispatch(actions.setServers(servers))
+    store.dispatch(actions.setChannels(channels))
   }
 }
 
-export { actions, types, bonfireEvents }
+export { actions, types, bonfireListeners }
 export default rootReducer

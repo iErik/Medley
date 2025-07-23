@@ -10,4 +10,5 @@ export { ReactComponent as stickers } from './stickers.svg'
 export { ReactComponent as userProfile } from './user-profile.svg'
 export { ReactComponent as users } from './users.svg'
 export { ReactComponent as discordLogo } from './discord-logo.svg'
+export { ReactComponent as arrowSquareLeft } from './arrow-square-left.svg'
 

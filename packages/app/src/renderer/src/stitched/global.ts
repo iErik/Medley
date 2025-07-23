@@ -6,8 +6,8 @@ import {
 
 export default globalCss(extendObj(baseGlobalConfig, {
   'html, body, #root, #root > .app': {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10
+    //borderTopLeftRadius: 10,
+    //borderTopRightRadius: 10
   },
 }))
 

@@ -1,11 +1,13 @@
 import {
   call,
   put,
+  takeLatest,
   takeEvery,
   take,
   spawn
 } from 'typed-redux-saga'
 
+import { types as chatTypes } from '@store/chat'
 import { types, actions, AuthState } from '@store/user'
 import { delta, bonfire } from '@/revolt'
 
@@ -58,8 +60,10 @@ function* loginFlow () {
     const { args: { credentials } } = yield take(types.login)
     const { ticket } = yield call(loginHandler, credentials)
 
-    const { args: { code } } = yield take(types.mfa)
-    yield call(mfaHandler, code, ticket)
+    if (ticket) {
+      const { args: { code } } = yield take(types.mfa)
+      yield call(mfaHandler, code, ticket)
+    }
 
     yield take(types.logout)
   }
@@ -72,7 +76,28 @@ function* fetchUserData ({ args }: ReduxAction) {
   yield* call(bonfire.connect)
 }
 
+function* onSetActiveServer ({ args }: ReduxAction<{
+  activeServer: string
+}>) {
+  console.log('onSetActiveServer.start')
+  const [ , data ] = yield* call(
+    delta.servers.getMembers,
+    args?.activeServer
+  )
+
+  yield* put(actions.setMembers(data?.members))
+  yield* put(actions.setUsers(data?.users))
+  console.log('onSetActiveServer.end: ', {
+    data
+  })
+}
+
+
 export default function* userSaga() {
   yield spawn(loginFlow)
-  // yield takeEvery(types.authState, fetchUserData)
+
+  yield* takeLatest(
+    chatTypes.setActiveServer,
+    onSetActiveServer
+  )
 }

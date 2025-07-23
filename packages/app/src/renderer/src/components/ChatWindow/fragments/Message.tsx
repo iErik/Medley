@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { useSelector } from '@store'
-import { useUser } from '@store/chat'
+import { useUser } from '@store/user'
 
 import { Wrapper, Text }  from '@ierik/medley-components'
 import { styled } from '@stitched'
@@ -90,7 +90,11 @@ export const ChatMessage = ({
   message,
   ...props
 }: ChatMessageProps) => {
-  const { user } = useUser(message.author, message.serverId)
+  const { user } = useUser(
+    message.author,
+    message.serverId
+  )
+
   const { masquerade } = message
 
   const avatarSrc = masquerade?.avatar || user?.avatar?.src

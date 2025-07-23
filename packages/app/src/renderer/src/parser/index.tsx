@@ -1,6 +1,6 @@
 import { useRole } from '@hooks'
-import { useChannel, useUser } from '@store/chat'
-
+import { useChannel } from '@store/chat'
+import { useUser } from '@store/user'
 import { Chat } from '@ierik/revolt'
 
 import {

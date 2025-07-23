@@ -114,7 +114,6 @@ const ChatWindow = (props: JSX.IntrinsicAttributes) => {
   const activeChannelId = useSelector(state =>
     state.chat.activeChannel?.id)
 
-  //const activeChannel = useChannel(activeChannelId)
   const messages = useMessages(activeChannelId)
 
   const clumpedMessages = clumpMessages(messages || [])

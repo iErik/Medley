@@ -5,7 +5,8 @@ import {
 } from 'react-router-dom'
 
 import App from './App'
-import Home from '@views/Home'
+
+import Authenticated from '@views/Authenticated'
 import ServerView from '@views/ServerView'
 
 import Unauthenticated from '@views/Unauthenticated/Main'
@@ -21,10 +22,10 @@ export default () =>
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />}>
-        <Route index element={<Home />} />
+        <Route index element={<Authenticated />} />
 
         <Route
-          path="servers/:serverId/:channelId?"
+          path="disabled_servers/:serverId/:channelId?"
           element={<ServerView />}
         />
 

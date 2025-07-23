@@ -1,4 +1,4 @@
-import { createReducer } from '@utils/redux'
+import { createSlice } from '@utils/redux'
 import type { User, Common } from '@ierik/revolt'
 
 // -> Type Aliases
@@ -42,15 +42,14 @@ const {
   types,
   actions,
   rootReducer
-} = createReducer<GlobalState>(initialState, {
-  fetchUser: { args: [ 'userId' ] },
-
-  addMention: {
-    args: [ 'userId' ],
-    handler: (
-      state: GlobalState,
-      { userId }
-    ) => {
+} = createSlice({
+  name: 'global',
+  state: initialState,
+  actions: {
+    fetchUser: (userId: string) => ({ userId })
+  },
+  reducers: {
+    addMention(state, userId: string) {
       const mentionExists = !!state.userMentions
         .find(user => user.id === userId)
 
@@ -60,11 +59,16 @@ const {
         user: null
       })
     }
-  },
+  }
 })
 
 // -> WS Event Handlers
 // --------------------
 
-export { actions, types }
+const bonfireListeners = {
+
+}
+
+export { actions, types, bonfireListeners }
+export * from './getters'
 export default rootReducer

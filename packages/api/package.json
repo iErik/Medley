@@ -21,6 +21,10 @@
     "./types": {
       "import": "./typings/",
       "require": "./typings/"
+    },
+    "./types/*": {
+      "import": "./typings/*.ts",
+      "require": "./typings/*"
     }
   },
   "scripts": {

@@ -1,138 +1,210 @@
-import produce from 'immer'
+import type {
+  Reducer as RootReducer,
+  UnknownAction
+} from 'redux'
+
+import produce, { type Immutable } from 'immer'
 import { camelToSnake } from '@utils/helpers'
 
-// -> Types
-// --------
 
-export type ActionSignature = {
-  type: string,
-  args: HandlerArgs
+export interface ReduxAction extends UnknownAction {
+  type: string
+  args: Record<string, any>
 }
 
-type ActionCreators = {
-  [actionName: string]:
-    (...args: Array<any>) => ActionSignature
+
+type Reducer<StateType> = (
+  state: StateType,
+  ...args: any
+) => StateType | void
+
+type ProducedReducer<StateType> = (
+  state: StateType,
+  ...args: any
+) => StateType
+
+
+interface StoreReducersDef<StateType> {
+  [reducerName: string]: Reducer<StateType>
 }
 
-type HandlerArgs = Record<string, any>
-
-type ReducerArgs = Array<string> | object | null
-
-interface ReducerHandler<StateType, ArgsType> {
-  (state: StateType, args: ArgsType): StateType | void
+interface StoreActionsDef {
+  [actionName: string]: null | ((...a: any) =>
+    Record<string, any> | null | void)
 }
 
-interface ReducerSignature<StateType, ArgsType> {
-  args: ReducerArgs,
-  handler?: ReducerHandler<StateType, ArgsType>
+type StoreActions<S, T> = {
+  [K in keyof T]: T[K] extends (state: S, ...args: infer A) => any
+    ? (...args: A) => { type: string; args: A }
+    : never
 }
 
-interface ReducersPrototype<StateType> {
-  [handlerName: string]: ReducerSignature<StateType, any>
+// Do we really need this?
+type StoreCustomActions<T extends StoreActionsDef> = {
+  [K in keyof T]: T[K] extends (...args: infer A) => infer R
+    ? (...args: A) => { type: string; args: R }
+    : () => { type: string; args: Record<string, never> }
 }
 
-interface Reducers<StateType> {
-  [reducerName: string]: ReducerHandler<StateType, any>
+interface StoreDefinition<
+  StateType,
+  R extends StoreReducersDef<StateType>,
+  A extends StoreActionsDef
+> {
+  name: string
+  state: StateType
+  actions?: A
+  reducers: R
 }
 
-interface RootReducer<StateType> {
-  (state: StateType, action: ReduxAction): StateType
+interface ReduxStore<
+  StateType,
+  R,
+  A extends StoreActionsDef
+>  {
+  types: { [K in keyof R]: string }
+  actions: StoreActions<StateType, R> & StoreCustomActions<A>
+  rootReducer: RootReducer<StateType, ReduxAction>
+
+  reducers: {
+    [K in keyof R as string]: ProducedReducer<StateType>
+  }
 }
 
-interface StoreTemplate<StateType>  {
-  types: { [actionName: string]: string }
-  actions: ActionCreators
-  reducers: Reducers<StateType>
-  rootReducer: RootReducer<StateType>
+
+
+const inspectFnArgs = <S>(fn: Reducer<S>): string[] => {
+  const fnStr = fn.toString()
+  const match = fnStr.match(/^[^(]*\(([^)]*)\)/)
+
+  if (!match) return []
+
+  const argNames = match[1]
+    .split(',')
+    .map(param => param.trim())
+    .filter(Boolean)
+
+  // The first reducer argument is always going to be the
+  // store State, so we remove it.
+  argNames.shift()
+
+  return argNames
 }
 
-// -> Helper Functions
-// -------------------
+const mapFnArgs = <S>(
+  fn: Reducer<S>,
+  args: any[]
+): Record<string, any> => {
+  const argNames = inspectFnArgs(fn)
 
-/**
- *
- * @param prototype
- * @param prefix
- * @returns {StoreTemplate}
- */
-export const createReducer = <StateType>(
-  initialState: StateType,
-  prototype: ReducersPrototype<StateType>,
-  prefix?: string
-): StoreTemplate<StateType> => {
-  const getType = (reducerName: string) => prefix
-    ? `${prefix}/${camelToSnake(reducerName).toUpperCase()}`
+  return argNames.reduce((acc, argName, idx) => ({
+    ...acc,
+    [argName]: args[idx] || null
+  }), {})
+
+}
+
+const wrapReducer = <S>(name: string, fn: Reducer<S>) => {
+  const fnArgs = inspectFnArgs(fn)
+  const curried = produce(fn)
+
+  return (st: Immutable<S>, args: Record<string, any>) => {
+    const mappedArgs: any[] = fnArgs.map(arg => {
+      if (arg in args)
+        return args[arg]
+
+      console.error(
+        `REDUCER ERROR: Argument ${arg} of the reducer ` +
+        `${name} is missing!`
+      )
+
+      return null
+    })
+
+    return curried(st, ...mappedArgs)
+  }
+}
+
+export const createSlice = <
+  StateType,
+  R extends StoreReducersDef<StateType>,
+  A extends StoreActionsDef
+>(store: StoreDefinition<StateType, R, A>):
+  ReduxStore< StateType, R, A > =>
+{
+  const getType = (reducerName: string) => store.name
+    ? `${store.name}/${camelToSnake(reducerName).toUpperCase()}`
     : camelToSnake(reducerName).toUpperCase()
 
-  const extractArrayArgs = (
-    declaredArgs: Array<string>,
-    receivedArgs: Array<any>
-  ) => declaredArgs?.reduce(
-    (acc: object, argName: string, idx: number) =>
-        ({ ...acc, [argName]: receivedArgs[idx] }), {})
 
-  const extractObjectArgs = (
-    declaredArgs: object,
-    receivedArgs: Array<any>
-  ) => Object.entries(declaredArgs || {})?.reduce(
-    (acc: object, [ argName, defaultVal ]) =>
-      ({ ...acc
-      , [argName]: Object.keys(receivedArgs[0])
-        .includes(argName)
-          ? receivedArgs[0][argName]
-          : defaultVal
-      }), {})
+  type ComputedReducers = {
+    types: { [K in keyof R]: string }
+    actions: StoreActions<StateType, R>
+    reducers: {
+      [K in keyof R as string]: ProducedReducer<StateType>
+    },
+  }
 
-  const getArgs = (
-    declaredArgs: ReducerArgs,
-    receivedArgs: Array<any>
-  ) => declaredArgs
-    ? Array.isArray(declaredArgs)
-      ? extractArrayArgs(declaredArgs, receivedArgs)
-      : extractObjectArgs(declaredArgs, receivedArgs)
-    : []
-
-  const { actions, reducers } = Object
-    .entries(prototype)
-    .reduce((
-      acc: { actions: object, reducers: object },
-      [ reducerName, reducerObj ]
-    ) => ({
+  const { types, actions, reducers } = Object
+    .entries(store.reducers)
+    .reduce<ComputedReducers>((acc, [ name, fn ]) => ({
+      types: {
+        ...acc.types,
+        [name]: getType(name)
+      },
       actions: {
         ...acc.actions,
-        [reducerName]: (...args: Array<any>) => ({
-          type: getType(reducerName),
-          args: getArgs(reducerObj?.args, args)
+        [name]: (...args: any[]) => ({
+          type: getType(name),
+          args: mapFnArgs(fn, args),
         })
       },
       reducers: {
         ...acc.reducers,
-        ...(reducerObj?.handler
-          ? { [getType(reducerName)]:
-              produce(reducerObj?.handler) }
-          : {})
+        [getType(name)]: wrapReducer(name, fn)
       }
-    }), { actions: {}, reducers: {} })
+    }), {
+      types: {},
+      actions: {},
+      reducers: {}
+    } as ComputedReducers)
 
-  const types = Object.keys(prototype).reduce(
-    (acc, key) => ({ ...acc, [key]: getType(key) }), {})
+  const { extraActions, extraTypes } = Object
+    .entries(store.actions || {})
+    .reduce((acc, [ name, fn ]) => ({
+      extraActions: {
+        ...acc.extraActions,
+        [name]: (...args: any[]) => ({
+          type: getType(name),
+          args: fn ? fn(...args) : {}
+        })
+      },
+      extraTypes: {
+        ...acc.extraTypes,
+        [name]: getType(name)
+      }
+    }), {
+      extraActions: {} as StoreCustomActions<A>,
+      extraTypes: {} as Record<keyof A, string>
+    })
 
   const rootReducer = (
-    state: StateType = initialState,
+    state: StateType = store.state,
     action: ReduxAction
-  ): StateType => Object.keys(reducers).includes(action.type)
-    ? (reducers as Reducers<StateType>)[action.type](
-      state,
-      action.args) as StateType
-    : state
+  ): StateType => {
+    return action.type in reducers
+      ? reducers[action.type](state, action.args)
+      : state
+  }
 
   return {
-    types,
-    actions,
+    types: { ...types, ...extraTypes },
+    actions: { ...actions, ...extraActions },
     rootReducer,
-    reducers,
+    reducers
   }
 }
+
 
 /**
  *
