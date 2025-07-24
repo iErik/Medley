@@ -64,7 +64,8 @@ interface ReduxStore<
 >  {
   types: { [K in keyof R]: string }
   actions: StoreActions<StateType, R> & StoreCustomActions<A>
-  rootReducer: RootReducer<StateType, ReduxAction>
+  //rootReducer: RootReducer<StateType, ReduxAction>
+  rootReducer: RootReducer<StateType, UnknownAction>
 
   reducers: {
     [K in keyof R as string]: ProducedReducer<StateType>
@@ -190,10 +191,10 @@ export const createSlice = <
 
   const rootReducer = (
     state: StateType = store.state,
-    action: ReduxAction
+    action: UnknownAction
   ): StateType => {
     return action.type in reducers
-      ? reducers[action.type](state, action.args)
+      ? reducers[action.type](state, action?.args)
       : state
   }
 
@@ -229,5 +230,12 @@ export const hasPreloadedState = () =>
  *
  * @returns
  */
-export const loadSerializedStore = () =>
-  JSON.parse(localStorage.getItem('storeState'))
+export const loadSerializedStore = <T>(): T | null => {
+  const serializedState = localStorage.getItem('storeState')
+
+  if (!serializedState)
+    return null
+
+  return JSON.parse(serializedState)
+}
+  

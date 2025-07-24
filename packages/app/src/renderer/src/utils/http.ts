@@ -76,4 +76,5 @@ export default {
   get: mkSlimRequest('GET'),
   post: mkSlimRequest('POST'),
   delete: mkSlimRequest('DELETE'),
+  baseApi: (): string => baseApi
 }

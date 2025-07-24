@@ -1,9 +1,6 @@
 import { createSlice } from '@utils/redux'
 import type { User, Common } from '@ierik/revolt'
 
-// -> Type Aliases
-// ---------------
-
 // -> Types
 // --------
 

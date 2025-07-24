@@ -1,5 +1,6 @@
 import { type EnhancedStore } from '@reduxjs/toolkit'
 
+import { delta } from '@/revolt'
 import {
   type Events,
   User,
@@ -19,7 +20,8 @@ import { createSlice } from '@utils/redux'
 /--------------------------------------------------------*/
 
 const RelationshipTypeEnum = User.RelationshipTypeEnum
-export { RelationshipTypeEnum }
+const UserPresenceEnum = User.UserPresenceEnum
+export { RelationshipTypeEnum, UserPresenceEnum }
 
 export enum AuthState {
   Unauthenticated = 'UNAUTHENTHICATED',
@@ -199,17 +201,23 @@ const { types, actions, rootReducer } = createSlice({
 / -> Mapping Functions                                    /
 /--------------------------------------------------------*/
 
-const mapUser = (user: User.RevoltUser): User => ({
+const getUserAvatar = (user: User.RevoltUser): string =>
+  getAssetUrl(
+    user?.avatar?.tag,
+    user?.avatar?._id)
+
+const mapUser = async (
+  user: User.RevoltUser
+): Promise<User> => ({
   id: user._id,
   displayName: user?.display_name || null,
   discriminator: user?.discriminator,
   status: user?.status || null,
   username: user?.username,
   relationship: user.relationship,
-  avatar: getAssetUrl(
-    user?.avatar?.tag,
-    user?.avatar?._id
-  )
+  avatar:  user?.avatar?._id
+    ? getUserAvatar(user)
+    : delta.users.getDefaultAvatarUrl(user._id)
 })
 
 const filterRelationship = (
@@ -225,14 +233,15 @@ const filterRelationship = (
 
 
 const bonfireListeners = {
-  Ready: (
+  Ready: async (
     store: EnhancedStore,
     { users, members }: Events.ReadyEvent
   ) => {
-    const mapped = users.map(mapUser)
+    const mapped = await Promise.all(users.map(mapUser))
+
     const user = mapped.find(u => u.relationship === 'User')
 
-    if (user) store.dispatch(actions.setUser(user))
+    if (user) store.dispatch(actions.setSelf(user))
 
     store.dispatch(actions.setUsers(mapped))
     store.dispatch(actions.setMembers(members))

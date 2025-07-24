@@ -1,6 +1,6 @@
 import { useSelector } from '@store'
 
-import type { Chat } from '@ierik/revolt'
+import { Chat } from '@ierik/revolt'
 import type * as StateTypes from './reducer'
 
 // -> Types
@@ -21,7 +21,7 @@ export type PopulatedServer = Omit<StateTypes.Server,
 // -> Hooks
 // --------
 
-export function useServer (
+export function useServer(
   serverId: string
 ): PopulatedServer | null {
   const channels = useSelector(state => state.chat.channels)
@@ -42,7 +42,7 @@ export function useServer (
   }
 }
 
-export function useCategory (categoryId: string) {
+export function useCategory(categoryId: string) {
   const channels = useSelector(state => state.chat.channels)
 
   const category = useSelector(state => {
@@ -60,14 +60,16 @@ export function useCategory (categoryId: string) {
   return category
 }
 
-export function useChannel (channelId: string) {
+export function useChannel(channelId: string) {
   const channel = useSelector(state =>
     state.chat.channels[channelId])
 
   return channel
 }
 
-export function useMessages (channelId: string) {
+export function useMessages(
+  channelId: string
+): StateTypes.Message[] {
   const channel = useChannel(channelId)
 
   return (channel?.messages || []).map(msg => ({
@@ -76,7 +78,20 @@ export function useMessages (channelId: string) {
   }))
 }
 
-export function useActiveChannel () {
+export function useDirectMessages(): Chat.DirectMessage[] {
+  const directs = useSelector(state => {
+    const directs = Object
+      .values(state.chat.channels)
+      .filter(c =>
+        c.channel_type === Chat.ChannelType.DirectMessage)
+
+    return directs as Chat.DirectMessage[]
+  })
+
+  return directs
+}
+
+export function useActiveChannel() {
   const activeChannelId = useSelector(state =>
     state.chat.activeChannel?.id)
   const channel = useChannel((activeChannelId))

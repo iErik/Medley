@@ -5,7 +5,7 @@ import { createSlice } from '@utils/redux'
 import {
   getAssetUrl,
   type Common,
-  type Chat,
+  Chat,
   type Events,
   type User
 } from '@ierik/revolt'

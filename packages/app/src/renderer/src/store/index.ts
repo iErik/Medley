@@ -48,11 +48,9 @@ const store = configureStore({
     defaultMiddlewares()
       .concat(sagaMiddleware, serializer, logger),
 
-      /*
   ...(hasPreloadedState()
      ? { preloadedState: loadSerializedStore() }
      : { }),
-     */
 
   devTools: true
 })
