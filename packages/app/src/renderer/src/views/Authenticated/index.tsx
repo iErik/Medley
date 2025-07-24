@@ -1,13 +1,60 @@
-import { useSelector } from '@store'
+import { useSelf } from '@store/user'
 
 import { styled } from '@stitched'
-import Icon from '@components/Icon'
+import { If, Flexbox } from '@ierik/medley-components'
 
+import Icon from '@components/Icon'
 import ServerList from '@components/ServerList'
+
 import FriendList from './FriendList'
 import UserCard from './UserCard'
+import Chat from './Chat'
 
 const HEADER_HEIGHT = 55
+
+
+const Authenticated = () => {
+  const user = useSelf()
+
+  return (
+    <Root>
+      <Flexbox column>
+        <HeaderbarLeft direction="row">
+          <Button>
+            <Icon
+              icnName="arrowSquareLeft"
+              size={25}
+            />
+          </Button>
+
+          <If condition={user}>
+            <UserCard user={user} />
+          </If>
+        </HeaderbarLeft>
+
+        <LeftColumn>
+          <ServerList />
+          <FriendList />
+        </LeftColumn>
+      </Flexbox>
+
+      <Flexbox column>
+        <HeaderbarRight>
+          { /* ChatBar */ }
+        </HeaderbarRight>
+
+        <RightColumn>
+          <Chat />
+          { /* ChatWindow + ServerMembers Panel */}
+        </RightColumn>
+      </Flexbox>
+    </Root>
+  )
+}
+
+/*--------------------------------------------------------/
+/ -> Fragments                                            /
+/--------------------------------------------------------*/
 
 const Root = styled('div', {
   display: 'grid',
@@ -16,63 +63,42 @@ const Root = styled('div', {
   gridTemplateColumns: 'auto 1fr'
 })
 
+const HeaderbarLeft = styled(Flexbox, {
+  height: HEADER_HEIGHT,
+  paddingLeft: 5,
+  paddingBottom: 5,
+  paddingTop: 5,
+  gap: 5,
 
-const Box = styled('div', {
-  display: 'flex',
-
-  variants: {
-    hAlign: {
-      right: {
-        alignItems: 'flex-start'
-      },
-      center: {
-        alignItems: 'center'
-      },
-      left: {
-        alignItems: 'flex-end'
-      },
-      stretch: {
-        alignItems: 'stretch'
-      }
-    },
-
-    vAlign: {
-      top: {
-        justifyContent: 'flex-start'
-      },
-      center: {
-        justifyContent: 'center'
-      },
-      bottom: {
-        justifyContent: 'flex-end'
-      }
-    },
-
-    direction: {
-      column: { flexDirection: 'column' },
-      row: { flexDirection: 'row' },
-    },
-
-    hFill: { width: '100%' },
-    vFill: { height: '100%' },
-    fill: { width: '100%', height: '100%' },
-
-    background: {
-      none: { background: 'none' },
-      500: { background: '$bg500' },
-      400: { background: '$bg400' },
-      300: { background: '$bg300' },
-      200: { background: '$bg200' },
-      100: { background: '$bg100' },
-    }
+  defaultVariants: {
+    vAlign: 'start',
+    direction: 'row'
   }
 })
 
+const HeaderbarRight = styled(Flexbox, {
+  height: HEADER_HEIGHT,
+  padding: 5,
 
-const GridBox = styled('div', {
-  display: 'grid',
+  defaultVariants: {
+    vAlign: 'start',
+    direction: 'row'
+  }
 })
 
+const LeftColumn = styled(Flexbox, {
+  paddingLeft: 5,
+  paddingBottom: 5,
+
+  flexGrow: 1
+})
+
+const RightColumn = styled(Flexbox, {
+  paddingBottom: 5,
+  paddingRight: 5,
+
+  flexGrow: 1
+})
 
 // This Button *has* to be the same width as our Server
 // List, otherwise the layout will look incoherent and
@@ -85,73 +111,10 @@ const Button = styled('button', {
   background: '$bg400',
   padding: 10,
   borderRadius: 5,
+  flexShrink: 0,
 
   width: '$serverList',
-
-  variants: {
-
-  }
 })
 
-const Headerbar = styled(Box, {
-  height: HEADER_HEIGHT,
-  padding: 5,
-
-  defaultVariants: {
-    vAlign: 'start',
-    direction: 'row'
-  }
-})
-
-const LeftColumn = styled(Box, {
-  paddingLeft: 5,
-  paddingBottom: 5,
-
-  flexGrow: 1
-})
-
-const RightColumn = styled(Box, {
-  paddingBottom: 5,
-  paddingRight: 5,
-
-  flexGrow: 1
-})
-
-const Authenticated = () => {
-  const user = useSelector(state => state.user.user)
-
-
-  return (
-    <Root>
-      <Box direction="column">
-        <Headerbar direction="row">
-          <Button>
-            <Icon
-              icnName="arrowSquareLeft"
-              size={25}
-            />
-          </Button>
-
-          <UserCard user={user} />
-        </Headerbar>
-
-        <LeftColumn>
-          <ServerList />
-          <FriendList />
-        </LeftColumn>
-      </Box>
-
-      <Box direction="column">
-        <Headerbar>
-          { /* ChatBar */ }
-        </Headerbar>
-
-        <RightColumn>
-          { /* ChatWindow + ServerMembers Panel */}
-        </RightColumn>
-      </Box>
-    </Root>
-  )
-}
 
 export default Authenticated

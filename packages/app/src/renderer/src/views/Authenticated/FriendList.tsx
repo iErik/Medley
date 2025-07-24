@@ -1,6 +1,9 @@
 import { useState } from 'react'
 
+import { shallowEqual } from 'react-redux'
 import { useSelector } from '@store'
+import { Chat } from '@ierik/revolt'
+
 import {
   type UserRelationship,
   RelationshipTypeEnum
@@ -10,26 +13,6 @@ import { styled } from '@stitched'
 
 import UserCard from './UserCard'
 
-const Container = styled('div', {
-  display: 'flex',
-  height: '100%',
-  minWidth: 250,
-  background: '$bg400',
-
-  marginRight: 2
-})
-
-const List = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  padding: 10,
-  gap: 5,
-})
-
-
-const UserCardEl = styled('div', {
-
-})
 
 enum ListFilter {
   Conversations = 'Conversations',
@@ -40,8 +23,6 @@ type FilterType
   | typeof RelationshipTypeEnum.Outgoing
   | typeof RelationshipTypeEnum.Incoming
   | 'Conversations'
-
-console.log({RelationshipTypeEnum})
 
 /**
 * Filter: can be one of ...UserRelationship | 'Conversations'
@@ -59,18 +40,60 @@ const FriendList = () => {
     UserRelationship
   >('Friend')
 
-  const relationships: any[] = []
+  // TODO: Consider memoizing
+  const channels = useSelector(state => {
+    const directs = Object
+      .values(state.chat.channels)
+      .filter(c =>
+        c.channel_type === Chat.ChannelType.DirectMessage)
+
+    return directs as Chat.DirectMessage[]
+  }, shallowEqual)
+
+  const recipients = new Set(channels
+    .flatMap(c => c?.recipients || []))
+
+  const users = useSelector(state => Array.from(recipients)
+      .map(userId => state.user.users[userId]),
+    shallowEqual)
+
 
   return (
     <Container>
       <List>
         {
-          relationships?.map(u =>
-            <UserCard user={u} key={u.id} />)
+          users?.map(u =>
+            <UserCard
+              key={u.id}
+              user={u}
+              hoverBg="500"
+            />)
         }
       </List>
     </Container>
   )
 }
+
+/*--------------------------------------------------------/
+/ -> Fragments                                            /
+/--------------------------------------------------------*/
+
+const Container = styled('div', {
+  display: 'flex',
+  height: '100%',
+  minWidth: 250,
+  background: '$bg400',
+
+  marginRight: 2
+})
+
+const List = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+  width: '100%',
+  padding: 10,
+  gap: 5,
+})
+
 
 export default FriendList
