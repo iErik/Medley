@@ -96,10 +96,7 @@ const TextEl = stitch(BaseText, {
 
 const Text = (props: TextProps) => {
   return (
-    <TextEl
-      as={props.type || 'p'}
-      {...props}
-    >
+    <TextEl as={props.type || 'p'} {...props}>
       { props.children }
     </TextEl>
   )

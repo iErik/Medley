@@ -49,4 +49,5 @@ export { default as Text } from './Text'
 export { default as Heading } from './Heading'
 export { default as Form } from './Form'
 export { default as ScrollView } from './ScrollView'
+export { default as If } from './If'
 
