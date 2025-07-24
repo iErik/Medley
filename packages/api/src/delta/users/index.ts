@@ -81,6 +81,11 @@ const DeltaUsers = (
     return [ err, data ]
   }
 
+  // TODO: Refactor
+  const getDefaultAvatarUrl = (userId: string): string => {
+    return `${http.baseApi()}/users/${userId}/default_avatar`
+  }
+
   /**
    * Retrieve a user's profile data.
    * Will fail if you do not have permission to access the other
@@ -125,6 +130,7 @@ const DeltaUsers = (
     getSelf,
     getUserFlags,
     getDefaultAvatar,
+    getDefaultAvatarUrl,
     getUserProfile,
     setUser,
     setUsername

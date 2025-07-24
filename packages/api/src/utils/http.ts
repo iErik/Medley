@@ -101,6 +101,7 @@ interface HttpFn {
   get: SlimRequestFn
   delete: SlimRequestFn
   patch: SlimRequestFn
+  baseApi: () => string
 }
 
 export default {
@@ -109,4 +110,5 @@ export default {
   put: mkSlimRequest('PUT'),
   delete: mkSlimRequest('DELETE'),
   patch: mkSlimRequest('PATCH'),
+  baseApi: () => baseApi
 } as HttpFn
