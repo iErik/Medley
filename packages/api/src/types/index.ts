@@ -1,6 +1,7 @@
-export = RevoltAPI
-export as namespace RevoltAPI
+//export = RevoltAPI
+//export as namespace RevoltAPI
 
+/*
 // -> Imports
 // ----------
 
@@ -19,6 +20,17 @@ import * as Events from './Bonfire/Events'
 // -> Namespace
 // ------------
 
+export {
+  Common,
+  Chat,
+  User,
+  Emoji,
+  Bonfire,
+  Events
+}
+*/
+
+/*
 declare namespace RevoltAPI {
   export {
     Common,
@@ -32,3 +44,4 @@ declare namespace RevoltAPI {
   // -> Exports
   // ----------
 }
+*/

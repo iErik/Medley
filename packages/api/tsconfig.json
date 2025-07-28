@@ -1,20 +1,35 @@
 {
-  "extends": "./paths.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": false,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
+
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+
+    "baseUrl": "./",
+    "outDir": "lib",
+
+    "paths": {
+      "@/*": ["./src/*"],
+      "@root/*": [ "./*" ],
+      "@typings/*": [ "./typings/*" ],
+      "@delta": [ "./src/delta/index.ts" ],
+      "@delta/*": [ "./src/delta/*" ],
+      "@mappers/*": [ "./src/mappers/*" ],
+      "@mappers": [ "./src/mappers/index.ts" ],
+      "@bonfire": [ "./src/bonfire/index.ts" ],
+      "@bonfire/*": [ "./src/bonfire/*" ],
+      "@utils": [ "./src/utils/index.ts" ],
+      "@utils/*": [ "./src/utils/*" ]
+    }
   },
-  "include": ["src"]
+  "include": [ "./src" ],
+  "exclude": ["./node_modules"]
 }

@@ -6,8 +6,24 @@ import * as delta from '@delta'
 import type {
   ContextPartial,
   ClientContext,
-} from '@typings/Client'
+} from '@/types/Client'
 
+
+type GenericDeltaAPI<T = typeof delta> = {
+  /*
+  [K in keyof T]: T[K] extends (...args: any[]) => any
+    ? ReturnType<T[K]>
+    : never
+  */
+  [K in keyof T]: T[K] extends (...args: any[]) => infer R
+    ? R
+    : never
+}
+
+type BoundClient = {
+  bonfire: ReturnType<typeof Bonfire>
+  delta: GenericDeltaAPI<typeof delta>
+}
 
 const deepMerge = (
   objA: Record<string, any>,
@@ -37,7 +53,9 @@ type ClientOptions = {
  *
  * @returns
  */
-const createClient = (options: ClientOptions = {}) => {
+const createClient = (
+  options: ClientOptions = {}
+): BoundClient => {
   // What is the return type?
   const getCache = () => {
     const serializedState = localStorage
@@ -49,6 +67,7 @@ const createClient = (options: ClientOptions = {}) => {
       return parsedState
   }
 
+  type BoundDeltaAPI = GenericDeltaAPI<typeof delta>
 
   // What does this do?
   const cacheContext = (context: ClientContext) => {
@@ -113,13 +132,11 @@ const createClient = (options: ClientOptions = {}) => {
     bonfire: Bonfire(clientContext, setContext),
     delta: Object
       .entries(delta)
-      .reduce((acc, [ key, value ]) => ({
+      .reduce<BoundDeltaAPI>((acc, [ key, value ]) => ({
         ...acc,
         [key]: value(clientContext, setContext)
-      }), {})
+      }), {} as BoundDeltaAPI)
   }
-
-  console.log({ clientContext })
 
   if (
     options?.autoConnect &&

@@ -4,12 +4,12 @@ import { withQueryParams } from '@utils/queryParams'
 import type {
   ClientContext,
   ContextSetter
-} from '@root/typings/Client'
+} from '@/types/Client'
 
-import type { Asset } from '@typings/Common'
-import type { ServiceReturn } from '@typings/Delta'
-import type { ChannelInvite } from '@typings/Chat'
-import { RevoltUser, RevoltMember } from '@typings/User'
+import type { Asset } from '@/types/Common'
+import type { ServiceReturn } from '@/types/Delta'
+import type { ChannelInvite } from '@/types/Chat'
+import { RevoltUser, RevoltMember } from '@/types/User'
 
 // -> Types
 // --------

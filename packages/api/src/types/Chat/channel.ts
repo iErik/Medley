@@ -48,7 +48,7 @@ export type TextChannel = {
   /**
    * Channel type
    */
-  channel_type: ChannelType
+  channel_type: ChannelType.Text
 
   /**
    * Unique ID

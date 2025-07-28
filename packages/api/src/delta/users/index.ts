@@ -3,15 +3,15 @@ import http from '@utils/http'
 import type {
   ClientContext,
   ContextSetter
-} from '@typings/Client'
+} from '@/types/Client'
 
-import type { ServiceReturn } from '@typings/Delta'
+import type { ServiceReturn } from '@/types/Delta'
 import type {
   RevoltUser,
   UserProfile,
   UserStatus,
   FieldsUser
-} from '@typings/User'
+} from '@/types/User'
 
 // -> Types
 // --------

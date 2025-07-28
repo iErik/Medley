@@ -3,7 +3,9 @@ import http from '@utils/http'
 import type {
   ClientContext,
   ContextSetter
-} from '@typings/Client'
+} from '@/types/Client'
+
+import { ServiceReturn } from '@/types/Delta'
 
 // -> Module Enums
 // ---------------
@@ -56,24 +58,24 @@ export type LoginResponse = {
   }
 }
 
-type DisabledResponse = {
+export type DisabledResponse = {
   result: 'Disabled'
   user_id: string
 }
 
-type AuthenticationData
+export type AuthenticationData
   = MFAResponse
   | LoginResponse
   | DisabledResponse
 
 
-type LoginParams = {
+export type LoginParams = {
   email: string
   password: string
   friendlyName?: string | null
 }
 
-type MFAParams = {
+export type MFAParams = {
   mfaTicket: string
   mfaResponse:
     { password: string } |
@@ -94,7 +96,9 @@ const DeltaAuth = (
     .forEach(([ key, value ]) =>
       localStorage.setItem(key, JSON.stringify(value)))
 
-  const login = async (params: LoginParams | MFAParams) => {
+  const login = async (
+    params: LoginParams | MFAParams
+  ): ServiceReturn<AuthenticationData> => {
     const [ err, data ] = await http
       .post('/auth/session/login', params)
 

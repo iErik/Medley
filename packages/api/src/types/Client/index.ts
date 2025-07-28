@@ -6,7 +6,7 @@ import type { BonfireListener } from "../Bonfire"
 export type BonfireSocket = {
   connection: undefined | null | WebSocket
   active: boolean
-  pingIntervalId: number | null
+  pingIntervalId: ReturnType<typeof setTimeout> | null
   eventListeners: Record<string, BonfireListener[]>
   catchallListeners: BonfireListener[]
   connect: () => void

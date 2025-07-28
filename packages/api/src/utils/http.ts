@@ -1,5 +1,5 @@
 import { getUserToken } from '@utils/helpers'
-import { ServiceReturn } from '@typings/Rest'
+import { ServiceReturn } from '@/types/Rest'
 
 // -> Constants
 // ------------

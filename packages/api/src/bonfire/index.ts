@@ -3,17 +3,17 @@ import {
   executeMap
 } from '@ierik/ts-utils'
 
-import { ClientEvent, ServerEvent } from '@typings/Bonfire'
+import { ClientEvent, ServerEvent } from '@/types/Bonfire'
 import type {
   BonfireEvent,
   BonfireListener
-} from '@typings/Bonfire'
+} from '@/types/Bonfire'
 
 import type {
   ClientContext,
   ContextSetter,
   BonfireSocket
-} from '@typings/Client'
+} from '@/types/Client'
 
 // -> Types
 // --------

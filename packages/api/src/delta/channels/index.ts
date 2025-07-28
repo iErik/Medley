@@ -4,15 +4,15 @@ import { withQueryParams } from '@utils/queryParams'
 import type {
   ClientContext,
   ContextSetter
-} from '@typings/Client'
+} from '@/types/Client'
 
-import { ServiceReturn } from '@typings/Delta'
+import { ServiceReturn } from '@/types/Delta'
 
 import type {
   RevoltChannel,
   ChannelInvite,
   RevoltMessage
-} from '@typings/Chat'
+} from '@/types/Chat'
 
 // -> Types
 // --------
