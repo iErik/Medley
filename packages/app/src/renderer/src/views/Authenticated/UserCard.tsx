@@ -21,6 +21,10 @@ export type UserCardProps = {
   user: User | Self
   background?: BackgroundColorVariant
   hoverBg?: BackgroundColorVariant
+  onClick?: (
+    user: User | Self,
+    ev: React.MouseEvent<HTMLDivElement>
+  ) => any
 }
 
 
@@ -41,13 +45,14 @@ const UserCard = ({ user, ...props }: UserCardProps) => {
     <Root
       background={props.background || 'transparent'}
       hoverBg={props.hoverBg || 300}
+      onClick={props.onClick}
     >
       <Avatar avatar={user.avatar} />
 
       <Wrapper column>
         <Username>{ user.username }</Username>
 
-        <If condition={statusText}>
+        <If condition={!!statusText}>
           <Status>{ statusText }</Status>
         </If>
       </Wrapper>

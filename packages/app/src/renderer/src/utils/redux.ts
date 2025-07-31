@@ -7,9 +7,11 @@ import produce, { type Immutable } from 'immer'
 import { camelToSnake } from '@utils/helpers'
 
 
-export interface ReduxAction extends UnknownAction {
+export interface ReduxAction<
+  T = Record<string, any>
+> extends UnknownAction {
   type: string
-  args: Record<string, any>
+  args: T
 }
 
 
@@ -62,9 +64,8 @@ interface ReduxStore<
   R,
   A extends StoreActionsDef
 >  {
-  types: { [K in keyof R]: string }
+  types: { [K in keyof R]: string } & { [K in keyof A]: string }
   actions: StoreActions<StateType, R> & StoreCustomActions<A>
-  //rootReducer: RootReducer<StateType, ReduxAction>
   rootReducer: RootReducer<StateType, UnknownAction>
 
   reducers: {
@@ -238,4 +239,4 @@ export const loadSerializedStore = <T>(): T | null => {
 
   return JSON.parse(serializedState)
 }
-  
+

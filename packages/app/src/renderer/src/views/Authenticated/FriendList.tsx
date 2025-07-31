@@ -1,8 +1,17 @@
+import { useNavigate } from 'react-router-dom'
+
 import { useState } from 'react'
 
-import { shallowEqual } from 'react-redux'
 import { useSelector } from '@store'
-import { Chat } from '@ierik/revolt'
+import useAction from '@hooks/useAction'
+
+import {
+  selectDMsWithUsers,
+  type DMsWithUsers
+} from '@store/chat/selectors'
+import {
+  actions as chatActions,
+} from '@store/chat'
 
 import {
   type UserRelationship,
@@ -24,49 +33,35 @@ type FilterType
   | typeof RelationshipTypeEnum.Incoming
   | 'Conversations'
 
-/**
-* Filter: can be one of ...UserRelationship | 'Conversations'
-*
-* When Filter === 'Conversations':
-*   - Map user DirectMessages so that each item can be
-*   rendered as an UserCard
-* Else:
-*   - Assume Filter points to UserRelationship, map users
-* in relationship as UserCards
-*/
-
 const FriendList = () => {
+  const navigate = useNavigate()
   const [listFilter, setFilter] = useState<
     UserRelationship
   >('Friend')
 
-  // TODO: Consider memoizing
-  const channels = useSelector(state => {
-    const directs = Object
-      .values(state.chat.channels)
-      .filter(c =>
-        c.channel_type === Chat.ChannelType.DirectMessage)
+  const selectChannel = useAction(chatActions.selectChannel)
 
-    return directs as Chat.DirectMessage[]
-  }, shallowEqual)
+  // TODO: Support for Group Chats (We gonna need a
+  // component other than UserCard, identical but more
+  // generic)
 
-  const recipients = new Set(channels
-    .flatMap(c => c?.recipients || []))
+  const channels = useSelector(selectDMsWithUsers)
 
-  const users = useSelector(state => Array.from(recipients)
-      .map(userId => state.user.users[userId]),
-    shallowEqual)
-
+  const onSelect = (channel: DMsWithUsers) => {
+    //selectChannel(channel._id)
+    navigate(`/directs/${channel._id}`)
+  }
 
   return (
     <Container>
       <List>
         {
-          users?.map(u =>
+          channels?.map(c =>
             <UserCard
-              key={u.id}
-              user={u}
+              key={c.user.id}
+              user={c.user}
               hoverBg="500"
+              onClick={onSelect.bind(null, c)}
             />)
         }
       </List>
@@ -82,7 +77,7 @@ const Container = styled('div', {
   display: 'flex',
   height: '100%',
   minWidth: 250,
-  background: '$bg400',
+  background: '$bg300',
 
   marginRight: 2
 })

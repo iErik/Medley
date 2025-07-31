@@ -1,16 +1,38 @@
+import { useEffect } from 'react'
+
+import { useParams } from 'react-router-dom'
+
 import { useSelector } from '@store'
+import { useAction } from '@hooks'
 
 import { styled } from '@stitched'
-import { useMessages } from '@store/chat'
+import { useMessages, actions } from '@store/chat'
 
 import ChatWindow from '@components/ChatWindow'
 
 
-const Chat = () => {
-  const activeChannelId = useSelector(state =>
-    state.chat.activeChannel?.id)
+// Fetch channel messages
+// fetch messages before message X
+// Append messages coming from WebSocket
+//
+// The revolt client doesn't seem to make REST requests for
+// a channels messages if it has already been fetched
 
-  const messages = useMessages(activeChannelId)
+// Chat specific scroll position
+const Chat = () => {
+  const { channelId } = useParams()
+  const selectChannel = useAction(actions.selectChannel)
+
+  const channel = useSelector(state =>
+    state.chat.channels[channelId || ''])
+
+  useEffect(() => {
+    if (channel && !channel.fetched && !channel.loading) {
+      selectChannel(channel._id)
+    }
+  }, [ channel ])
+
+  const messages = channel?.messages || []
 
   return (
     <Root>

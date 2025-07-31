@@ -1,21 +1,16 @@
-import { Routes, Route } from 'react-router-dom'
-
 import { useSelf } from '@store/user'
 
 import { styled } from '@stitched'
 import { If, Flexbox } from '@ierik/medley-components'
 
+import IndexedOutlet from '@components/IndexedOutlet'
 import Icon from '@components/Icon'
 
-import ServerSidebar from './ServerSidebar'
-import FriendList from './FriendList'
-import UserCard from './UserCard'
-import Chat from './Chat'
-
-const HEADER_HEIGHT = 55
+import ServerSidebar from '@views/Authenticated/ServerSidebar'
+import UserCard from '@views/Authenticated/UserCard'
 
 
-const Authenticated = () => {
+export default function DynamicView() {
   const user = useSelf()
 
   return (
@@ -36,25 +31,16 @@ const Authenticated = () => {
 
         <LeftColumn>
           <ServerSidebar />
-
-          <Routes>
-            <Route path=":channelId?" element={<FriendList />} />
-            <Route path="server" element={<p>servi</p>}/>
-          </Routes>
+          <IndexedOutlet index={0} />
         </LeftColumn>
       </Flexbox>
 
       <Flexbox column>
         <HeaderbarRight>
-          { /* ChatBar */ }
         </HeaderbarRight>
 
         <RightColumn>
-          <Routes>
-            <Route path=":channelId" element={<Chat />} />
-          </Routes>
-
-          { /* ChatWindow + ServerMembers Panel */}
+          <IndexedOutlet index={1} />
         </RightColumn>
       </Flexbox>
     </Root>
@@ -64,6 +50,8 @@ const Authenticated = () => {
 /*--------------------------------------------------------/
 / -> Fragments                                            /
 /--------------------------------------------------------*/
+
+const HEADER_HEIGHT = 55
 
 const Root = styled('div', {
   display: 'grid',
@@ -125,5 +113,3 @@ const Button = styled('button', {
   width: '$serverList',
 })
 
-
-export default Authenticated

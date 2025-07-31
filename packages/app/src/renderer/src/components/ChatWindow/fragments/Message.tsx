@@ -8,8 +8,7 @@ import parseMsg from '@parser'
 
 import type { ClumpedMessage } from './types'
 
-// -> Types
-// --------
+
 
 interface ChatMessageProps extends JSX.IntrinsicAttributes {
   message: ClumpedMessage
@@ -19,6 +18,53 @@ type AuthorProps = {
   authorId: string
   guildId: string
 }
+
+export const ChatMessage = ({
+  message,
+  ...props
+}: ChatMessageProps) => {
+  const { user } = useUser(
+    message.author,
+    message.serverId
+  )
+
+  const { masquerade } = message
+
+  const avatarSrc = masquerade?.avatar || user?.avatar
+  const authorName = masquerade?.name || user?.username
+  const authorDiscriminator = user?.discriminator
+
+  if (!avatarSrc) {
+    console.log("Couldn't get user avatar for message")
+    console.log({ message, masquerade, user })
+  }
+
+  const messageList = message?.content
+    ?.map((content, idx) =>
+      <MessageText key={`${content.key}-${idx}`}>
+        { parseMsg(content?.text) }
+      </MessageText>)
+
+  return (
+    <MessageBox>
+      <AuthorAvatar src={avatarSrc} />
+
+      <Wrapper column>
+        <AuthorName>
+          { authorName }
+        </AuthorName>
+
+        <Wrapper column >
+          {messageList}
+        </Wrapper>
+      </Wrapper>
+    </MessageBox>
+  )
+}
+
+/*--------------------------------------------------------/
+/ -> Fragments                                            /
+/--------------------------------------------------------*/
 
 // -> Author
 // ---------
@@ -86,40 +132,5 @@ const MessageBox = styled('div', {
   padding: '8px 0',
 })
 
-export const ChatMessage = ({
-  message,
-  ...props
-}: ChatMessageProps) => {
-  const { user } = useUser(
-    message.author,
-    message.serverId
-  )
-
-  const { masquerade } = message
-
-  const avatarSrc = masquerade?.avatar || user?.avatar?.src
-  const authorName = masquerade?.name || user?.username
-  const authorDiscriminator = user?.discriminator
-
-  if (!avatarSrc) {
-    console.log({ message, masquerade, user })
-  }
-
-  const messageList = message?.content?.map(content =>
-    <MessageText key={content.key}>
-      { parseMsg(content?.text) }
-    </MessageText>)
-
-  return (
-    <MessageBox {...props}>
-      <AuthorAvatar src={avatarSrc} />
-
-      <Wrapper column>
-        <AuthorName children={authorName} />
-        <Wrapper column children={messageList} />
-      </Wrapper>
-    </MessageBox>
-  )
-}
 
 export default memo(ChatMessage)

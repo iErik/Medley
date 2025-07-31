@@ -1,10 +1,10 @@
 export default {
   theme: {
     colors: {
-      bg100: '#1A1D25',
+      bg100: '#292C33',
       bg200: '#1A1D25',
       bg300: '#1A1D25',
-      bg400: '#1A1D25',
+      bg400: '#171A21',
       bg500: '#15181F',
 
       headerBgDark: '#101218',

@@ -1,7 +1,9 @@
+import { useAction } from '@hooks'
 import { useSelector } from '@store'
 
 import { Chat } from '@ierik/revolt'
-import type * as StateTypes from './reducer'
+import type * as StateTypes from './types'
+import { actions } from './reducer'
 
 // -> Types
 // --------
@@ -68,14 +70,20 @@ export function useChannel(channelId: string) {
 }
 
 export function useMessages(
-  channelId: string
+  channelId: string,
+  fetch?: boolean
 ): StateTypes.Message[] {
   const channel = useChannel(channelId)
 
-  return (channel?.messages || []).map(msg => ({
-    ...msg,
-    createdAt: new Date(msg.createdAt)
-  }))
+  if (!channel) return []
+
+  const selectChannel = useAction(actions.selectChannel)
+
+  if (!channel?.fetched && fetch) {
+    selectChannel(channel._id)
+  }
+
+  return channel?.messages || []
 }
 
 export function useDirectMessages(): Chat.DirectMessage[] {

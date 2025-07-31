@@ -1,45 +1,21 @@
 import { decodeTime } from 'ulid'
 
-//import { createReducer } from '@utils/redux'
+import {
+  type Events,
+  type Chat,
+  getAssetUrl
+} from '@ierik/revolt'
+
 import { createSlice } from '@utils/redux'
 import {
-  getAssetUrl,
-  type Common,
-  Chat,
-  type Events,
-  type User
-} from '@ierik/revolt'
+  type Server,
+  type Channel,
+  ChannelType
+} from './types'
+
 
 // -> Types
 // --------
-
-export type Member = User.RevoltMember & {
-  fullId: string
-}
-
-export type Asset = Common.Asset & {
-  src: string
-}
-
-export type Message = Chat.RevoltMessage & {
-  createdAt: Date
-  serverId: string
-}
-
-export type ServerChannel = Chat.ServerChannel & {
-  messages: Message[]
-}
-
-export type PrivateChannel = Chat.DirectMessage & {
-  messages: Message[]
-}
-
-export type Channel = ServerChannel | PrivateChannel
-
-export type Server = Chat.RevoltServer & {
-  icon: Asset
-  banner: Asset
-}
 
 type ActiveChannel = {
   id: string
@@ -97,9 +73,39 @@ const {
       }
     },
 
-    setChannels(state, channels: ServerChannel[]) {
+    setChannels(state, channels: Channel[]) {
       for (const channel of channels) {
         state.channels[channel._id] = channel
+      }
+    },
+
+    setFetched(state, channelId: string, fetched = true) {
+      const channel = state.channels[channelId]
+      const isVoice =
+        channel?.channel_type === ChannelType.Voice
+
+      if (channel && !isVoice) {
+        channel.fetched = fetched
+      }
+    },
+
+    setChannel(
+      state,
+      channelId: string,
+      channel: Partial<Channel>
+    ) {
+      let target = state.channels[channelId]
+
+      if (!target) return
+
+      target = {
+        ...target,
+        // TODO: no bueno
+        // Option 1: Make it so that the caller *has* to
+        // inform the type of the channel in advance
+        // Option 2: Write a 'merge' helper which will only
+        // merge already existing properties
+        ...(channel || {}) as typeof target
       }
     },
 
@@ -112,20 +118,39 @@ const {
       state.activeChannel.serverId = serverId
     },
 
-    setLoadingChannel(state, loading: boolean) {
-      state.activeChannel.loading = loading
+    setLoadingChannel(
+      state,
+      channelId: string,
+      loading: boolean
+    ) {
+      let target = state.channels[channelId]
+
+      if (!target) return
+
+      target.loading = loading
+      //state.activeChannel.loading = loading
+    },
+
+    prependMessages(
+      state,
+      messages: Chat.RevoltMessage,
+      channelId
+    ) {
+
     },
 
     appendMessages(
       state,
       messages: Chat.RevoltMessage[],
-      serverId: string,
-      channelId: string
+      channelId: string,
+      serverId?: string,
     ) {
       console.log('STORE: APPENDING MESSAGES...')
       const channel = state.channels[channelId]
+      const isVoice =
+        channel?.channel_type === ChannelType.Voice
 
-      if (!channel) return
+      if (!channel || isVoice) return
 
       const existingMessageIds = channel.messages
         .map(msg => msg._id)
@@ -135,8 +160,8 @@ const {
 
         const mapMsg = (message: Chat.RevoltMessage) => ({
           ...message,
-          serverId,
-          createdAt: new Date(decodeTime(message._id))
+          ...(serverId ? { serverId } : {}),
+          createdAt: decodeTime(message._id)
         })
 
       channel.messages = [
@@ -152,7 +177,7 @@ const {
     }
   },
   actions: {
-    selectChannel(channelId: string, serverId: string) {
+    selectChannel(channelId: string, serverId?: string) {
       return {
         channelId,
         serverId
@@ -185,7 +210,9 @@ const bonfireListeners = {
 
     const channels = data?.channels?.map(channel => ({
       ...channel,
-      messages: [] as Message[]
+      fetched: false,
+      loading: false,
+      messages: []
     }))
 
     store.dispatch(actions.setServers(servers))

@@ -1,7 +1,9 @@
 import { useCallback } from 'react'
 import { useDispatch } from '@store'
 
-export default function useAction (action: Function): Function {
+export default function useAction (
+  action: Function
+): Function {
   if (!action) {
     console.error('useAction called with an invalid argument')
   }

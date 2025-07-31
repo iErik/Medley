@@ -17,13 +17,18 @@ type UserMention = {
   id: string
   loading: boolean
   user: MappedUser | null
-
 }
+
+
+type AppSettings = {
+  emojiPack: 'mutant' | 'twemoji' | 'noto' | 'openmoji'
+}
+
 
 type GlobalState = {
   isLoading: boolean
   userMentions: UserMention[]
-  users: any
+  settings: AppSettings
 }
 
 // -> Store Definition
@@ -32,7 +37,9 @@ type GlobalState = {
 const initialState: GlobalState = {
   isLoading: false,
   userMentions: [],
-  users: {}
+  settings: {
+    emojiPack: 'mutant'
+  }
 }
 
 const {
@@ -67,5 +74,5 @@ const bonfireListeners = {
 }
 
 export { actions, types, bonfireListeners }
-export * from './getters'
+export * from './selectors'
 export default rootReducer

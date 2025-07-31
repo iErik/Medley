@@ -1,7 +1,13 @@
 import { useRole } from '@hooks'
+import { useEmojiPack } from '@store/global'
 import { useChannel } from '@store/chat'
 import { useUser } from '@store/user'
 import { Chat } from '@ierik/revolt'
+
+import {
+  emojiDictionary,
+  mkEmojiHref
+} from './emojiMap'
 
 import {
   Bold,
@@ -165,6 +171,7 @@ export const regexUnion = new RegExp([
 // -> Token Extractors
 // -------------------
 
+// TODO: Fetch emoji pack setting from global store state
 // TODO: Only use gif when window is focused
 export const emojiExtractor = (
   token: string,
@@ -175,9 +182,13 @@ export const emojiExtractor = (
     return regex.test(token)
   }
 
+
+  const emojiPack = useEmojiPack()
   const id = token.replace(/:/g, '')
   const jumboable = origin.every(isEmojiToken)
-  const src = `https://autumn.revolt.chat/emojis/${id}`
+  const src =  id in emojiDictionary
+    ? mkEmojiHref(emojiPack, id)
+    : `https://autumn.revolt.chat/emojis/${id}`
 
   const size = jumboable ? 60 : 22
 
@@ -315,7 +326,10 @@ const parseText = (token: TextToken) => Object
   .reduce((acc, [ key, Component ]) =>
     token[key as keyof TextToken]
       ? <Component>{ acc }</Component>
-      : acc, <Normal>{ token.content }</Normal>)
+      : acc,
+    <Normal key={token.content}>
+      { token.content }
+    </Normal>)
 
 const randomStr = () => Math.floor(Math.random() * 1000)
   .toString()
