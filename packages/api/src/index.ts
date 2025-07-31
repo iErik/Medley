@@ -1,11 +1,12 @@
-export * as delta from './delta'
+export * as delta from '@delta'
 
-export { default as createClient } from './createClient'
-export { getAssetUrl } from './utils/assets'
+export { default as createClient } from '@/createClient'
+export { getAssetUrl } from '@/utils/assets'
 
 // -> Types exports
 // ----------------
 
+export * as Common from '@/types/Common'
 export * as Chat from '@/types/Chat'
 export * as User from '@/types/User'
 export * as Emoji from '@/types/Emoji'

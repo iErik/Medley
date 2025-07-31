@@ -1,7 +1,7 @@
 export const toQueryParams = (
   object: Record<string, any>
 ): string => Object.entries(object || {})
-  .reduce((acc, [ key, value ]) => acc
+  .reduce<string>((acc, [ key, value ], idx) => idx === 0
     ? `?${key}=${value}`
     : `${acc}&${key}=${value}`
   , '')

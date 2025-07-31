@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url'
 
 import { defineConfig } from 'vite'
 import dts from 'unplugin-dts/vite'
+//import dts from 'vite-plugin-dts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -10,9 +11,12 @@ const __dirname = dirname(__filename)
 export default defineConfig(() => ({
   root: __dirname,
   plugins: [ dts({
+    root: __dirname,
     bundleTypes: true,
+    rollupTypes: true,
     tsconfigPath: './tsconfig.json'
   }) ],
+
   base: './',
   resolve: {
     alias: {
@@ -30,7 +34,7 @@ export default defineConfig(() => ({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'revolt',
-      formats: [ "es" ],
+      //formats: [ 'es' ],
       fileName: 'revolt',
     },
 

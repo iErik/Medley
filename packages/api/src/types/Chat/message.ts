@@ -1,5 +1,5 @@
-import type { Asset } from '../Common'
-import type { RevoltUser, RevoltMember } from '../User'
+import type { Asset } from '@/types/Common'
+import type { RevoltUser, RevoltMember } from '@/types/User'
 
 // -> System message types
 // -----------------------

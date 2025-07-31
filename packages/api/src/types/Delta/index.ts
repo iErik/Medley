@@ -1,4 +1,3 @@
-
 export type ServiceError =
   Error | Response | boolean | null
 

@@ -1,7 +1,8 @@
 import { isType } from '@ierik/ts-utils'
 
 import Bonfire from '@bonfire'
-import * as delta from '@delta'
+//import * as delta from '@delta'
+import * as delta from './delta'
 
 import type {
   ContextPartial,
@@ -10,14 +11,14 @@ import type {
 
 
 type GenericDeltaAPI<T = typeof delta> = {
-  /*
   [K in keyof T]: T[K] extends (...args: any[]) => any
     ? ReturnType<T[K]>
     : never
-  */
+  /*
   [K in keyof T]: T[K] extends (...args: any[]) => infer R
     ? R
     : never
+    */
 }
 
 type BoundClient = {

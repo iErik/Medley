@@ -1,4 +1,4 @@
-import type { BonfireListener } from "../Bonfire"
+import type { BonfireListener } from '@/types/Bonfire'
 
 // -> Bonfire
 // ----------

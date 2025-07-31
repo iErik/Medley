@@ -16,10 +16,10 @@ interface RequestOptions {
   headers?: HeadersInit
 }
 
-type SlimRequestFn = (endpoint: string, data?: any) =>
+export type SlimRequestFn = (endpoint: string, data?: any) =>
   Promise<ServiceReturn>
 
-type HTTPRequestFunction = (
+export type HTTPRequestFunction = (
   endpoint: string,
   options?: RequestOptions
 ) => Promise<ServiceReturn>
@@ -95,7 +95,7 @@ export const mkSlimRequest = (
 // -> Export
 // ---------
 
-interface HttpFn {
+export interface HttpFn {
   post: SlimRequestFn
   put: SlimRequestFn
   get: SlimRequestFn

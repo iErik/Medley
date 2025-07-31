@@ -1,4 +1,4 @@
-import type { Asset } from "../Common"
+import type { Asset } from '@/types/Common'
 
 export const RelationshipTypeEnum = {
   None:         'None',

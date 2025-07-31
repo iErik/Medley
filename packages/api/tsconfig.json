@@ -5,15 +5,17 @@
     "moduleResolution": "bundler",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
 
+    "composite": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
+    "emitDeclarationOnly": true,
     "declaration": true,
     "declarationMap": true,
 
-    "baseUrl": "./",
+    "baseUrl": ".",
     "outDir": "lib",
 
     "paths": {
