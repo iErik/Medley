@@ -10,11 +10,13 @@ import { ServiceReturn } from '@/types/Delta'
 // -> Module Enums
 // ---------------
 
-export enum MFAMethod {
-  Password = 'Password',
-  Recovery = 'Recovery',
-  Totp = 'Totp'
-}
+export const MFAMethods = {
+  Password: 'Password',
+  Recovery: 'Recovery',
+  Totp: 'Totp'
+} as const
+
+export type MFAMethod = keyof typeof MFAMethods
 
 // -> Types
 // --------
@@ -69,19 +71,19 @@ export type AuthenticationData
   | DisabledResponse
 
 
-export type LoginParams = {
+export interface LoginParams {
   email: string
   password: string
-  friendlyName?: string | null
+  friendly_name?: string | null
 }
 
 export type MFAParams = {
-  mfaTicket: string
-  mfaResponse:
+  mfa_ticket: string
+  mfa_response:
     { password: string } |
     { totp_code: string } |
     { recovery_code: string }
-  friendlyName?: string | null
+  friendly_name?: string | null
 }
 
 // -> Module definition

@@ -14,6 +14,11 @@ import type {
   RevoltMessage
 } from '@/types/Chat'
 
+import type {
+  RevoltUser,
+  RevoltMember
+} from '@/types/User'
+
 // -> Types
 // --------
 
@@ -62,24 +67,24 @@ type GetMessagesQueryParams = {
    * Maximum number of messages to fetch [1..100]
    * For fetching nearby messages, this is (limit + 1)
    */
-  limit: number | null
+  limit?: number | null
 
   /**
    * Message ID before which messages should be fetched
    * = 26 characters
    */
-  before: string | null
+  before?: string | null
 
   /**
    * Message ID after which messages should be fetched
    * = 26 characters
    */
-  after: string | null
+  after?: string | null
 
   /**
    * Message sort direction
    */
-  sort: 'Relevance' | 'Latest' | 'Oldest'
+  sort?: 'Relevance' | 'Latest' | 'Oldest'
 
   /**
    * Message ID to search around
@@ -88,20 +93,31 @@ type GetMessagesQueryParams = {
    * It will also take half of limite rounded as the limits
    * to each side. It also fetches the message ID specified.
    */
-  nearby: string | null
+  nearby?: string | null
 
   /**
    * Whether to include user (and member, if server channel)
    * objects
    */
-  include_users: boolean | null
+  include_users?: boolean | null
 }
 
-type GetMessagesResponse = RevoltMessage[] | {
+
+type GetMessagesResponseWithUsers = {
+  type: 'IncludeUsers'
   messages: RevoltMessage[]
-  users: Array<Record<string, any>>
-  members: Array<Record<string, any>>
+  users: RevoltUser[]
+  members?: RevoltMember[]
 }
+
+type GetMessagesResponseWithoutUsers = {
+  type: 'Messages'
+  messages: RevoltMessage[]
+}
+
+type GetMessagesResponse
+  = GetMessagesResponseWithUsers
+  | GetMessagesResponseWithoutUsers
 
 // -> Module definition
 // --------------------
@@ -209,9 +225,14 @@ const DeltaChannels = (
     channelId: string,
     queryParams: GetMessagesQueryParams
   ): ServiceReturn<GetMessagesResponse> => {
-    const [ err, data ] = await http.get(withQueryParams(
+    let [ err, data ] = await http.get(withQueryParams(
       `channels/${channelId}/messages`,
       queryParams))
+
+    if (queryParams.include_users)
+      data.type = 'IncludeUsers'
+    else
+      data = { type: 'Messages', messages: data }
 
     return [ err, data ]
   }

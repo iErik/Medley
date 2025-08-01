@@ -1,4 +1,4 @@
-export type Asset = {
+export interface Asset {
   _id: string
   tag: string
   filename: string
