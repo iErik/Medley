@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useAction } from '@hooks'
 import { useSelector } from '@store'
@@ -27,9 +27,17 @@ export default function ServerSidebar() {
   const setActiveServer = useAction(
     chatActions.setActiveServer)
 
-  const onSelectServer = ({ _id }: Server) => {
-    navigate(`servers/${_id}`)
-    setActiveServer(_id)
+  const onSelectServer = (server: Server) => {
+    const {
+      _id: id,
+      lastSelectedChannel,
+      channels
+    } = server
+
+    const channelId = lastSelectedChannel || channels[0] || ''
+
+    navigate(`server/${id}/channel/${channelId}`)
+    //setActiveServer(_id)
   }
 
   const onSelectHome = () => {

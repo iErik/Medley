@@ -1,13 +1,13 @@
 import { all } from 'redux-saga/effects'
 
 import globalSaga from '@store/global/saga'
-import userSaga from '@store/user/saga'
-import chatSaga from '@store/chat/saga'
+import { authSaga }  from '@store/auth'
+import { chatSaga } from '@store/chat'
 
 export default function* rootSaga() {
   yield all([
     globalSaga(),
-    userSaga(),
+    authSaga(),
     chatSaga()
   ])
 }

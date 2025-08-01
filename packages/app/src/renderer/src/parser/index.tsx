@@ -1,8 +1,8 @@
+import { Chat } from '@ierik/revolt'
 import { useRole } from '@hooks'
 import { useEmojiPack } from '@store/global'
-import { useChannel } from '@store/chat'
-import { useUser } from '@store/user'
-import { Chat } from '@ierik/revolt'
+import { useChannel, useUser } from '@store/chat'
+
 
 import {
   emojiDictionary,

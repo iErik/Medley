@@ -2,11 +2,11 @@ import {
   Outlet,
   useNavigate,
   useLocation
-} from 'react-router-dom'
+} from 'react-router'
 
 import { useEffect } from 'react'
 import { useSelector } from '@store'
-import { AuthState } from '@store/user'
+import { AuthStage } from '@store/auth'
 
 import { styled } from '@stitched'
 import globalStyles from '@stitched/global'
@@ -14,9 +14,9 @@ import globalStyles from '@stitched/global'
 
 
 const locationMap = {
-  [AuthState.Unauthenticated]: '/auth',
-  [AuthState.PendingMFA]: '/auth/mfa',
-  [AuthState.Authenticated]: '/'
+  [AuthStage.Unauthenticated]: '/auth',
+  [AuthStage.PendingMFA]: '/auth/mfa',
+  [AuthStage.Authenticated]: '/'
 }
 
 export default function RootLayout() {
@@ -24,13 +24,13 @@ export default function RootLayout() {
 
   const navigate = useNavigate()
   const location = useLocation()
-  const authState = useSelector(state =>
-    state.user.authState)
+  const authStage = useSelector(state =>
+    state.auth.authStage)
 
   useEffect(() => {
-    const forceLocation = locationMap[authState]
+    const forceLocation = locationMap[authStage]
     const isAuthenticated =
-      authState === AuthState.Authenticated
+      authStage === AuthStage.Authenticated
 
     if (!isAuthenticated) {
       navigate(forceLocation)
@@ -42,20 +42,7 @@ export default function RootLayout() {
     ) {
       navigate(forceLocation)
     }
-  }, [ authState ])
-
-  /*
-  useEffect(() => {
-    if (forceLocation === AuthState.Unauthenticated)
-
-    if (forceLocation) {
-      console.log('Forcing navigation!')
-      navigate(forceLocation)
-    }
-
-    //forceLocation && navigate(forceLocation)
-  }, [ forceLocation ])
-  */
+  }, [ authStage ])
 
   return (
     <MainContainer>

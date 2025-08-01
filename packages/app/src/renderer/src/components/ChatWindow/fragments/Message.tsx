@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { useSelector } from '@store'
-import { useUser } from '@store/user'
+import { useUser } from '@store/chat'
 
 import { Wrapper, Text }  from '@ierik/medley-components'
 import { styled } from '@stitched'
@@ -23,10 +23,16 @@ export const ChatMessage = ({
   message,
   ...props
 }: ChatMessageProps) => {
-  const { user } = useUser(
+  const { user, member } = useUser(
     message.author,
     message.serverId
   )
+
+  /*
+  const user = useSelector(state => state.user.users[message.author])
+  const member = useSelector(state =>
+    state.user.members[`${message.serverId}-${message.author}`])
+    */
 
   const { masquerade } = message
 
@@ -36,7 +42,7 @@ export const ChatMessage = ({
 
   if (!avatarSrc) {
     console.log("Couldn't get user avatar for message")
-    console.log({ message, masquerade, user })
+    console.log({ message, masquerade, user, member })
   }
 
   const messageList = message?.content

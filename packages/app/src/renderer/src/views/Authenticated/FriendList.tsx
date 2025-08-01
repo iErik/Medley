@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useState } from 'react'
 
@@ -8,15 +8,13 @@ import useAction from '@hooks/useAction'
 import {
   selectDMsWithUsers,
   type DMsWithUsers
-} from '@store/chat/selectors'
+} from '@store/chat/getters'
 import {
+  type UserRelationship,
+  RelationshipTypeEnum,
   actions as chatActions,
 } from '@store/chat'
 
-import {
-  type UserRelationship,
-  RelationshipTypeEnum
-} from '@store/user'
 
 import { styled } from '@stitched'
 
@@ -49,6 +47,7 @@ const FriendList = () => {
 
   const onSelect = (channel: DMsWithUsers) => {
     //selectChannel(channel._id)
+    console.log('navigating')
     navigate(`/directs/${channel._id}`)
   }
 

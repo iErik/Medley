@@ -2,7 +2,7 @@ import { useContext } from 'react'
 
 import {
   UNSAFE_RouteContext as RouteContext
-} from 'react-router-dom'
+} from 'react-router'
 
 
 type IndexedOutletProps = {

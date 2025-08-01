@@ -8,7 +8,8 @@ export default {
       bg500: '#15181F',
 
       headerBgDark: '#101218',
-      channelsPanelBgDark: '#101218',
+      channelsPanelBgDark: '$bg300',
+      serverPaneBg: '$bg300',
 
       boldColor: '#00D091',
       italicsColor: '#ff8fab',

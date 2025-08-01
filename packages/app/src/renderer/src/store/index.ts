@@ -20,9 +20,9 @@ import {
 
 import rootSaga from '@store/rootSaga'
 
-import userReducer, {
-  bonfireListeners as userBonfireListeners
-} from '@store/user'
+import authReducer, {
+  bonfireListeners as authBonfireListeners
+} from '@store/auth'
 
 import chatReducer, {
   bonfireListeners as chatBonfireListeners
@@ -40,7 +40,7 @@ const sagaMiddleware = createSagaMiddleware()
 const store = configureStore({
   reducer: {
     global: globalReducer,
-    user: userReducer,
+    auth: authReducer,
     chat: chatReducer
   },
 
@@ -58,7 +58,7 @@ const store = configureStore({
 sagaMiddleware.run(rootSaga)
 
 bindBonfire(store, [
-  userBonfireListeners,
+  authBonfireListeners,
   chatBonfireListeners,
   globalBonfireListeners
 ])

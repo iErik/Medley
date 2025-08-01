@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 
-import { useSelf } from '@store/user'
+import { useSelf } from '@store/auth/getters'
 
 import { styled } from '@stitched'
 import { If, Flexbox } from '@ierik/medley-components'

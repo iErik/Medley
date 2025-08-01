@@ -1,11 +1,10 @@
 import { styled } from '@stitched'
 
 import { Wrapper, If } from '@ierik/medley-components'
-import {
-  type User,
-  type Self,
-  UserPresenceEnum
-} from '@store/user'
+
+import { type User } from '@store/shared/types'
+import { type Self } from '@store/auth'
+import { UserPresenceEnum } from '@store/chat'
 
 
 

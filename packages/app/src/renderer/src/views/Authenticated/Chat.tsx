@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
-
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { useSelector } from '@store'
 import { useAction } from '@hooks'
@@ -47,13 +46,18 @@ const Chat = () => {
 
 const Root = styled('div', {
   display: 'flex',
-  background: '$bg400',
+  background: '$bg300',
 
   width: '100%',
   height: '100%',
+  margin: '0 2px',
 
   borderTopRightRadius: '$baseRadius',
   borderBottomRightRadius: '$baseRadius',
+})
+
+const ChatWindowWrapper = styled('div', {
+  padding: '0 35px'
 })
 
 export default Chat

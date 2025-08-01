@@ -1,4 +1,4 @@
-import { useSelf } from '@store/user'
+import { useSelf } from '@store/auth'
 
 import { styled } from '@stitched'
 import { If, Flexbox } from '@ierik/medley-components'
@@ -15,7 +15,7 @@ export default function DynamicView() {
 
   return (
     <Root>
-      <Flexbox column>
+      <Grid>
         <HeaderbarLeft>
           <Button>
             <Icon
@@ -33,16 +33,16 @@ export default function DynamicView() {
           <ServerSidebar />
           <IndexedOutlet index={0} />
         </LeftColumn>
-      </Flexbox>
+      </Grid>
 
-      <Flexbox column>
+      <Grid>
         <HeaderbarRight>
         </HeaderbarRight>
 
         <RightColumn>
           <IndexedOutlet index={1} />
         </RightColumn>
-      </Flexbox>
+      </Grid>
     </Root>
   )
 }
@@ -58,6 +58,12 @@ const Root = styled('div', {
   height: '100%',
   width: '100%',
   gridTemplateColumns: 'auto 1fr'
+})
+
+const Grid = styled('div', {
+  display: 'grid',
+  gridTemplateRows: `${HEADER_HEIGHT}px minmax(0, 1fr)`,
+  height: '100vh'
 })
 
 const HeaderbarLeft = styled(Flexbox, {

@@ -1,68 +1,202 @@
+import { createSelector } from '@reduxjs/toolkit'
+
 import { useAction } from '@hooks'
-import { useSelector } from '@store'
+import { type RootState, useSelector } from '@store'
+import { type User } from '@store/shared/types'
 
-import { Chat } from '@ierik/revolt'
-import type * as StateTypes from './types'
-import { actions } from './reducer'
+import {
+  type UserRelationshipType,
+  type DirectChannel,
+  type MServer,
+  type Channel,
+  type ServerChannel,
+  type Message,
+  type ServerCategory,
+  ChannelType,
+  actions
+} from './'
 
-// -> Types
-// --------
 
-export type PopulatedCategory = Omit<Chat.ServerCategory,
-  'channels'
-> & {
-  channels: StateTypes.ServerChannel[]
+
+/*--------------------------------------------------------/
+/ -> Helpers                                              /
+/--------------------------------------------------------*/
+
+export const isDirect = (c: Channel): c is DirectChannel =>
+  c.channel_type === ChannelType.DirectMessage
+
+export const isGroup = ({ channel_type }: Channel) =>
+  channel_type === ChannelType.Group
+
+export const isSavedMsgs = ({ channel_type }: Channel) =>
+  channel_type === ChannelType.SavedMessages
+
+
+/*--------------------------------------------------------/
+/ -> Selectors                                            /
+/--------------------------------------------------------*/
+
+export type DMsWithUsers = DirectChannel & {
+  userId: string
+  user: User
 }
 
-export type PopulatedServer = Omit<StateTypes.Server,
-  'categories'
-> & {
-  categories: PopulatedCategory[]
+type DMsWithMaybeUsers = DirectChannel & {
+  userId?: string | null
+  user: User | null
 }
 
-// -> Hooks
-// --------
 
-export function useServer(
-  serverId: string
-): PopulatedServer | null {
-  const channels = useSelector(state => state.chat.channels)
-  const server = useSelector(state =>
-    state.chat.servers[serverId])
+export const selectDMs = createSelector(
+  [ (state: RootState) => state.chat.channels ],
+  (channels) => Object
+    .values(channels)
+    .filter(isDirect))
 
-  if (!server) return null
 
-  return {
-    ...server,
-    categories: server.categories?.map(cat => ({
-      ...cat,
-      channels: (cat?.channels || [])
-        .map(channelId => channels[channelId])
-        .filter(channel => !!channel) as
-          StateTypes.ServerChannel[]
-    }))
+export const selectActiveDMs = createSelector(
+  [ selectDMs ],
+  (channels) => channels.filter(c => c.active))
+
+
+export const selectDMsWithUsers = createSelector(
+  [
+    selectActiveDMs,
+    (state: RootState) => state.chat.users,
+    (state: RootState) => state.auth.self.id
+  ],
+  (channels, users, selfId) => channels
+    .map((c): DMsWithMaybeUsers => {
+      const userId = c.recipients.find(r => r !== selfId)
+
+      return {
+        ...c,
+        userId,
+        user: userId ? users[userId] : null
+      }
+    })
+    .filter((c): c is DMsWithUsers =>
+      !!c.user && !!c.userId))
+
+
+export const selectServerWithChannels = createSelector(
+  [
+    (state: RootState) => state.chat.servers,
+    (state: RootState) => state.chat.channels,
+    (_, args: { serverId: string }) =>
+      args.serverId
+  ],
+  (servers, channels, serverId): MServer | null => {
+    const server = servers[serverId]
+    if (!server) return null
+
+    return {
+      ...server,
+      categories: server.categories.map(cat => ({
+        ...cat,
+        channels: (cat.channels || [])
+          .map(channelId =>
+            channels[channelId] as ServerChannel)
+          .filter(channel => !!channel)
+      }))
+    }
   }
+)
+
+
+export const selectUserRelationship = createSelector(
+  [
+    (state: RootState) => state.chat.users,
+    (state: RootState) => state.chat.relationships,
+    (_, { type }: { type: UserRelationshipType }) => type
+  ],
+  (users, relationships, type) =>
+    (relationships[type] || []).map(userId => users[userId])
+)
+
+
+type SelectCategoryArgs = {
+  categoryId: string,
+  serverId?: string
 }
+export const selectCategory = createSelector(
+  [
+    (state: RootState) => state.chat.channels,
+    (state: RootState) => state.chat.servers,
+    (_, args: SelectCategoryArgs) => args
+  ],
+  (channels, servers, args) => {
+    let category: ServerCategory | undefined
 
-export function useCategory(categoryId: string) {
-  const channels = useSelector(state => state.chat.channels)
-
-  const category = useSelector(state => {
-    const category = Object.values(state.chat.servers)
-      ?.flatMap(({ categories }) => categories)
-      ?.find(({ id }) => categoryId === id)
+    if (args.serverId) {
+      category = (servers[args.serverId]?.categories || [])
+        .find(c => c.id === args.categoryId)
+    } else {
+      category = Object.values(servers)
+        ?.flatMap(({ categories }) => categories)
+        ?.find(({ id }) => id === args.categoryId)
+    }
 
     return {
       category,
-      channels: category?.channels
-        ?.map(channelId => channels[channelId])
+      channels: (category?.channels || []).map(channelId =>
+        channels[channelId] as ServerChannel)
     }
-  })
+  }
+)
 
-  return category
+/*--------------------------------------------------------/
+/ -> Getters                                              /
+/--------------------------------------------------------*/
+
+
+export function useUser(userId: string, serverId?: string) {
+  const user = useSelector(state =>
+    state.chat.users[userId])
+
+  const memberId = serverId ? `${serverId}-${userId}` : null
+  const member = memberId
+    ? useSelector(state => state.chat.members[memberId])
+    : null
+
+  if (!user) return { user: null, member: null }
+
+  return {
+    user,
+    member
+  }
 }
 
-export function useChannel(channelId: string) {
+export function useRelationship(type: UserRelationshipType) {
+  return useSelector(state => selectUserRelationship(
+    state,
+    { type }
+  ))
+}
+
+export function useServer(
+  serverId: string
+): MServer | null {
+  return useSelector(state => selectServerWithChannels(
+    state,
+    { serverId }
+  ))
+}
+
+export function useCategory(
+  categoryId: string,
+  serverId?: string
+): {
+  category: ServerCategory | undefined,
+  channels: ServerChannel[]
+} {
+  return useSelector(state => selectCategory(
+    state,
+    { categoryId, serverId }
+  ))
+}
+
+export function useChannel(channelId: string): Channel {
   const channel = useSelector(state =>
     state.chat.channels[channelId])
 
@@ -72,31 +206,23 @@ export function useChannel(channelId: string) {
 export function useMessages(
   channelId: string,
   fetch?: boolean
-): StateTypes.Message[] {
+): Message[] {
   const channel = useChannel(channelId)
-
   if (!channel) return []
 
   const selectChannel = useAction(actions.selectChannel)
 
-  if (!channel?.fetched && fetch) {
-    selectChannel(channel._id)
-  }
+  if (
+    !channel?.fetched &&
+    !channel?.loading &&
+    fetch
+  ) { selectChannel(channel._id) }
 
   return channel?.messages || []
 }
 
-export function useDirectMessages(): Chat.DirectMessage[] {
-  const directs = useSelector(state => {
-    const directs = Object
-      .values(state.chat.channels)
-      .filter(c =>
-        c.channel_type === Chat.ChannelType.DirectMessage)
-
-    return directs as Chat.DirectMessage[]
-  })
-
-  return directs
+export function useDirectMessages(): DirectChannel[] {
+  return useSelector(selectDMs)
 }
 
 export function useActiveChannel() {
@@ -109,3 +235,4 @@ export function useActiveChannel() {
 
   return { channel, messages }
 }
+

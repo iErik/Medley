@@ -1,52 +1,75 @@
 import {
-  BrowserRouter,
-  Routes,
-  Route,
-  type PathRouteProps,
-  type RouteProps
-} from 'react-router-dom'
-
-import App from './App'
+  type RouteObject,
+  type NavigateFunction,
+  useNavigate as _useNavigate,
+  createBrowserRouter
+} from 'react-router'
 
 import RootLayout from '@layouts/RootLayout'
 
 import DynamicView from '@views/Dynamic'
-import Authenticated from '@views/Authenticated'
-import ServerView from '@views/ServerView'
-
 
 import FriendList from '@views/Authenticated/FriendList'
+import ServerPanel from '@views/Authenticated/ServerPanel'
 import Chat from '@views/Authenticated/Chat'
 
 import Unauthenticated from '@views/Unauthenticated/Main'
 import LoginForm from '@views/Unauthenticated/LoginForm'
 import MFAForm from '@views/Unauthenticated/MFAForm'
 
-export default () =>
-  <BrowserRouter>
-    <Routes>
-      <Route element={<RootLayout />}>
-        <Route path="/" element={<DynamicView />}>
-          <Route index element={[
-            <FriendList />,
-            <p>boceta</p>,
-          ]}
-          />
 
-          <Route path="directs/:channelId" element={[
-              <FriendList/>,
-              <Chat />
-            ]}
-          >
-            <Route path="picole" element={<p>perok</p>}/>
-          </Route>
 
-        </Route>
+export const routes: RouteObject[] = [
+  {
+    Component: RootLayout,
+    children: [
+      {
+        path: '/',
+        id: 'Home',
+        Component: DynamicView,
+        children: [
+          {
+            index: true,
+            element: [ <FriendList />, <></> ]
+          },
+          {
+            id: 'DirectMessage',
+            path: 'directs/:channelId',
+            element: [ <FriendList />, <Chat /> ]
+          },
+          {
+            id: 'Server',
+            path: 'server/:serverId/channel/:channelId?',
+            element: [ <ServerPanel />, <Chat /> ]
+          }
+        ]
+      },
+      {
+        path: '/auth',
+        Component: Unauthenticated,
+        children: [
+          { id: 'Login', index: true, Component: LoginForm },
+          { id: 'MFA', path: 'mfa', Component: MFAForm },
+        ]
+      }
+    ]
+  }
+]
 
-        <Route path="/auth" element={<Unauthenticated />}>
-          <Route index element={<LoginForm />} />
-          <Route path="mfa" element={<MFAForm />} />
-        </Route>
-      </Route>
-    </Routes>
-  </BrowserRouter>
+export const browserRouter = createBrowserRouter(routes)
+
+export const navigators = (nav: NavigateFunction) => ({
+  Home: () => nav('/'),
+  Direct: (channelId: string) =>
+    nav(`directs/${channelId}`),
+  Server: (serverId: string, channelId?: string) =>
+    nav(`/server/${serverId}/channel/${channelId || ''}`),
+
+  Login: () => nav('/auth'),
+  MFA: () => nav('/auth/mfa')
+})
+
+export const useNavigation = () => {
+  const navigate = _useNavigate()
+  return navigators(navigate)
+}
