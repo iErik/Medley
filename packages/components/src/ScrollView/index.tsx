@@ -9,6 +9,12 @@ import {
   OverlayScrollbarsComponentRef
 } from 'overlayscrollbars-react'
 
+import {
+  OverlayScrollbars,
+  OnUpdatedEventListenerArgs,
+  EventListeners,
+} from 'overlayscrollbars'
+
 import 'overlayscrollbars/overlayscrollbars.css'
 
 import { styled } from '../stitched'
@@ -16,10 +22,14 @@ import { styled } from '../stitched'
 // -> Types
 // --------
 
+// TODO: Make it so that the component accepts a
+// margin/padding prop, and allows the scroll view to be
+// pinned to the bottom through a prop as well
 interface ScrollViewProps extends React.PropsWithChildren {
   className?: string
   css?: Record<string, any>
   ref?: React.RefObject<HTMLDivElement>
+  events?: EventListeners | null
 }
 
 // -> Elements
@@ -63,12 +73,21 @@ const ScrollView = (
 ) => {
   const overlayScrollRef = useRef<ScrollRef|null>(null)
 
-  useImperativeHandle(ref, ()  => {
+  useImperativeHandle(ref, () => {
     if (overlayScrollRef.current) {
       const element = overlayScrollRef.current.getElement()
       const scrollView = element?.children[1]
 
-      return scrollView as HTMLDivElement
+      console.log({
+        hasElement: !!element,
+        hasChildren: !!element?.children?.length,
+        element,
+        scrollView,
+        overlayScrollRef
+      })
+
+      //return scrollView as HTMLDivElement
+      return element as HTMLDivElement
     }
 
     return
@@ -78,7 +97,9 @@ const ScrollView = (
     <ScrollEl
       defer
       ref={overlayScrollRef}
+      css={props.css}
       element="div"
+      events={props.events}
       options={{
         scrollbars: {
           autoHide: 'scroll',
@@ -90,5 +111,10 @@ const ScrollView = (
   )
 }
 
+ScrollView.toString = () => '.rg-scroll-view'
 export default forwardRef(ScrollView)
-export type { ScrollViewProps }
+export type {
+  ScrollViewProps,
+  OnUpdatedEventListenerArgs,
+  OverlayScrollbars
+}
