@@ -29,14 +29,16 @@ export type RevoltServer = {
   _id: string
   owner: string
   name: string
-  description: string
+  description?: string | null
+
   channels: string[]
-  categories: ServerCategory[]
-  system_messages: ServerSystemMessages
+  categories?: ServerCategory[] | null
+
+  system_messages?: ServerSystemMessages | null
   roles: { [key: string]: ServerRole }
   default_permissions: number
-  icon: Asset
-  banner: Asset
+  icon?: Asset | null
+  banner?: Asset | null
   flags: number
   nsfw: boolean
   analytics: boolean
