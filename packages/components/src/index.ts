@@ -36,7 +36,7 @@ export const mkStitches = (config: Record<string, any>) => {
 // ---------------
 
 export type { ButtonProps } from './Button'
-export type { PanelProps} from './Panel'
+export type { PanelProps } from './Panel'
 
 // -> Component Exports
 // --------------------
