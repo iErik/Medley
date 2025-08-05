@@ -7,6 +7,10 @@
     ".": {
       "import": "./src/index.ts",
       "require": "./src/index.ts"
+    },
+    "./ScrollView": {
+      "import": "./src/ScrollView/index.tsx",
+      "require": "./src/ScrollView/index.tsx"
     }
   },
   "author": "",
