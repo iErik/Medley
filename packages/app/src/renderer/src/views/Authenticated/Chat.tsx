@@ -1,29 +1,25 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router'
 
-import { useSelector } from '@store'
 import { useAction } from '@hooks'
+import { actions, useChannel } from '@store/chat'
 
 import { styled } from '@stitched'
-import { useMessages, actions } from '@store/chat'
+
+import { Flexbox, If } from '@ierik/medley-components'
 
 import ChatWindow from '@components/ChatWindow'
+import MessageInput from '@components/MessageInput'
+
+import Loader from '@components/Loader'
 
 
-// Fetch channel messages
-// fetch messages before message X
-// Append messages coming from WebSocket
-//
-// The revolt client doesn't seem to make REST requests for
-// a channels messages if it has already been fetched
 
-// Chat specific scroll position
 const Chat = () => {
   const { channelId } = useParams()
+  const channel = useChannel(channelId || '')
   const selectChannel = useAction(actions.selectChannel)
-
-  const channel = useSelector(state =>
-    state.chat.channels[channelId || ''])
+  const fetchMsgsBefore = useAction(actions.fetchMsgsBefore)
 
   useEffect(() => {
     if (channel && !channel.fetched && !channel.loading) {
@@ -31,11 +27,35 @@ const Chat = () => {
     }
   }, [ channel ])
 
-  const messages = channel?.messages || []
+
+  const showLoader = channel.loading && !channel.fetched
+
+  const onFetchMsgsBefore = (messageId: string) => {
+    if (channel.loading) return
+
+    console.log('FETCHING MSGS BEFORE')
+    fetchMsgsBefore(channelId, messageId)
+  }
 
   return (
     <Root>
-      <ChatWindow messages={messages} />
+      <If condition={showLoader}>
+        <Flexbox fill vAlign="center" hAlign="center">
+          <Loader />
+        </Flexbox>
+      </If>
+
+      <If condition={!showLoader}>
+        <ChatWindow
+          key={channelId}
+          messages={channel?.messages || []}
+          onFetchBefore={onFetchMsgsBefore}
+        />
+
+        <MessageInputWrapper>
+          <MessageInput />
+        </MessageInputWrapper>
+      </If>
     </Root>
   )
 }
@@ -46,18 +66,25 @@ const Chat = () => {
 
 const Root = styled('div', {
   display: 'flex',
+  flexDirection: 'column',
   background: '$bg300',
 
   width: '100%',
   height: '100%',
-  margin: '0 2px',
+
+  '&:not(:last-child)': {
+    marginRight: '2px',
+  },
 
   borderTopRightRadius: '$baseRadius',
   borderBottomRightRadius: '$baseRadius',
 })
 
-const ChatWindowWrapper = styled('div', {
-  padding: '0 35px'
+
+const MessageInputWrapper = styled('div', {
+  padding: '20px 10px',
+
+  background: '$bg300'
 })
 
 export default Chat

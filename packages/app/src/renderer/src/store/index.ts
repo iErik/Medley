@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { configureStore } from '@reduxjs/toolkit'
 
 import {
@@ -45,8 +46,9 @@ const store = configureStore({
   },
 
   middleware: (defaultMiddlewares) =>
-    defaultMiddlewares()
-      .concat(sagaMiddleware, serializer, logger),
+    defaultMiddlewares({
+      serializableCheck: false
+    }).concat(sagaMiddleware, serializer, /*logger*/),
 
   ...(hasPreloadedState()
      ? { preloadedState: loadSerializedStore() }
@@ -72,6 +74,5 @@ export type DispatchFunc = () => AppDispatch
 export const useDispatch: DispatchFunc = useReduxDispatch
 export const useSelector: TypedUseSelectorHook<RootState> =
   useReduxSelector
-
 
 export default store

@@ -90,19 +90,38 @@ export const selectServerWithChannels = createSelector(
     const server = servers[serverId]
     if (!server) return null
 
-    return {
-      ...server,
-      categories: server.categories.map(cat => ({
+    let serverChannels: Record<string, ServerChannel> =
+      (server.channels || []).reduce((acc, channelId) => ({
+        ...acc,
+        ...(channels[channelId]
+          ? { [channelId]: channels[channelId] }
+          : {})
+      }), {})
+
+    const serverCategories = (server.categories || [])
+      .map(cat => ({
         ...cat,
         channels: (cat.channels || [])
-          .map(channelId =>
-            channels[channelId] as ServerChannel)
+          .map(channelId => {
+            const {
+              [channelId]: channel,
+              ...rest
+            } = serverChannels
+
+            // Revise this
+            serverChannels = rest
+            return channel
+          })
           .filter(channel => !!channel)
       }))
+
+    return {
+      ...server,
+      uncategorized: Object.values(serverChannels),
+      categories: serverCategories
     }
   }
 )
-
 
 export const selectUserRelationship = createSelector(
   [
@@ -145,6 +164,15 @@ export const selectCategory = createSelector(
   }
 )
 
+export const selectServerChannels = createSelector(
+  [
+
+  ],
+  () => {
+
+  }
+)
+
 /*--------------------------------------------------------/
 / -> Getters                                              /
 /--------------------------------------------------------*/
@@ -165,6 +193,20 @@ export function useUser(userId: string, serverId?: string) {
     user,
     member
   }
+}
+
+// TODO: Revise
+export function useRole(roleId: string) {
+  const activeServer = useSelector(state =>
+    state.chat.activeServer)
+
+  if (!activeServer) return null
+
+  const guild = useSelector(state =>
+    state.chat.servers[activeServer])
+  const role = (guild?.roles || {})[roleId]
+
+  return role
 }
 
 export function useRelationship(type: UserRelationshipType) {

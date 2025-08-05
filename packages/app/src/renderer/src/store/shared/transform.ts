@@ -9,13 +9,11 @@ import type { User, Asset } from './types'
 import { delta } from '@/revolt'
 
 
-
 export const getUserAvatar = (
   user: APIUser.RevoltUser
-): string =>
-  getAssetUrl(
-    user?.avatar?.tag || '',
-    user?.avatar?._id || '')
+): string => getAssetUrl(
+  user?.avatar?.tag || '',
+  user?.avatar?._id || '')
 
 export const mapUser = (
   user: APIUser.RevoltUser
@@ -32,7 +30,7 @@ export const mapUser = (
 })
 
 export const mapAsset = (
-  asset?: Common.Asset
+  asset?: Common.Asset | null
 ): Asset | null => asset
   ? ({ ...asset, src: getAssetUrl(asset.tag, asset._id) })
   : null

@@ -1,5 +1,11 @@
 import { type EnhancedStore } from '@reduxjs/toolkit'
-import { call, put, take, spawn } from 'typed-redux-saga'
+import {
+  call,
+  put,
+  take,
+  takeEvery,
+  spawn
+} from 'typed-redux-saga'
 
 import { type Events } from '@ierik/revolt'
 import { delta } from '@/revolt'
@@ -180,8 +186,13 @@ function* loginFlow () {
   }
 }
 
+function watchAuthStage (args: any) {
+  console.log('AuthStage:', { args })
+}
+
 export function* authSaga() {
   yield spawn(loginFlow)
+  yield takeEvery(types.authStage, watchAuthStage)
 }
 
 

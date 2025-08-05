@@ -1,12 +1,18 @@
 import { type EnhancedStore } from '@reduxjs/toolkit'
 
 import { decodeTime } from 'ulid'
-import { call, put, takeLatest } from 'typed-redux-saga'
+import {
+  call,
+  put,
+  takeLatest,
+  takeEvery
+} from 'typed-redux-saga'
 
 import {
   type Events,
   User as ApiUser,
   Chat,
+  Sync
 } from '@ierik/revolt'
 
 import { delta } from '@/revolt'
@@ -32,10 +38,11 @@ export type DirectChannel = Chat.DirectMessage & {
   messages: Message[]
 }
 
-export type GroupChannel = Chat.GroupChannel & {
+export type GroupChannel = Omit<Chat.GroupChannel, 'icon'> & {
   fetched: boolean
   loading: boolean
   messages: Message[]
+  icon: Asset | null
 }
 
 export type SavedMessages = Chat.SavedMessage & {
@@ -44,19 +51,21 @@ export type SavedMessages = Chat.SavedMessage & {
   messages: Message[]
 }
 
-export type TextChannel = Chat.TextChannel & {
+export type TextChannel = Omit<Chat.TextChannel, 'icon'> & {
   fetched: boolean
   loading: boolean
   messages: Message[]
+  icon: Asset | null
 }
 
 // TODO: VoiceChannel doesn't need these properties, but
 // we're including it here for consistency and so that
 // TypeScript leaves alone, but we need to revise it
-export type VoiceChannel = Chat.VoiceChannel & {
+export type VoiceChannel =Omit<Chat.VoiceChannel, 'icon'> & {
   fetched: boolean
   loading: boolean
   messages: Message[]
+  icon: Asset | null
 }
 
 export type Channel
@@ -69,7 +78,7 @@ export type Channel
 
 export type ServerChannel
   = TextChannel
-  | Chat.VoiceChannel
+  | VoiceChannel
 
 export type Server = Omit<
   Chat.RevoltServer, 'icon' | 'banner'> & {
@@ -113,6 +122,7 @@ export type ChatState = {
   servers: Record<string, Server>
   members: Record<string, Member>
   users: Record<string, User>
+  unreads: Record<string, Sync.ChannelUnread>
 
   relationships: UserRelationships
 }
@@ -130,10 +140,14 @@ export type MCategory = Omit<
 export type MServer = Omit<
   Server,
   'categories'
-> & { categories: MCategory[] }
+> & {
+  uncategorized: ServerChannel[]
+  categories: MCategory[]
+}
 
 // Re-exports
 
+export type ChannelUnread = Sync.ChannelUnread
 const ChannelType = Chat.ChannelType
 const RelationshipTypeEnum = ApiUser.RelationshipTypeEnum
 const UserPresenceEnum = ApiUser.UserPresenceEnum
@@ -180,6 +194,7 @@ const initialState: ChatState = {
   servers: {},
   members: {},
   users: {},
+  unreads: {},
 
   relationships: {
     Friend: [],
@@ -216,6 +231,14 @@ const { types, actions, rootReducer } = createSlice({
     setChannels(state, channels: Channel[]) {
       for (const channel of channels) {
         state.channels[channel._id] = channel
+      }
+    },
+
+    setUnreads(state, unreads: Sync.ChannelUnread[]) {
+      for (const unread of unreads) {
+        state.unreads[unread?._id?.channel] = {
+          ...unread
+        }
       }
     },
 
@@ -264,6 +287,7 @@ const { types, actions, rootReducer } = createSlice({
       state,
       messages: Chat.RevoltMessage[],
       channelId: string,
+      prepend: boolean = false,
       serverId?: string,
     ) {
       const channel = state.channels[channelId]
@@ -272,26 +296,34 @@ const { types, actions, rootReducer } = createSlice({
 
       if (!channel || isVoice) return
 
+      // The server API will return the most recent messages
+      // first, so we need to reverse it
       const existingMessageIds = channel.messages
         .map(msg => msg._id)
       const newMessages = (messages || [])
         .filter(msg => !existingMessageIds.includes(msg._id))
         .reverse()
 
-        const mapMsg = (message: Chat.RevoltMessage) => ({
-          ...message,
-          ...(serverId ? { serverId } : {}),
-          createdAt: decodeTime(message._id)
-        })
+      const allMessages = prepend
+        ? [ ...newMessages, ...channel.messages ]
+        : [ ...channel.messages, ...newMessages ]
 
-      channel.messages = [
-        ...newMessages,
-        ...channel.messages,
-      ].map(mapMsg)
+      channel.messages = allMessages.map((msg) =>
+        mapMessage(msg, serverId))
 
       if (channelId === state.activeChannel.id)
         state.activeChannel.messageCount = channel.messages
           .length
+    },
+
+    appendMessage(state, message: Chat.RevoltMessage) {
+      const channel = state.channels[message.channel]
+      if (!channel || !channel.fetched) return
+
+      channel.messages.push({
+        ...message,
+        createdAt: decodeTime(message._id)
+      })
     },
 
     setRelationshipList(
@@ -334,8 +366,23 @@ const { types, actions, rootReducer } = createSlice({
         state.users[user.id] = { ...target, ...user }
       }
     },
+
+    appendUser(state, user: User) {
+      if (!user.id) return
+
+      state.users[user.id] = user
+    }
   },
   actions: {
+    fetchUnreads: null,
+
+    fetchMsgsBefore: (
+      channelId: string,
+      messageId: string
+    ) => ({ channelId, messageId }),
+
+    fetchUser: (userId: string) => ({ userId }),
+
     selectChannel(channelId: string, serverId?: string) {
       return {
         channelId,
@@ -359,6 +406,30 @@ export const filterRelationship = (
   .filter(u => u.relationship === type)
   .map(u => u.id)
 
+export const mapChannel = (
+  channel: Chat.RevoltChannel
+): Channel => ({
+  ...channel,
+  fetched: false,
+  loading: false,
+  messages: [],
+  // TypeScript sadly doesn't understand that the original
+  // 'icon' property present in three of the types in the
+  // RevoltChannel union type is being overriden by a
+  // fitting icon property. So we need 'as Channel' here.
+  ...('icon' in channel
+    ? { icon: mapAsset(channel.icon) }
+    : {})
+} as Channel)
+
+export const mapMessage = (
+  msg: Chat.RevoltMessage,
+  serverId?: string
+): Message => ({
+  ...msg,
+  ...(serverId ? { serverId } : {}),
+  createdAt: decodeTime(msg._id)
+})
 
 /*--------------------------------------------------------/
 / -> Bonfire Event Handlers                               /
@@ -378,12 +449,7 @@ export const bonfireListeners = {
       banner: mapAsset(server.banner)
     }))
 
-    const channels = data?.channels?.map(channel => ({
-      ...channel,
-      fetched: false,
-      loading: false,
-      messages: []
-    }))
+    const channels = data?.channels?.map(mapChannel)
 
     store.dispatch(actions.setServers(servers))
     store.dispatch(actions.setChannels(channels))
@@ -407,6 +473,28 @@ export const bonfireListeners = {
     store.dispatch(actions.setRelationshipList('Outgoing',
       filterRelationship(mapped, 'Outgoing')
     ))
+  },
+
+  Message: (
+    store: EnhancedStore,
+    message: Events.MessageEvent
+  ) => {
+    console.log('Message event: ', { message })
+    store.dispatch(actions.appendMessage(message))
+  },
+
+  ServerMemberJoin: (
+    store: EnhancedStore,
+    data: Events.ServerMemberJoin
+  ) => {
+    const users = store.getState().chat.users
+    const isFetched = data.user in users
+
+    if (!isFetched) store.dispatch(actions.fetchUser(
+      data.user
+    ))
+
+    console.log('ServerMemberJoin:', { users, isFetched })
   }
 }
 
@@ -415,7 +503,7 @@ export const bonfireListeners = {
 /--------------------------------------------------------*/
 
 
-function* onSetActiveServer ({ args }: ReduxAction<{
+function* onSetActiveServer({ args }: ReduxAction<{
   activeServer: string
 }>) {
   const [ , data ] = yield* call(
@@ -432,7 +520,7 @@ type SelectChannelParams = ReduxAction<{
   serverId: string
 }>
 
-function* onSelectChannel ({ args }: SelectChannelParams) {
+function* onSelectChannel({ args }: SelectChannelParams) {
   yield* put(actions.setLoadingChannel(
     args.channelId,
     true))
@@ -454,6 +542,7 @@ function* onSelectChannel ({ args }: SelectChannelParams) {
   yield* put(actions.appendMessages(
     data.messages,
     args.channelId,
+    false,
     args.serverId))
 
   yield* put(actions.setLoadingChannel(
@@ -461,14 +550,70 @@ function* onSelectChannel ({ args }: SelectChannelParams) {
     false))
 }
 
+function* onFetchMsgsBefore({ args }: ReduxAction<{
+  channelId: string,
+  messageId: string
+}>) {
+  yield* put(actions.setLoadingChannel(
+    args.channelId,
+    true))
 
-export function* chatSaga() {
-  yield* takeLatest(
-    types.setActiveServer,
-    onSetActiveServer
+  const [ err, data ] = yield* call(
+    delta.channels.getMessages,
+    args.channelId,
+    {
+      limit: 20,
+      include_users: true,
+      before: args.messageId,
+    }
   )
 
+  if (err) return
+
+  if (data.type === 'IncludeUsers') {
+    yield* put(actions.setMembers(data.members || []))
+    yield* put(actions.setUsers(
+      (data.users || []).map(mapUser)
+    ))
+  }
+
+  yield* put(actions.appendMessages(
+    data.messages,
+    args.channelId,
+    true))
+
+  yield* put(actions.setLoadingChannel(
+    args.channelId,
+    false))
+}
+
+function* onFetchUnreads() {
+  const [ err, data ] = yield* call(delta.sync.getUnreads)
+
+  if (err) { return }
+
+  yield* put(actions.setUnreads(data))
+}
+
+function* onFetchUser(
+  { args }: ReduxAction<{ userId: string }>
+) {
+  const [ err, data ] = yield* call(
+    delta.users.getUser,
+    args.userId)
+
+  if (err) return
+
+  yield* put(actions.appendUser(mapUser(data)))
+}
+
+
+export function* chatSaga() {
+  yield* takeLatest(types.setActiveServer, onSetActiveServer)
+  yield* takeLatest(types.fetchUnreads, onFetchUnreads)
   yield* takeLatest(types.selectChannel, onSelectChannel)
+  yield* takeLatest(types.fetchMsgsBefore, onFetchMsgsBefore)
+  yield* takeEvery(types.fetchUser, onFetchUser)
 }
 
 

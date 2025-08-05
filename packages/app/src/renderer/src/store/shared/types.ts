@@ -4,7 +4,7 @@ import {
 } from '@ierik/revolt'
 
 
-export type Asset = Common.Asset & {
+export interface Asset extends Common.Asset {
   src: string | null
 }
 
@@ -17,4 +17,3 @@ export type User = {
   avatar: string | null
   relationship: ApiUser.RelationshipType
 }
-

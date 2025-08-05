@@ -28,12 +28,6 @@ export const ChatMessage = ({
     message.serverId
   )
 
-  /*
-  const user = useSelector(state => state.user.users[message.author])
-  const member = useSelector(state =>
-    state.user.members[`${message.serverId}-${message.author}`])
-    */
-
   const { masquerade } = message
 
   const avatarSrc = masquerade?.avatar || user?.avatar

@@ -3,9 +3,10 @@ export default {
     colors: {
       bg100: '#292C33',
       bg200: '#1A1D25',
-      bg300: '#1A1D25',
+      bg300: '#1A1C24',
       bg400: '#171A21',
       bg500: '#15181F',
+      //bg500: '#202020',
 
       headerBgDark: '#101218',
       channelsPanelBgDark: '$bg300',
@@ -41,7 +42,7 @@ export default {
     },
 
     radii: {
-      panelBorderRadius: '10px',
+      panelBorderRadius: '0px',
       baseRadius: '5px',
     }
   }

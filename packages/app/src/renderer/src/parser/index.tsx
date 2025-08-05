@@ -1,7 +1,6 @@
 import { Chat } from '@ierik/revolt'
-import { useRole } from '@hooks'
 import { useEmojiPack } from '@store/global'
-import { useChannel, useUser } from '@store/chat'
+import { useRole, useChannel, useUser } from '@store/chat'
 
 
 import {
@@ -181,7 +180,6 @@ export const emojiExtractor = (
     const regex = new RegExp(emojiRegex, 'g')
     return regex.test(token)
   }
-
 
   const emojiPack = useEmojiPack()
   const id = token.replace(/:/g, '')

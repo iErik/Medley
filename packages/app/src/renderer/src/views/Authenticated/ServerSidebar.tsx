@@ -30,14 +30,14 @@ export default function ServerSidebar() {
   const onSelectServer = (server: Server) => {
     const {
       _id: id,
-      lastSelectedChannel,
+      lastSelectedChannel: lastChannel,
       channels
     } = server
 
-    const channelId = lastSelectedChannel || channels[0] || ''
+    const channelId = lastChannel || channels[0] || ''
 
+    setActiveServer(id)
     navigate(`server/${id}/channel/${channelId}`)
-    //setActiveServer(_id)
   }
 
   const onSelectHome = () => {

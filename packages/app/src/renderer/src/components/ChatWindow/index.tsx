@@ -1,6 +1,11 @@
-import { useSelector } from '@store'
-import { type Message, useMessages } from '@store/chat'
-import { useEffect, useRef, memo } from 'react'
+import { useState, useEffect, memo } from 'react'
+
+import { type Message } from '@store/chat'
+
+import type {
+  OverlayScrollbars,
+  OnUpdatedEventListenerArgs
+} from '@ierik/medley-components/ScrollView'
 
 import { Wrapper, ScrollView } from '@ierik/medley-components'
 import { styled } from '@stitched'
@@ -13,14 +18,103 @@ import type {
 import ChatMessage from './fragments/Message'
 
 
+
 type ChatWindowProps = JSX.IntrinsicAttributes & {
-  messages: Message[]
+  messages: Message[],
+  onFetchBefore: (messageId: string) => any
 }
+
+const TOP_TOLERANCE = 15
+const BOTTOM_TOLERANCE = 5
 
 const ChatWindow = ({
   messages,
   ...props
 }: ChatWindowProps) => {
+  const [pinToBottom, setPinToBottom] = useState(false)
+  const [atTopEdge, setAtTopEdge] = useState(false)
+  const [
+    lastScrollHeight,
+    setLastScrollHeight
+  ] = useState(0)
+
+
+  useEffect(() => {
+    if (atTopEdge && messages.length)
+      props.onFetchBefore(messages[0]?._id)
+  }, [ atTopEdge ])
+
+  const getBottomEdge = (el: HTMLElement) => {
+    const scrollHeight = el.scrollHeight
+    const clientHeight = el.clientHeight
+
+    return (scrollHeight - clientHeight) - BOTTOM_TOLERANCE
+  }
+
+  const scrollToBottomEdge = (os: OverlayScrollbars) => {
+    const viewport = os.elements().viewport
+    const bottomEdge = getBottomEdge(viewport)
+
+    viewport.scrollTop = bottomEdge
+  }
+
+  const onInit = (instance: OverlayScrollbars) => {
+    const elements = instance.elements()
+    const scrollEventEl = elements.viewport
+
+    const scrollHeight = scrollEventEl.scrollHeight
+    setLastScrollHeight(scrollHeight)
+
+    scrollEventEl.scrollTop = scrollHeight
+  }
+
+  const onUpdate = (
+    instance: OverlayScrollbars,
+    updates: OnUpdatedEventListenerArgs
+  ) => {
+    const viewport = instance.elements().viewport
+    const scrollHeight = viewport.scrollHeight
+    const { updateHints: hints } = updates
+
+    console.log('SCROLL.UPDATE:', {
+      updates
+    })
+
+    if (hints.overflowAmountChanged) {
+      if (atTopEdge) {
+        const delta = scrollHeight - lastScrollHeight
+        console.log('dude we gotta fix this', {
+          scrollHeight,
+          lastScrollHeight,
+          delta
+        })
+
+        viewport.scrollTop = delta
+      }
+
+      if (pinToBottom)
+        scrollToBottomEdge(instance)
+    }
+
+    setLastScrollHeight(scrollHeight)
+  }
+
+  const onScroll = (instance: OverlayScrollbars) => {
+    const viewport = instance.elements().viewport
+    const scrollTop = viewport.scrollTop
+
+    // 5 pixels of tolerance
+    const bottomEdge = getBottomEdge(viewport)
+    const isAtBottomEdge = scrollTop >= bottomEdge
+    const isAtTopEdge = scrollTop <= TOP_TOLERANCE
+
+    if (isAtBottomEdge != pinToBottom)
+      setPinToBottom(isAtBottomEdge)
+
+    if (isAtTopEdge != atTopEdge) {
+      setAtTopEdge(isAtTopEdge)
+    }
+  }
 
   const clumpedMessages = clumpMessages(messages || [])
     ?.map((message: ClumpedMessage) =>
@@ -35,9 +129,27 @@ const ChatWindow = ({
       column
       {...props}
     >
-      <MessageList>
+      <ScrollView
+        events={{
+          initialized: onInit,
+          updated: onUpdate,
+          scroll: onScroll
+        }}
+        css={{
+          display: 'flex',
+          flexDirection: 'column !important',
+          justifyContent: 'flex-end',
+          overflowAnchor: 'auto',
+
+          '& .os-viewport': {
+            padding: '0 20px !important',
+            flexGrow: 'initial !important',
+            overflowAnchor: 'auto',
+          },
+        }}
+      >
         { clumpedMessages }
-      </MessageList>
+      </ScrollView>
     </ChatContainer>
   )
 }
@@ -45,12 +157,6 @@ const ChatWindow = ({
 /*--------------------------------------------------------/
 / -> Fragments                                            /
 /--------------------------------------------------------*/
-
-const MessageList = styled(ScrollView, {
-  width: '100%',
-  height: '100%',
-  overflowY: 'auto',
-})
 
 const ChatContainer = styled(Wrapper, {
   width: '100%',

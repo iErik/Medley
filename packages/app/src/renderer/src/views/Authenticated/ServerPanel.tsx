@@ -1,28 +1,54 @@
 import { useParams } from 'react-router'
 
 import { useSelector } from '@store'
-import { useAction } from '@hooks'
+import { useNavigation } from '@/routes'
+
+import { styled } from '@stitched'
 
 import {
+  type ServerChannel,
   selectServerWithChannels
-} from '@store/chat/getters'
+} from '@store/chat'
 
 import ServerPanel from '@components/ServerPanel'
 
 
-const ServerPanelContainer = () => {
-  const { serverId } = useParams()
+export default function ServerPanelContainer() {
+  const { serverId, channelId } = useParams()
+  const navigate = useNavigation()
 
   const server = useSelector(state =>
     selectServerWithChannels(state, {
       serverId: serverId || ''
     }))
 
+  const unreads = useSelector(state =>
+    state.chat.unreads)
+
+  const onSelectChannel = (chan: ServerChannel) => {
+    if (serverId) navigate.Server(serverId, chan._id)
+  }
+
   return (
-    <>
-      { server ? <ServerPanel server={server} /> : null }
-    </>
+    <Root>
+      { server
+        ? <ServerPanel
+            server={server}
+            unreads={unreads}
+            activeChannel={channelId}
+            onSelectChannel={onSelectChannel}
+          />
+        : null
+      }
+    </Root>
   )
 }
 
-export default ServerPanelContainer
+/*--------------------------------------------------------/
+/ -> Fragments                                            /
+/--------------------------------------------------------*/
+
+const Root = styled('div', {
+  height: '100%',
+  marginRight: '2px'
+})
