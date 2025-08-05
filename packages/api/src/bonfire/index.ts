@@ -142,10 +142,6 @@ const Bonfire = (
       const { type: eventType } = contents || {}
 
       const eventMap = {
-        [ServerEvent.Authenticated]: (
-          msg: Record<string, any>
-        ) => { console.log('Authenticated: ', { msg }) },
-
         ...Object.entries(socket?.eventListeners || {})
           .reduce((acc, [ evName, listeners ]) => ({
             ...acc,
