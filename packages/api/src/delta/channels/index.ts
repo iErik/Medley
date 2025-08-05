@@ -223,7 +223,7 @@ const DeltaChannels = (
 
   const getMessages = async (
     channelId: string,
-    queryParams: GetMessagesQueryParams
+    queryParams: GetMessagesQueryParams = {}
   ): ServiceReturn<GetMessagesResponse> => {
     let [ err, data ] = await http.get(withQueryParams(
       `channels/${channelId}/messages`,
