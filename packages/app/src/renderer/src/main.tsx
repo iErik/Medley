@@ -7,7 +7,7 @@ import store from '@store'
 import { browserRouter } from './routes'
 import '@styles/index.scss'
 
-createRoot(document.getElementById('root'))
+createRoot(document.getElementById('root')!)
   .render(
     <StrictMode>
       <Provider store={store}>
