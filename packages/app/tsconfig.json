@@ -17,6 +17,6 @@
   "watchOptions": {
     "excludeDirectories": [ "**/node_modules", "dist/*" ]
   },
-  "include": ["src/renderer/src/**/*"],
+  "include": ["src/frontend/**/*"],
   "exclude": [ "**/node_modules", "**/dist" ]
 }

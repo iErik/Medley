@@ -1,0 +1,157 @@
+import { useState } from 'react'
+import { useSelf } from '@store/auth'
+
+import { styled } from '@stitched'
+import { If, Flexbox } from '@ierik/medley-components'
+
+import { routeSlotsFor } from '@utils/router'
+
+import Icon from '@components/Icon'
+import UserCard from '@components/UserCard'
+
+import { Chat, HomeScreen, ServerSidebar } from './shared'
+import { FriendList } from './friends'
+import { ServerPanel } from './server'
+
+
+type RouteParams = { params: Record<string, any> }
+
+const SubRoutes = {
+  server: {
+    path: '/server/:serverId/channel/:channelId?',
+    components: {
+      sidebar: () => <ServerPanel />,
+      main: ({ params }: RouteParams) =>
+        <Chat channelId={params.channelId} />,
+      header: () => <></>
+    }
+  },
+  directs: {
+    path: '/directs/:channelId',
+    components: {
+      sidebar: () => <FriendList />,
+      main: ({ params }: RouteParams) =>
+        <Chat channelId={params.channelId} />,
+      header: () => <></>
+    }
+  },
+  home: {
+    components: {
+      sidebar: () => <FriendList />,
+      main: () => <HomeScreen />,
+      header: () => <></>
+    }
+  }
+}
+
+
+export default function App() {
+  const [hideServers, setHideServers] = useState(false)
+  const user = useSelf()
+
+  return (
+    <Root>
+      <Grid>
+        <HeaderbarLeft>
+          <Button>
+            <Icon
+              icon="ArrowSquareLeft"
+              size={25}
+            />
+          </Button>
+
+          <If condition={!!user}>
+            <UserCard user={user} />
+          </If>
+        </HeaderbarLeft>
+
+        <LeftColumn>
+          <ServerSidebar />
+
+          { routeSlotsFor(SubRoutes, 'sidebar') }
+        </LeftColumn>
+      </Grid>
+
+      <Grid>
+        <HeaderbarRight>
+        </HeaderbarRight>
+
+        <RightColumn>
+          { routeSlotsFor(SubRoutes, 'main') }
+        </RightColumn>
+      </Grid>
+    </Root>
+  )
+}
+
+/*--------------------------------------------------------/
+/ -> Fragments                                            /
+/--------------------------------------------------------*/
+
+const HEADER_HEIGHT = 55
+
+const Root = styled('div', {
+  display: 'grid',
+  height: '100%',
+  width: '100%',
+  gridTemplateColumns: 'auto 1fr'
+})
+
+const Grid = styled('div', {
+  display: 'grid',
+  gridTemplateRows: `${HEADER_HEIGHT}px minmax(0, 1fr)`,
+  height: '100vh'
+})
+
+const HeaderbarLeft = styled(Flexbox, {
+  height: HEADER_HEIGHT,
+  paddingLeft: 5,
+  paddingBottom: 5,
+  paddingTop: 5,
+  gap: 5,
+
+  defaultVariants: {
+    vAlign: 'start',
+    direction: 'row'
+  }
+})
+
+const HeaderbarRight = styled(Flexbox, {
+  height: HEADER_HEIGHT,
+  padding: 5,
+
+  defaultVariants: {
+    vAlign: 'start',
+    direction: 'row'
+  }
+})
+
+const LeftColumn = styled(Flexbox, {
+  paddingLeft: 5,
+  paddingBottom: 5,
+
+  flexGrow: 1
+})
+
+const RightColumn = styled(Flexbox, {
+  paddingBottom: 5,
+  paddingRight: 5,
+
+  flexGrow: 1
+})
+
+// This Button *has* to be the same width as our Server
+// List, otherwise the layout will look incoherent and
+// disgruntled.
+const Button = styled('button', {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+
+  background: '$bg300',
+  padding: 10,
+  borderRadius: 5,
+  flexShrink: 0,
+
+  width: '$serverList',
+})
