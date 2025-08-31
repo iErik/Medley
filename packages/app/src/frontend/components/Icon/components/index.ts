@@ -6,4 +6,5 @@ export { default as MessageNotif } from "./MessageNotif";
 export { default as People } from "./People";
 export { default as TextChannel } from "./TextChannel";
 export { default as UserAdd } from "./UserAdd";
+export { default as UserTag } from "./UserTag";
 export { default as UserTick } from "./UserTick";
