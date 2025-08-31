@@ -1,5 +1,5 @@
 import { createSlice } from '@utils/redux'
-import type { User, Common } from '@ierik/revolt'
+import type { User, Common } from '@packages/api'
 
 // -> Types
 // --------

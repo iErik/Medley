@@ -13,7 +13,7 @@ import {
   User as ApiUser,
   Chat,
   Sync
-} from '@ierik/revolt'
+} from '@packages/api'
 
 import { delta } from '@/revolt'
 

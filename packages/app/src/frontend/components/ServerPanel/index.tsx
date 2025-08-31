@@ -9,7 +9,7 @@ import {
   Text,
   ScrollView,
   Flexbox
-} from '@ierik/medley-components'
+} from '@packages/components'
 
 import Icon from '@components/Icon'
 import { styled } from '@stitched'

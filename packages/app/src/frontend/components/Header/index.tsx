@@ -1,7 +1,7 @@
 import { useSelector } from '@store'
 import { AuthState } from '@store/user'
 
-import { Flexbox, Text } from '@ierik/medley-components'
+import { Flexbox, Text } from '@packages/components'
 import { styled } from '@stitched'
 
 import { productName } from '@pkg/package.json'

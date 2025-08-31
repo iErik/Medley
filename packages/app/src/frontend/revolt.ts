@@ -1,4 +1,4 @@
-import { createClient } from '@ierik/revolt'
+import { createClient } from '@packages/api'
 
 export const { bonfire, delta } = createClient({
   cache: true,

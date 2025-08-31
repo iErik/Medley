@@ -7,7 +7,7 @@ import { useSelector } from '@store'
 
 import { styled } from '@stitched'
 
-import { Flexbox, If } from '@ierik/medley-components'
+import { Flexbox, If } from '@packages/components'
 
 import ChatWindow from '@components/ChatWindow'
 import MessageInput from '@components/MessageInput'

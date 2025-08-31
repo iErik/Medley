@@ -1,6 +1,6 @@
 import type { EnhancedStore } from '@reduxjs/toolkit'
 
-import { Bonfire } from '@ierik/revolt'
+import { Bonfire } from '@packages/api'
 import { bonfire } from '@/revolt'
 
 

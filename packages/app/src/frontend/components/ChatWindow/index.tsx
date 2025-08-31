@@ -5,9 +5,9 @@ import { type Message } from '@store/chat'
 import type {
   OverlayScrollbars,
   OnUpdatedEventListenerArgs
-} from '@ierik/medley-components/ScrollView'
+} from '@packages/components/ScrollView'
 
-import { Wrapper, ScrollView } from '@ierik/medley-components'
+import { Wrapper, ScrollView } from '@packages/components'
 import { styled } from '@stitched'
 
 import type {

@@ -2,11 +2,12 @@ import { createSelector } from '@reduxjs/toolkit'
 
 import { useAction } from '@hooks'
 import { type RootState, useSelector } from '@store'
-import { type User } from '@store/shared/types'
+import type { User } from '@store/shared/types'
 
 import {
   type UserRelationshipType,
   type DirectChannel,
+  type GroupChannel,
   type MServer,
   type Channel,
   type ServerChannel,
@@ -17,6 +18,25 @@ import {
 } from './'
 
 
+/*--------------------------------------------------------/
+/ -> Types                                                /
+/--------------------------------------------------------*/
+
+export type MDirectChannel = DirectChannel & {
+  userId: string
+  user: User
+}
+
+export type MUserRelationships = {
+  [key in UserRelationshipType]: User
+}
+
+export type MGroupChannel = Omit<
+  GroupChannel,
+  'recipients'
+> & {
+  recipients: User[]
+}
 
 /*--------------------------------------------------------/
 / -> Helpers                                              /
@@ -25,8 +45,8 @@ import {
 export const isDirect = (c: Channel): c is DirectChannel =>
   c.channel_type === ChannelType.DirectMessage
 
-export const isGroup = ({ channel_type }: Channel) =>
-  channel_type === ChannelType.Group
+export const isGroup = (c: Channel): c is GroupChannel =>
+  c.channel_type === ChannelType.Group
 
 export const isSavedMsgs = ({ channel_type }: Channel) =>
   channel_type === ChannelType.SavedMessages
@@ -35,17 +55,6 @@ export const isSavedMsgs = ({ channel_type }: Channel) =>
 /*--------------------------------------------------------/
 / -> Selectors                                            /
 /--------------------------------------------------------*/
-
-export type DMsWithUsers = DirectChannel & {
-  userId: string
-  user: User
-}
-
-type DMsWithMaybeUsers = DirectChannel & {
-  userId?: string | null
-  user: User | null
-}
-
 
 export const selectDMs = createSelector(
   [ (state: RootState) => state.chat.channels ],
@@ -66,7 +75,7 @@ export const selectDMsWithUsers = createSelector(
     (state: RootState) => state.auth.self.id
   ],
   (channels, users, selfId) => channels
-    .map((c): DMsWithMaybeUsers => {
+    .map((c) => {
       const userId = c.recipients.find(r => r !== selfId)
 
       return {
@@ -75,8 +84,21 @@ export const selectDMsWithUsers = createSelector(
         user: userId ? users[userId] : null
       }
     })
-    .filter((c): c is DMsWithUsers =>
+    .filter((c): c is MDirectChannel =>
       !!c.user && !!c.userId))
+
+export const selectGroupChannels = createSelector(
+  [
+    (state: RootState) => state.chat.channels,
+    (state: RootState) => state.chat.users,
+  ],
+  (channels, users) => Object
+    .values(channels)
+    .filter(isGroup)
+    .map((channel): MGroupChannel => ({
+      ...channel,
+      recipients: channel.recipients.map(id => users[id])
+    })))
 
 
 export const selectServerWithChannels = createSelector(
@@ -137,14 +159,13 @@ export const selectUserRelationships = createSelector(
   [
     (state: RootState) => state.chat.users,
     (state: RootState) => state.chat.relationships,
-    (_, { type }: { type?: UserRelationshipType }) => type
   ],
   (users, relationships) => Object
     .entries(relationships)
     .reduce((acc, [name, values]) => ({
       ...acc,
       [name]: (values || []).map(userId => users[userId])
-    }))
+    }), {} as PopulatedUserRelationships)
 )
 
 

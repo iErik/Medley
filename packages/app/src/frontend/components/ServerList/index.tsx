@@ -1,6 +1,6 @@
 import { type Server, } from '@store/chat'
 
-import { Flexbox } from '@ierik/medley-components'
+import { Flexbox } from '@packages/components'
 import { styled } from '@stitched'
 
 import Icon from '@components/Icon'

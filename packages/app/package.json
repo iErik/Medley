@@ -41,8 +41,8 @@
     "PORT": 3344
   },
   "dependencies": {
-    "@ierik/medley-components": "workspace:^",
-    "@ierik/revolt": "workspace:^",
+    "@packages/components": "workspace:^",
+    "@packages/api": "workspace:^",
     "@lexical/react": "^0.9.1",
     "@reduxjs/toolkit": "^2.8.2",
     "@stitches/react": "^1.2.8",

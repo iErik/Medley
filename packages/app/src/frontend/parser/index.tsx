@@ -1,4 +1,4 @@
-import { Chat } from '@ierik/revolt'
+import { Chat } from '@packages/api'
 import { useEmojiPack } from '@store/global'
 import { useRole, useChannel, useUser } from '@store/chat'
 

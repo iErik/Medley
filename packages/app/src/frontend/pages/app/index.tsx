@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useSelf } from '@store/auth'
 
 import { styled } from '@stitched'
-import { If, Flexbox } from '@ierik/medley-components'
+import { If, Flexbox } from '@packages/components'
 
 import { routeSlotsFor } from '@utils/router'
 
@@ -49,11 +49,15 @@ export default function App() {
   const [hideServers, setHideServers] = useState(false)
   const user = useSelf()
 
+  const toggleServers = () => {
+    setHideServers(!hideServers)
+  }
+
   return (
     <Root>
       <Grid>
         <HeaderbarLeft>
-          <Button>
+          <Button onClick={toggleServers}>
             <Icon
               icon="ArrowSquareLeft"
               size={25}
@@ -66,7 +70,7 @@ export default function App() {
         </HeaderbarLeft>
 
         <LeftColumn>
-          <ServerSidebar />
+          <ServerSidebar hidden={hideServers} />
 
           { routeSlotsFor(SubRoutes, 'sidebar') }
         </LeftColumn>
@@ -134,6 +138,8 @@ const LeftColumn = styled(Flexbox, {
 })
 
 const RightColumn = styled(Flexbox, {
+  width: '100%',
+  transition: 'width 300ms ease',
   paddingBottom: 5,
   paddingRight: 5,
 

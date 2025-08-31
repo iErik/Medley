@@ -28,10 +28,10 @@ devDependencies:
   '@babel/core':
     specifier: ^7.21.4
     version: 7.21.4
-  '@ierik/medley-components':
+  '@packages/components':
     specifier: workspace:^
     version: link:../components
-  '@ierik/revolt':
+  '@packages/api':
     specifier: workspace:^
     version: link:../api
   '@reduxjs/toolkit':

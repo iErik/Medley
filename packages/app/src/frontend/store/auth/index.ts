@@ -7,7 +7,7 @@ import {
   spawn
 } from 'typed-redux-saga'
 
-import { type Events } from '@ierik/revolt'
+import { type Events } from '@packages/api'
 import { delta } from '@/revolt'
 
 import type { User } from '@store/shared/types'

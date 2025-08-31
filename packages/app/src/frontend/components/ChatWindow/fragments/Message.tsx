@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { useSelector } from '@store'
 import { useUser } from '@store/chat'
 
-import { Wrapper, Text }  from '@ierik/medley-components'
+import { Wrapper, Text }  from '@packages/components'
 import { styled } from '@stitched'
 import parseMsg from '@parser'
 

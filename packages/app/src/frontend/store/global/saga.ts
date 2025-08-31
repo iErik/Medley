@@ -7,8 +7,8 @@ import {
 import { types, actions } from '@store/global'
 import { delta } from '@/revolt'
 
-import { getAssetUrl } from '@ierik/revolt'
-import type { User } from '@ierik/revolt'
+import { getAssetUrl } from '@packages/api'
+import type { User } from '@packages/api'
 
 const mapUser = (user: User.RevoltUser) => ({
   ...(user || {}),

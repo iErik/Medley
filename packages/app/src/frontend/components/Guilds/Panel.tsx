@@ -6,7 +6,7 @@ import {
   Wrapper,
   Text,
   Panel,
-} from '@ierik/medley-components'
+} from '@packages/components'
 
 import { styled } from '@/stitches.config'
 import Icon from '@components/Icon'

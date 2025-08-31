@@ -3,7 +3,7 @@ import { memo, useMemo } from 'react'
 import { styled } from '@/stitches.config'
 import { Guild} from '@ierik/discordance-api'
 
-import { Wrapper } from '@ierik/medley-components'
+import { Wrapper } from '@packages/components'
 import GuildPanel from '@components/Guilds/Panel'
 import Icon from '@components/Icon'
 

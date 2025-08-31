@@ -1,7 +1,7 @@
 import {
   type Common,
   User as ApiUser
-} from '@ierik/revolt'
+} from '@packages/api'
 
 
 export interface Asset extends Common.Asset {

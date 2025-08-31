@@ -1,5 +1,5 @@
 {
-  "name": "@ierik/revolt",
+  "name": "@packages/api",
   "version": "1.0.0",
   "description": "",
   "main": "./lib/revolt.umd.js",

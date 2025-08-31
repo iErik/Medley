@@ -1,4 +1,4 @@
-import { mkStitches } from '@ierik/medley-components'
+import { mkStitches } from '@packages/components'
 import config from './config'
 
 export const {

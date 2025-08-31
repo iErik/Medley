@@ -1,6 +1,6 @@
 import { useAction } from '@hooks'
 import { actions } from '@store/auth'
-import { Wrapper, Form } from '@ierik/medley-components'
+import { Wrapper, Form } from '@packages/components'
 
 // -> MultiFactor Authentication Form
 // ----------------------------------

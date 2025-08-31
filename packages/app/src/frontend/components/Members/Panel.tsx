@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import { Panel } from '@ierik/medley-components'
+import { Panel } from '@packages/components'
 import { styled } from '@/stitches.config'
 
 // -> Elements

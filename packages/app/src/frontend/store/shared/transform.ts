@@ -2,7 +2,7 @@ import {
   type Common,
   User as APIUser,
   getAssetUrl
-} from '@ierik/revolt'
+} from '@packages/api'
 
 import type { User, Asset } from './types'
 

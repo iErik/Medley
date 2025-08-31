@@ -1,5 +1,5 @@
 import { Route, Switch } from 'wouter'
-import { Flexbox, Text } from '@ierik/medley-components'
+import { Flexbox, Text } from '@packages/components'
 
 import { LoginForm } from './login'
 import { MFAForm } from './mfa'

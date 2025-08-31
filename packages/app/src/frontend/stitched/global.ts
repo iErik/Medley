@@ -2,7 +2,7 @@ import {
   globalConfig as baseGlobalConfig,
   globalCss,
   extendObj
-} from '@ierik/medley-components'
+} from '@packages/components'
 
 export default globalCss(extendObj(baseGlobalConfig, {
   '@media (prefers-reduced-motion: no-preference)': {
