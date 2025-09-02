@@ -1,3 +1,4 @@
+import type * as Stitches from '@stitches/react'
 import React, { type SVGProps, Ref } from 'react'
 
 import { styled } from '@stitched'
@@ -11,6 +12,7 @@ export type IconProps = SVGProps<SVGSVGElement> & {
   icon: IconName
   size?: number
   ref?: Ref<SVGSVGElement>
+  css?: Stitches.CSS
 }
 
 const DEFAULT_SIZE = 24
@@ -31,7 +33,7 @@ export default function Icon({
   })
 
   return (
-    <IconWrapper className="icon-wrapper">
+    <IconWrapper className="icon-wrapper" css={props.css}>
       { Component }
     </IconWrapper>
   )

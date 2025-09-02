@@ -1,9 +1,12 @@
+export { default as Profiles } from "./Profiles";
+export { default as ArrowDown } from "./ArrowDown";
 export { default as ArrowRight } from "./ArrowRight";
 export { default as ArrowSquareLeft } from "./ArrowSquareLeft";
 export { default as Chat } from "./Chat";
 export { default as Home } from "./Home";
 export { default as MessageNotif } from "./MessageNotif";
 export { default as People } from "./People";
+export { default as Search } from "./Search";
 export { default as TextChannel } from "./TextChannel";
 export { default as UserAdd } from "./UserAdd";
 export { default as UserTag } from "./UserTag";
