@@ -1,3 +1,6 @@
 [submodule "packages/react-generics"]
 	path = packages/react-generics
 	url = git@github.com:iErik/react-generics.git
+[submodule "packages/ts-utils"]
+	path = packages/ts-utils
+	url = git@github.com:iErik/ts-utils.git
