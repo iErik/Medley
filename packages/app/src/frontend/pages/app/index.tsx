@@ -45,6 +45,7 @@ const SubRoutes = {
 }
 
 
+// TODO: Properly set max-width for sidebar slot
 export default function App() {
   const [hideServers, setHideServers] = useState(false)
   const user = useSelf()
