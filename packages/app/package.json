@@ -10,7 +10,7 @@
     "dev": "node scripts/dev-server.mjs"
   },
   "author": "",
-  "license": "ISC",
+  "license": "GPL-2",
   "engines": {
     "node": ">=14.18.2"
   },
@@ -43,6 +43,7 @@
   "dependencies": {
     "@packages/components": "workspace:^",
     "@packages/api": "workspace:^",
+    "@packages/ts-utils": "workspace:../ts-utils",
     "@lexical/react": "^0.9.1",
     "@reduxjs/toolkit": "^2.8.2",
     "@stitches/react": "^1.2.8",
