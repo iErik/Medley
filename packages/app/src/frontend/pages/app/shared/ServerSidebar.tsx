@@ -74,7 +74,6 @@ const Root = styled('div', {
   display: 'grid',
   gridTemplateRows: '1fr',
   overflow: 'hidden',
-  width: '100%',
   height: '100%',
   transition: 'width 300ms ease',
 
