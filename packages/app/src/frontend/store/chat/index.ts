@@ -150,6 +150,8 @@ export type MServer = Omit<
 export type ChannelUnread = Sync.ChannelUnread
 const ChannelType = Chat.ChannelType
 const RelationshipTypeEnum = ApiUser.RelationshipTypeEnum
+
+export type UserPresence = ApiUser.UserPresence
 const UserPresenceEnum = ApiUser.UserPresenceEnum
 
 export {

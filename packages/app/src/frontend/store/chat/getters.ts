@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { decodeTime } from 'ulid'
 
 import { useAction } from '@hooks'
 import { type RootState, useSelector } from '@store'
@@ -28,7 +29,7 @@ export type MDirectChannel = DirectChannel & {
 }
 
 export type MUserRelationships = {
-  [key in UserRelationshipType]: User
+  [key in UserRelationshipType]: User[]
 }
 
 export type MGroupChannel = Omit<
@@ -37,6 +38,10 @@ export type MGroupChannel = Omit<
 > & {
   recipients: User[]
 }
+
+export type MDirectOrGroup = MGroupChannel | MDirectChannel
+
+export type DirectOrGroup = GroupChannel | DirectChannel
 
 /*--------------------------------------------------------/
 / -> Helpers                                              /
@@ -99,6 +104,48 @@ export const selectGroupChannels = createSelector(
       ...channel,
       recipients: channel.recipients.map(id => users[id])
     })))
+
+export const selectDMsAndGroups = createSelector(
+  [
+    (state: RootState) => state.chat.channels,
+    (state: RootState) => state.chat.users,
+    (state: RootState) => state.auth.self.id
+  ],
+  (channels, users, selfId): MDirectOrGroup[] => {
+    const getMsgTime = (c: MDirectOrGroup) =>
+      c.last_message_id ? decodeTime(c.last_message_id) : 0
+
+    return Object.values(channels)
+      .filter((c): c is DirectOrGroup =>
+        isDirect(c) ? c.active : isGroup(c))
+      .reduce((acc, channel: DirectOrGroup) => {
+        if (channel.channel_type == ChannelType.Group) {
+          return [
+            ...acc,
+            {
+              ...channel,
+              recipients: channel.recipients
+                .map(id => users[id])
+            }
+          ]
+        }
+
+        const userId = channel.recipients
+          .find(r => r !== selfId)
+        if (!userId || !(userId in users)) return acc
+
+        return [
+          ...acc,
+          {
+            ...channel,
+            userId,
+            user: users[userId]
+          }
+        ]
+      }, [] as MDirectOrGroup[])
+      .sort((a, b) => getMsgTime(b) - getMsgTime(a))
+  }
+)
 
 
 export const selectServerWithChannels = createSelector(
@@ -165,7 +212,7 @@ export const selectUserRelationships = createSelector(
     .reduce((acc, [name, values]) => ({
       ...acc,
       [name]: (values || []).map(userId => users[userId])
-    }), {} as PopulatedUserRelationships)
+    }), {} as MUserRelationships)
 )
 
 
@@ -180,7 +227,7 @@ export const selectCategory = createSelector(
     (_, args: SelectCategoryArgs) => args
   ],
   (channels, servers, args) => {
-    let category: ServerCategory | undefined
+    let category: ServerCategory | undefined | null
 
     if (args.serverId) {
       category = (servers[args.serverId]?.categories || [])
@@ -188,7 +235,7 @@ export const selectCategory = createSelector(
     } else {
       category = Object.values(servers)
         ?.flatMap(({ categories }) => categories)
-        ?.find(({ id }) => id === args.categoryId)
+        ?.find(c => c?.id === args.categoryId)
     }
 
     return {
@@ -264,7 +311,7 @@ export function useCategory(
   categoryId: string,
   serverId?: string
 ): {
-  category: ServerCategory | undefined,
+  category: ServerCategory | undefined | null,
   channels: ServerChannel[]
 } {
   return useSelector(state => selectCategory(
