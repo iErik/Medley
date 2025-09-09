@@ -129,7 +129,6 @@ const Lowerline = styled('p', {
   fontWeight: '$medium',
   userSelect: 'none',
   fontSize: 14,
-  height: '1em',
   ellipsis: '100%',
 })
 
@@ -139,8 +138,6 @@ const Headline = styled('p', {
   userSelect: 'none',
   fontWeight: '$medium',
   fontSize: 15,
-  marginBottom: 2,
-  height: '1em',
   ellipsis: '100%',
 })
 
