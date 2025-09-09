@@ -18,6 +18,7 @@ type TextSize
   = 'xs'
   | 'sm'
   | 'base'
+  | 'md'
   | 'lg'
   | 'xl'
   | '2xl'
@@ -35,14 +36,25 @@ type TextColor
   | 'fg800'
   | 'fg900'
 
+type TextWeight
+  = 'thin'
+  | 'light'
+  | 'normal'
+  | 'medium'
+  | 'semiBold'
+  | 'bold'
+  | 'extraBold'
+
+
 export type TextProps = React.PropsWithChildren & {
   decorative?: boolean
   type?: TextType
   size?: TextSize
+  color?: TextColor
+  weight?: TextWeight
   sans?: boolean
   serif?: boolean
   mono?: boolean
-  color?: TextColor
   ellipsis?: boolean
   noSelect?: boolean
 }
@@ -76,6 +88,7 @@ const TextEl = stitch(BaseText, {
       xs: { fontSize: '$xs' },
       sm: { fontSize: '$sm' },
       base: { fontSize: '$base' },
+      md: { fontSize: '$md' },
       lg: { fontSize: '$lg' },
       xl: { fontSize: '$xl' },
       '2xl': { fontSize: '$2xl' },
