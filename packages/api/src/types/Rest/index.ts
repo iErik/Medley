@@ -1,3 +1,5 @@
+import type { RevoltError } from '@/types/Error'
+
 // -> Authentication
 // -----------------
 
@@ -9,11 +11,11 @@ export type UserCredentials = {
 // -> General
 // ----------
 
-export type ServiceError =
-  Error | Response | boolean | null
+export type GenericServiceError =
+  RevoltError | Error | Response | boolean | null
 
 export type ServiceReturn = [
-  ServiceError,
+  GenericServiceError,
   any
 ]
 
