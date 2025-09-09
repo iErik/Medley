@@ -3,6 +3,10 @@ import { useRef, useState } from 'react'
 import { styled } from '@stitched'
 
 
+// TODO:
+// initialWith?
+// maxWidth?
+// minWidth?
 type ResizeableDivProps = {
   children?: React.ReactNode
   css?: Stitches.CSS
@@ -43,7 +47,7 @@ const ResizeableDiv = (props: ResizeableDivProps) => {
   const onMouseUp = () => {
     window.removeEventListener('mousemove', onResize)
     window.removeEventListener('mouseup', onMouseUp)
-    window.removeEventListener('mouseout', onMouseUp)
+    window.removeEventListener('mouseleave', onMouseUp)
   }
 
   const onHandleClick = () => {
@@ -51,7 +55,7 @@ const ResizeableDiv = (props: ResizeableDivProps) => {
       setSize(containerRef.current[elSizeProp])
 
     window.addEventListener('mouseup', onMouseUp)
-    window.addEventListener('mouseout', onMouseUp)
+    window.addEventListener('mouseleave', onMouseUp)
     window.addEventListener('mousemove', onResize)
   }
 
