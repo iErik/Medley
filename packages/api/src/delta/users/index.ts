@@ -13,6 +13,10 @@ import type {
   FieldsUser
 } from '@/types/User'
 
+import type {
+  RevoltChannel
+} from '@/types/Chat'
+
 // -> Types
 // --------
 
@@ -114,13 +118,28 @@ const DeltaUsers = (
   }
 
   /**
-   * Changes the username of the currently authenticated user.
+   * Changes the username of the currently authenticated
+   * user.
    */
   const setUsername = async (
     params: SetUsernameParams
   ): ServiceReturn<UserProfile> => {
     const [ err, data ] = await http
       .patch('users/@me/username', params)
+
+    return [ err, data ]
+  }
+
+  /**
+   * Open a DM with another user.
+   * If the target is oneself, a saved messages channel is
+   * returned.
+   */
+  const dmUser = async (
+    userId: string
+  ): ServiceReturn<RevoltChannel> => {
+    const [ err, data ] = await http
+      .get(`/users/${userId}/dm`)
 
     return [ err, data ]
   }
@@ -133,7 +152,8 @@ const DeltaUsers = (
     getDefaultAvatarUrl,
     getUserProfile,
     setUser,
-    setUsername
+    setUsername,
+    dmUser
   }
 }
 
