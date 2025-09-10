@@ -1,10 +1,9 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useLocation } from 'wouter'
+import { useEffect } from 'react'
 
 import { useAction } from '@hooks'
 import { actions, useChannel } from '@store/chat'
-import { useSelector } from '@store'
 
+import { useSelector } from '@store'
 import { styled } from '@stitched'
 
 import { Flexbox, If } from '@packages/components'
@@ -21,18 +20,23 @@ type ChatProps = {
 
 const Chat = (props: ChatProps) => {
   const channel = useChannel(props.channelId || '')
+  const channelsFetched = useSelector(state =>
+    state.chat.channelsFetched)
 
   const selectChannel = useAction(actions.selectChannel)
   const fetchMsgsBefore = useAction(actions.fetchMsgsBefore)
 
   useEffect(() => {
+    if (!channelsFetched)
+      return
+
     if (channel && !channel.fetched && !channel.loading) {
       selectChannel(channel._id)
     }
-  }, [ channel ])
+  }, [ channel, channelsFetched ])
 
 
-  const showLoader = channel.loading && !channel.fetched
+  const showLoader = channel?.loading && !channel?.fetched
 
   const onFetchMsgsBefore = (messageId: string) => {
     if (channel.loading) return
@@ -48,10 +52,10 @@ const Chat = (props: ChatProps) => {
         </Flexbox>
       </If>
 
-      <If condition={!showLoader}>
+      <If condition={!showLoader && !!channel}>
         <ChatWindow
           key={props.channelId}
-          messages={channel?.messages || []}
+          channel={channel}
           onFetchBefore={onFetchMsgsBefore}
         />
 
