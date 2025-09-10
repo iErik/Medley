@@ -18,6 +18,11 @@ import {
   actions
 } from './'
 
+import {
+  isDirect,
+  isGroup
+} from './helpers'
+
 
 /*--------------------------------------------------------/
 / -> Types                                                /
@@ -47,14 +52,6 @@ export type DirectOrGroup = GroupChannel | DirectChannel
 / -> Helpers                                              /
 /--------------------------------------------------------*/
 
-export const isDirect = (c: Channel): c is DirectChannel =>
-  c.channel_type === ChannelType.DirectMessage
-
-export const isGroup = (c: Channel): c is GroupChannel =>
-  c.channel_type === ChannelType.Group
-
-export const isSavedMsgs = ({ channel_type }: Channel) =>
-  channel_type === ChannelType.SavedMessages
 
 
 /*--------------------------------------------------------/
@@ -70,7 +67,7 @@ export const selectDMs = createSelector(
 
 export const selectActiveDMs = createSelector(
   [ selectDMs ],
-  (channels) => channels.filter(c => c.active))
+  (channels) => channels.filter(c => c.active || c.listed))
 
 
 export const selectDMsWithUsers = createSelector(
@@ -117,7 +114,7 @@ export const selectDMsAndGroups = createSelector(
 
     return Object.values(channels)
       .filter((c): c is DirectOrGroup =>
-        isDirect(c) ? c.active : isGroup(c))
+        isDirect(c) ? c.active || c.listed : isGroup(c))
       .reduce((acc, channel: DirectOrGroup) => {
         if (channel.channel_type == ChannelType.Group) {
           return [
@@ -146,6 +143,41 @@ export const selectDMsAndGroups = createSelector(
       .sort((a, b) => getMsgTime(b) - getMsgTime(a))
   }
 )
+
+// TODO:
+export const selectDMsFromUser = createSelector(
+  [
+    selectDMs,
+    (state: RootState) => state.chat.users,
+    (args: { userId: string }) => args.userId
+  ],
+  (directs, users, userId) => {
+
+  }
+)
+
+export const selectUserFromDirect  = createSelector(
+  [
+    (state: RootState) => state.chat.channels,
+    (state: RootState) => state.chat.users,
+    (state: RootState) => state.auth.self.id,
+    (_, args: { directId: string }) => args.directId
+  ],
+  (channels, users, selfId, directId) => {
+    const direct = channels[directId]
+    if (!direct || !isDirect(direct))
+      return null
+
+    const recipientId = direct.recipients.find(id =>
+      id != selfId)
+
+    if (!recipientId)
+      return null
+
+    return users[recipientId] || null
+  }
+)
+
 
 
 export const selectServerWithChannels = createSelector(

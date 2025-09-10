@@ -22,6 +22,12 @@ import { mapUser, mapAsset } from '@store/shared/transform'
 
 import { type ReduxAction, createSlice } from '@utils/redux'
 
+import {
+  isDirect,
+  isGroup,
+  isSavedMsgs
+} from './helpers'
+
 
 /*--------------------------------------------------------/
 / -> Types                                                /
@@ -35,6 +41,7 @@ export type Message = Chat.RevoltMessage & {
 export type DirectChannel = Chat.DirectMessage & {
   fetched: boolean
   loading: boolean
+  listed:  boolean
   messages: Message[]
 }
 
@@ -117,6 +124,7 @@ export type ActiveChannel = {
 export type ChatState = {
   activeChannel: ActiveChannel
   activeServer: string | null
+  channelsFetched: boolean
 
   channels: Record<string, Channel>
   servers: Record<string, Server>
@@ -168,21 +176,16 @@ export const getMemberFullId = (
   { _id }: ApiUser.RevoltMember
 ): string => `${_id.server}-${_id.user}`
 
-export const isDirect = (c: Channel): c is DirectChannel =>
-  c.channel_type === ChannelType.DirectMessage
-
-export const isGroup = ({ channel_type }: Channel) =>
-  channel_type === ChannelType.Group
-
-export const isSavedMsgs = ({ channel_type }: Channel) =>
-  channel_type === ChannelType.SavedMessages
-
 
 /*--------------------------------------------------------/
 / -> Reducer                                              /
 /--------------------------------------------------------*/
 
+// TODO: Create an action that will allow displaying a
+// DirectMessage channel even if it is inactive
 const initialState: ChatState = {
+  channelsFetched: false,
+
   activeServer: null,
   activeChannel: {
     id: '',
@@ -215,6 +218,10 @@ const { types, actions, rootReducer } = createSlice({
       state.activeServer = activeServer
     },
 
+    setChannelsFetched(state, fetched: boolean) {
+      state.channelsFetched = fetched
+    },
+
     setActiveChannel(
       state,
       channelId: string,
@@ -222,6 +229,16 @@ const { types, actions, rootReducer } = createSlice({
     ) {
       state.activeChannel.id = channelId
       state.activeChannel.serverId = serverId
+    },
+
+    setChannelListed(
+      state,
+      channelId: string,
+      listed: boolean
+    )  {
+      const channel = state.channels[channelId]
+
+      if (isDirect(channel)) { channel.listed = listed }
     },
 
     setServers(state, servers: Server[]) {
@@ -235,6 +252,7 @@ const { types, actions, rootReducer } = createSlice({
         state.channels[channel._id] = channel
       }
     },
+
 
     setUnreads(state, unreads: Sync.ChannelUnread[]) {
       for (const unread of unreads) {
@@ -384,6 +402,13 @@ const { types, actions, rootReducer } = createSlice({
     ) => ({ channelId, messageId }),
 
     fetchUser: (userId: string) => ({ userId }),
+    openDM: (
+      userId: string,
+      then?: (c: DirectChannel) => any
+    ) => ({
+      userId,
+      then
+    }),
 
     selectChannel(channelId: string, serverId?: string) {
       return {
@@ -415,6 +440,11 @@ export const mapChannel = (
   fetched: false,
   loading: false,
   messages: [],
+
+  ...(channel.channel_type === ChannelType.DirectMessage
+     ? { listed: false }
+     : {}),
+
   // TypeScript sadly doesn't understand that the original
   // 'icon' property present in three of the types in the
   // RevoltChannel union type is being overriden by a
@@ -475,6 +505,8 @@ export const bonfireListeners = {
     store.dispatch(actions.setRelationshipList('Outgoing',
       filterRelationship(mapped, 'Outgoing')
     ))
+
+    store.dispatch(actions.setChannelsFetched(true))
   },
 
   Message: (
@@ -609,6 +641,36 @@ function* onFetchUser(
   yield* put(actions.appendUser(mapUser(data)))
 }
 
+// TODO:
+// Something that is very important to understand here:
+// if there is no existing (active or inactive)
+// DirectMessage channel with the target user, the official
+// Revolt client will first make a dmUser API call, then
+// whenever the logged in user decides to re-open that DM
+// channel, it will simply re-fetch the messages from the
+// existing channel, instead of always be making calls to
+// the dmUser endpoint.
+function* onOpenDm({
+  args
+}: ReduxAction<{
+  userId: string,
+  then?: (data: Channel) => any
+}>) {
+  const [ err, data ] = yield* call(delta.users.dmUser,
+    args.userId)
+
+  const channel = mapChannel(data)
+  console.log({ err, data, channel, args })
+
+  if (err) return
+
+  yield* put(actions.setChannels([
+    channel
+  ]))
+
+  if (args.then) args.then(channel)
+}
+
 
 export function* chatSaga() {
   yield* takeLatest(types.setActiveServer, onSetActiveServer)
@@ -616,6 +678,7 @@ export function* chatSaga() {
   yield* takeLatest(types.selectChannel, onSelectChannel)
   yield* takeLatest(types.fetchMsgsBefore, onFetchMsgsBefore)
   yield* takeEvery(types.fetchUser, onFetchUser)
+  yield* takeEvery(types.openDM, onOpenDm)
 }
 
 
