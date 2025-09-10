@@ -1,13 +1,24 @@
-import { useState, useMemo } from 'react'
+import {
+  useState,
+  useMemo,
+  createContext,
+  useContext
+} from 'react'
+
+import { useParams } from 'wouter'
 
 import { useNavigator } from '@/routes'
 import { useSelector } from '@store'
+import { useAction } from '@hooks'
 
 import type { User } from '@store/shared/types'
 
 import {
   selectUserRelationships,
   selectDMsAndGroups,
+  selectDMs,
+  selectUserFromDirect,
+
   type MDirectChannel,
   type MGroupChannel,
   type MDirectOrGroup,
@@ -17,9 +28,10 @@ import {
 import {
   ChannelType,
   UserPresenceEnum,
+  type Channel,
   type UserPresence,
+  actions as chatActions
 } from '@store/chat'
-
 
 import { styled } from '@stitched'
 
@@ -28,14 +40,14 @@ import {
   Flexbox,
   ScrollView,
   Text,
-  Input,
 } from '@packages/components'
 
-import { normalizeDiacritics } from '@packages/ts-utils'
+import { fuzzySearch } from '@packages/ts-utils'
 
 import UserCard from '@components/UserCard'
 import GroupCard from '@components/GroupCard'
 import TextField from '@components/TextField'
+import ResizeableDiv from '@components/ResizeableDiv'
 import Icon, { IconName } from '@components/Icon'
 
 
@@ -45,28 +57,32 @@ enum Filter {
   Relationships = 'Relationships',
 }
 
+// TODO: Highlight active conversation
 const FriendList = () => {
   const [listFilter, setFilter] = useState<
    Filter
   >(Filter.DMs)
 
   return (
-    <Container>
-      <ScrollView>
-        <If condition={listFilter === Filter.DMs}>
-          <Chats />
-        </If>
+    <FriendListCtx.Provider
+      value={{ listFilter, setFilter }}
+    >
+      <ResizeableDiv handlePos="right" css={containerCss}>
+        <ScrollView>
+          <If condition={listFilter === Filter.DMs}>
+            <Chats />
+          </If>
 
-        <If condition={listFilter === Filter.Relationships}>
-          <Relationships />
-        </If>
-      </ScrollView>
+          <If condition={listFilter === Filter.Relationships}>
+            <Relationships />
+          </If>
+        </ScrollView>
 
-      <Actions onSetFilter={setFilter} />
-    </Container>
+        <Actions onSetFilter={setFilter} />
+      </ResizeableDiv>
+    </FriendListCtx.Provider>
   )
 }
-
 
 type ActionsProps = {
   onSetFilter: (filter: Filter) => any
@@ -109,7 +125,10 @@ const Actions = (props: ActionsProps) => {
 type Chat = MDirectChannel | MGroupChannel
 
 const Chats = () => {
+  const { channelId: directId = '' } = useParams()
   const chats = useSelector(selectDMsAndGroups)
+  const activeUser = useSelector(state =>
+    selectUserFromDirect(state, { directId }))
 
   const gotoDirect = useNavigator('direct')
   const onSelect = (channel: MDirectOrGroup) =>
@@ -129,6 +148,8 @@ const Chats = () => {
       key={direct.user.id}
       user={direct.user}
       hoverBg="500"
+      background={direct.user.id === activeUser?.id
+        ? '500' : undefined}
       onClick={onSelect.bind(null, direct)}
     />
   )
@@ -153,8 +174,48 @@ type UsersByStatus = {
   [S in UserStatus]: User[]
 }
 
-// TODO: Open new chat on UserCard.click
 const Relationships = () => {
+  const ctx = useContext(FriendListCtx)
+
+  const gotoDirect = useNavigator('direct')
+  const openDm = useAction(chatActions.openDM)
+  const listChannel = useAction(chatActions.setChannelListed)
+  const directs = useSelector(selectDMs)
+
+  const messageUser = (channelId: string) => {
+    if (ctx) ctx.setFilter(Filter.DMs)
+
+    listChannel(channelId, true)
+    gotoDirect(channelId)
+  }
+
+  const onClickUser = (target: User) => {
+    // 1 - Find direct channel containing target user id
+    // 2 - If direct channel found:
+    //   2.1 - Set channel's 'listed' property to true via
+    //         store action
+    //   2.2 - Grab its ID
+    //
+    // 3 - If direct channel not found:
+    //   3.1 - Dispatch openDM store action
+    //   3.2 - Look for new direct channel in the store
+    //         state
+    //   3.3 - Once found, grab its id
+    //
+    // 4 - Set FriendList filter to 'DMs'
+    // 5 - Navigate to direct channel route with
+    //     target's channel ID
+
+    const channel = directs.find(c =>
+      c.recipients.includes(target.id))
+
+    if (channel)
+      return messageUser(channel._id)
+
+    console.log('Opening new DM!')
+    openDm(target.id, (c: Channel) => messageUser(c._id))
+  }
+
   const [hiddenLists, setVisibility] = useState<{
     [K: string ]: boolean
   }>({})
@@ -165,32 +226,10 @@ const Relationships = () => {
       [name]: !hiddenLists[name]
     })
 
-
   const [searchQuery, setSearchQuery] = useState('')
   const onSearch = (text: string) =>
     setSearchQuery(text)
 
-
-  const splitAndNormalize = (text: string) => text
-    .split(/\s+/g)
-    .map(w => normalizeDiacritics(w.toLowerCase()))
-
-  // what happens when the query has to words and the text
-  // just one, but the both of the query words match the one
-  // word in text
-  const fuzzySearch = (query: string, text: string) => {
-    const queryWords = splitAndNormalize(query)
-    const textWords = splitAndNormalize(text)
-    let lastFindIdx = 0
-
-    return queryWords.every(word =>
-      textWords.slice(lastFindIdx).find((tw, i) => {
-        if (!tw.includes(word)) return false
-
-        lastFindIdx = lastFindIdx === i ? i + 1 : i
-        return true
-      }))
-  }
 
   const relationships = useSelector(selectUserRelationships)
 
@@ -251,7 +290,6 @@ const Relationships = () => {
     [ searchQuery, relationships ]
   )
 
-
   const renderRelationship = (
     [ name, users ]: [ string, User[] ]
   ) => users?.length <= 0 ? null : (
@@ -272,6 +310,7 @@ const Relationships = () => {
             hoverBg="500"
             key={user.id}
             user={user}
+            onClick={(u) => onClickUser(u as User)}
           />)
         }
       </Flexbox>
@@ -299,23 +338,36 @@ const Relationships = () => {
 }
 
 /*--------------------------------------------------------/
+/ -> Context                                              /
+/--------------------------------------------------------*/
+
+type FriendListCtx = {
+  listFilter: Filter,
+  setFilter: (f: Filter) => any
+}
+
+const FriendListCtx = createContext<
+  FriendListCtx | null
+>(null)
+
+/*--------------------------------------------------------/
 / -> Fragments                                            /
 /--------------------------------------------------------*/
 
-const Container = styled('div', {
+const containerCss = {
   display: 'flex',
   flexDirection: 'column',
+  position: 'relative',
 
   height: '100%',
   minWidth: 250,
   maxWidth: 300,
-  // TODO: Make it resizable
   width: 250,
 
   background: '$bg300',
 
   marginRight: 2
-})
+}
 
 const ChatList = styled('div', {
   display: 'flex',
@@ -384,10 +436,6 @@ const Relationship = styled('div', {
       true: { [`& > ${Flexbox}`]: { height: 0 } }
     }
   }
-})
-
-const RelationshipName = styled('div', {
-
 })
 
 const RelationshipTitle = styled('div', {
