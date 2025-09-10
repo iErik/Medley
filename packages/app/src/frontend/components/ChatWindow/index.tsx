@@ -27,6 +27,7 @@ import { styled } from '@stitched'
 import ChatMessage from './fragments/Message'
 
 
+
 type ChatWindowProps = JSX.IntrinsicAttributes & {
   channel: Channel
   onFetchBefore: (messageId: string) => any
@@ -150,7 +151,7 @@ const ChatWindow = ({
           overflowAnchor: 'auto',
 
           '& .os-viewport': {
-            padding: '0 20px !important',
+            //padding: '0 20px !important',
             flexGrow: 'initial !important',
             overflowAnchor: 'auto',
           },
@@ -209,8 +210,9 @@ const ChannelStart = ({ channel }: { channel: Channel }) => {
 }
 
 const ChatSeparator = (
-  { sep }: { sep: MessageSeparator}
+  { sep }: { sep: MessageSeparator }
 ) => {
+  // Simple enough, could be in a helper function, though
   const months = [
     'January',
     'February',
@@ -258,7 +260,7 @@ const ChatStartContainer = styled('div', {
   display: 'flex',
   borderBottom: '1px solid $fg10',
   padding: '20px 0',
-  marginBottom: 10
+  margin: '0 20px 10px 20px'
 })
 
 const separatorStyle = {
@@ -280,7 +282,7 @@ const Separator = styled('span', {
   fontWeight: 600,
 
   gap: 15,
-  margin: '5px 0',
+  margin: '10px 0 5px 0',
 
   '&:before': { ...separatorStyle },
   '&:after': { ...separatorStyle }
@@ -306,7 +308,7 @@ export type ClumpedMessageContent = {
   id: string
   text: string
   key: string
-  createdAt: Date
+  createdAt: number
 }
 
 export type ClumpedMessage = Omit<
@@ -351,7 +353,8 @@ const timeLimitCheck = (
 ): boolean => {
   const msgTime = new Date(msg.createdAt).getTime()
   const previousMsg = msgClump.content[0]
-  const previousTime = previousMsg.createdAt.getTime()
+  const previousTime = new Date(previousMsg.createdAt)
+    .getTime()
 
   return (msgTime - previousTime) < clumpTimeLimit
 }
@@ -397,7 +400,7 @@ const clumpContent = (
   id: message._id,
   key: message._id,
   text: message.content || '',
-  createdAt: new Date(message.createdAt)
+  createdAt: message.createdAt
 })
 
 /**
@@ -437,7 +440,7 @@ const insertSeparatorBetween = (
 ): boolean => {
   const msgTime = new Date(msg.createdAt).getDate()
   const previousMsg = msgClump.content[0]
-  const previousTime = previousMsg.createdAt.getDate()
+  const previousTime =  new Date(previousMsg.createdAt).getDate()
 
   return msgTime != previousTime
 }

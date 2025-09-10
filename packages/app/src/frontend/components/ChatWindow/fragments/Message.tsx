@@ -2,11 +2,20 @@ import { memo } from 'react'
 import { useSelector } from '@store'
 import { useUser } from '@store/chat'
 
-import { Wrapper, Text }  from '@packages/components'
+import {
+  If,
+  Wrapper,
+  Flexbox,
+  Text
+}  from '@packages/components'
+
 import { styled } from '@stitched'
 import parseMsg from '@parser'
 
-import type { ClumpedMessage } from './types'
+import type {
+  ClumpedMessage,
+  ClumpedMessageContent
+} from '../'
 
 
 
@@ -35,29 +44,74 @@ export const ChatMessage = ({
   const authorDiscriminator = user?.discriminator
 
   if (!avatarSrc) {
-    console.log("Couldn't get user avatar for message")
-    console.log({ message, masquerade, user, member })
+    console.error('Couldn\'t get user avatar for message!', {
+      message, masquerade, user, member
+    })
   }
 
   const messageList = message?.content
-    ?.map((content, idx) =>
-      <MessageText key={`${content.key}-${idx}`}>
-        { parseMsg(content?.text) }
-      </MessageText>)
+    ?.map((content, idx) => idx === 0
+      ? <Message
+          key={content.key}
+          avatarSrc={avatarSrc}
+          username={authorName}
+          content={content}
+        />
+      : <Message key={content.key} content={content} />)
+
+  return (
+    <Root>
+      { messageList }
+    </Root>
+  )
+}
+
+const Message = (props: {
+  avatarSrc?: string
+  username?: string
+  content: ClumpedMessageContent
+}) => {
+  const date = new Date(props.content?.createdAt)
+  const intl = Intl.DateTimeFormat(undefined, {
+    timeStyle: 'short'
+  })
+  const time = intl.format(date)
 
   return (
     <MessageBox>
-      <AuthorAvatar src={avatarSrc} />
+      <Flexbox
+        hAlign="center"
+        vAlign="top"
+        padding={props.avatarSrc ? '5px 0 0' : '7px 0 0'}
+      >
+        <If condition={!!props.avatarSrc}>
+          <AuthorAvatar src={props.avatarSrc} />
+        </If>
 
-      <Wrapper column>
-        <AuthorName>
-          { authorName }
-        </AuthorName>
+        <If condition={!props.avatarSrc}>
+          <MessageTime aside>
+            {time}
+          </MessageTime>
+        </If>
+      </Flexbox>
 
-        <Wrapper column >
-          {messageList}
-        </Wrapper>
-      </Wrapper>
+      <Flexbox column>
+        <If condition={!!props.username}>
+          <Flexbox vAlign="center" gap="10">
+            <AuthorName>
+              { props.username }
+            </AuthorName>
+
+            <MessageTime>
+              {time}
+            </MessageTime>
+          </Flexbox>
+        </If>
+
+        <MessageText>
+          { parseMsg(props.content?.text) }
+        </MessageText>
+      </Flexbox>
     </MessageBox>
   )
 }
@@ -65,6 +119,12 @@ export const ChatMessage = ({
 /*--------------------------------------------------------/
 / -> Fragments                                            /
 /--------------------------------------------------------*/
+
+const Root = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+  padding: '8px 0',
+})
 
 // -> Author
 // ---------
@@ -114,12 +174,49 @@ const Author = ({
 // -> Message
 // ----------
 
+const MessageTime = styled(Text, {
+  fontSize: 12,
+  lineHeight: '12px',
+  fontWeight: '$medium',
+  color: '$fg30',
+  paddingTop: '2px',
+
+  //padding: '10px 0 0'
+  variants: {
+    aside: {
+      true: {
+        paddingTop: '0px',
+        fontSize: 11,
+        lineHeight: '11px',
+        color: '$fg30',
+      }
+    }
+  }
+})
+
+const MessageBox = styled('div', {
+  display: 'grid',
+  gridTemplateColumns: '65px 1fr',
+
+  padding: '0 10px',
+
+  [`& > ${Flexbox} > ${MessageTime}`]: { opacity: 0 },
+
+  '&:hover': {
+    background: '$bg500',
+    [`& > ${Flexbox} > ${MessageTime}`]: { opacity: 1 },
+  },
+})
+
 const MessageText = styled(Text, {
+  display: 'flex',
+
   fontFamily:    '$sans',
   whiteSpace:    'pre-wrap',
   wordBreak:     'break-word',
   fontWeight:    '$medium',
   verticalAlign: 'middle',
+  fontSize: 14,
 
   padding: '2px 0',
 
@@ -127,10 +224,7 @@ const MessageText = styled(Text, {
   '& > .emoji': { margin: '0 2px' }
 })
 
-const MessageBox = styled('div', {
-  display: 'flex',
-  padding: '8px 0',
-})
+
 
 
 export default memo(ChatMessage)
