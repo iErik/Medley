@@ -1,9 +1,11 @@
 import { type EnhancedStore } from '@reduxjs/toolkit'
 
-import { decodeTime } from 'ulid'
+import { decodeTime, ulid } from 'ulid'
 import {
   call,
   put,
+  select,
+  take,
   takeLatest,
   takeEvery
 } from 'typed-redux-saga'
@@ -12,7 +14,8 @@ import {
   type Events,
   User as ApiUser,
   Chat,
-  Sync
+  Sync,
+  Delta,
 } from '@packages/api'
 
 import { delta } from '@/revolt'
@@ -22,21 +25,48 @@ import { mapUser, mapAsset } from '@store/shared/transform'
 
 import { type ReduxAction, createSlice } from '@utils/redux'
 
-import {
-  isDirect,
-  isGroup,
-  isSavedMsgs
-} from './helpers'
+import { isDirect } from './helpers'
 
 
 /*--------------------------------------------------------/
 / -> Types                                                /
 /--------------------------------------------------------*/
 
-export type Message = Chat.RevoltMessage & {
+export const MessageStatusEnum = {
+  Failed: 'Failed',
+  Pending: 'Pending',
+  Sent: 'Sent'
+} as const
+
+export type MessageStatusKey
+  = keyof typeof MessageStatusEnum
+export type MessageStatusType
+  = typeof MessageStatusEnum
+export type MessageStatus
+  = typeof MessageStatusEnum[MessageStatusKey]
+
+export type BaseMessage = Chat.RevoltMessage & {
   createdAt: number
   serverId?: string
 }
+
+export type FailedMessage = BaseMessage & {
+  status: MessageStatusType['Failed']
+}
+
+export type PendingMessage = BaseMessage & {
+  status: MessageStatusType['Pending']
+}
+
+export type SentMessage = BaseMessage & {
+  status: MessageStatusType['Sent']
+}
+
+export type Message
+  = FailedMessage
+  | PendingMessage
+  | SentMessage
+
 
 export type DirectChannel = Chat.DirectMessage & {
   fetched: boolean
@@ -133,6 +163,7 @@ export type ChatState = {
   unreads: Record<string, Sync.ChannelUnread>
 
   relationships: UserRelationships
+  pendingMessagesNonces: string[]
 }
 
 // Mapped Types
@@ -207,7 +238,18 @@ const initialState: ChatState = {
     Incoming: [],
     Blocked: [],
     BlockedOther: []
-  }
+  },
+
+  // This is how we keep track of pending messages for which
+  // we are still awaiting a server response, so that once
+  // the API finishes processing a sendMessage request, and
+  // we receive the Message bonfire event, that doesn't
+  // conflict with the logic for optimistic updates we have
+  // in the sendMessage saga.
+  //
+  // This list will hardly ever be a very long list, so
+  // iterating over it should be very quick.
+  pendingMessagesNonces: []
 }
 
 const { types, actions, rootReducer } = createSlice({
@@ -320,6 +362,8 @@ const { types, actions, rootReducer } = createSlice({
       // first, so we need to reverse it
       const existingMessageIds = channel.messages
         .map(msg => msg._id)
+      // Filter out messages that are already in the store
+      // and then reverse the list
       const newMessages = (messages || [])
         .filter(msg => !existingMessageIds.includes(msg._id))
         .reverse()
@@ -336,14 +380,94 @@ const { types, actions, rootReducer } = createSlice({
           .length
     },
 
-    appendMessage(state, message: Chat.RevoltMessage) {
+    appendMessage(
+      state,
+      message: Chat.RevoltMessage,
+      serverId?: string,
+      status: MessageStatus = MessageStatusEnum.Sent,
+    ) {
       const channel = state.channels[message.channel]
       if (!channel || !channel.fetched) return
 
-      channel.messages.push({
-        ...message,
-        createdAt: decodeTime(message._id)
+      console.log('appendMessage: ', {
+        message,
+        serverId,
+        status
       })
+
+      channel.messages.push(mapMessage(
+        message,
+        serverId,
+        status))
+    },
+
+    // TODO: Reconsider whether this action is really
+    // necessary
+    setMessage(
+      state,
+      channelId: string,
+      messageId: string,
+      payload: Partial<Message>
+    ) {
+      const channel = state.channels[channelId]
+      if (!channel || !channel.fetched) return
+
+      let message =  channel.messages.find(msg =>
+        msg._id === messageId)
+
+      if (!message) return
+
+      Object.assign(message, payload)
+    },
+
+    pushPendingMessage(
+      state,
+      msgNonce: string,
+      message: Chat.RevoltMessage
+    ) {
+      console.log('pushPendingMessage: ', {
+        msgNonce,
+        message
+      })
+
+      const channel = state.channels[message.channel]
+      if (!channel || !channel.fetched) return
+
+      state.pendingMessagesNonces.push(msgNonce)
+
+      channel.messages.push(mapMessage(
+        message,
+        undefined,
+        MessageStatusEnum.Pending))
+    },
+
+    resolvePendingMessage(
+      state,
+      channelId: string,
+      msgNonce: string,
+      payload: Partial<Message>,
+    ) {
+      console.log('resolvePendingMessage: ', {
+        channelId,
+        msgNonce,
+        payload,
+        exists: state.pendingMessagesNonces.includes(msgNonce)
+      })
+      if (!state.pendingMessagesNonces.includes(msgNonce))
+        return
+
+      state.pendingMessagesNonces = state
+        .pendingMessagesNonces.filter(n => n != msgNonce)
+
+      const channel = state.channels[channelId]
+      if (!channel || !channel.fetched) return
+
+      let message = channel.messages.find(msg =>
+        msg._id === msgNonce)
+
+      if (!message) return
+
+      Object.assign(message, payload)
     },
 
     setRelationshipList(
@@ -410,6 +534,11 @@ const { types, actions, rootReducer } = createSlice({
       then
     }),
 
+    sendMsg: (
+      channelId: string,
+      params: Delta.SendMessageParams
+    ) => ({ channelId, params }),
+
     selectChannel(channelId: string, serverId?: string) {
       return {
         channelId,
@@ -456,11 +585,13 @@ export const mapChannel = (
 
 export const mapMessage = (
   msg: Chat.RevoltMessage,
-  serverId?: string
+  serverId?: string,
+  status: MessageStatus = MessageStatusEnum.Sent,
 ): Message => ({
   ...msg,
   ...(serverId ? { serverId } : {}),
-  createdAt: decodeTime(msg._id)
+  createdAt: decodeTime(msg._id),
+  status,
 })
 
 /*--------------------------------------------------------/
@@ -513,8 +644,28 @@ export const bonfireListeners = {
     store: EnhancedStore,
     message: Events.MessageEvent
   ) => {
-    console.log('Message event: ', { message })
-    store.dispatch(actions.appendMessage(message))
+    // If the Message bonfire event for a particular pending
+    // message arrives before the asynchronous API response
+    // (which can happe every now and then), we will take
+    // care of resolving the pending message here.
+    const pendingMsgs = store.getState().chat
+      .pendingMessagesNonces
+    const isPending = pendingMsgs.includes(message.nonce)
+
+    console.log('Message: ', {
+      message,
+      isPending,
+      pendingMsgs
+    })
+
+    if (isPending)
+      store.dispatch(actions.resolvePendingMessage(
+        message.channel,
+        message.nonce!,
+        mapMessage(message)
+      ))
+    else
+      store.dispatch(actions.appendMessage(message))
   },
 
   ServerMemberJoin: (
@@ -641,15 +792,17 @@ function* onFetchUser(
   yield* put(actions.appendUser(mapUser(data)))
 }
 
-// TODO:
-// Something that is very important to understand here:
-// if there is no existing (active or inactive)
-// DirectMessage channel with the target user, the official
-// Revolt client will first make a dmUser API call, then
-// whenever the logged in user decides to re-open that DM
-// channel, it will simply re-fetch the messages from the
-// existing channel, instead of always be making calls to
-// the dmUser endpoint.
+/*
+ * There's an important piece of business logic here:
+ *
+ * If there is no existing (active or inactive)
+ * DirectMessage channel with the target user, the official
+ * Revolt client will first make a dmUser API call, then
+ * whenever the logged in user decides to re-open that DM
+ * channel, it will simply re-fetch the messages from the
+ * existing channel, instead of always be making calls to
+ * the dmUser endpoint.
+ */
 function* onOpenDm({
   args
 }: ReduxAction<{
@@ -671,14 +824,60 @@ function* onOpenDm({
   if (args.then) args.then(channel)
 }
 
+// TODO: We're still encountering cases where the same sent
+// message is appended twice to the channel's list of
+// messages in the store, result in errors
+function* onSendMsg({
+  args: { channelId, params }
+}: ReduxAction<{
+  channelId: string,
+  params: Delta.SendMessageParams
+}>) {
+  const nonce = ulid()
+  const author = yield* select(state => state.auth.self.id)
+
+  yield* put(actions.pushPendingMessage(nonce, {
+    channel: channelId,
+    _id: nonce,
+    author,
+    content: params.content
+  }))
+
+  const [ err, data ] = yield* call(
+    delta.channels.sendMessage,
+    channelId,
+    { ...params, nonce }
+  )
+
+  console.log('OnSendMsg.end: ', {
+    nonce,
+    channelId,
+    params,
+    data
+  })
+
+  if (err) yield* put(actions.resolvePendingMessage(
+    channelId,
+    nonce,
+    { status: MessageStatusEnum.Failed }))
+  /*
+  else yield* put(actions.resolvePendingMessage(
+    channelId,
+    nonce,
+    mapMessage(data)))
+  */
+}
+
 
 export function* chatSaga() {
   yield* takeLatest(types.setActiveServer, onSetActiveServer)
   yield* takeLatest(types.fetchUnreads, onFetchUnreads)
   yield* takeLatest(types.selectChannel, onSelectChannel)
   yield* takeLatest(types.fetchMsgsBefore, onFetchMsgsBefore)
+
   yield* takeEvery(types.fetchUser, onFetchUser)
   yield* takeEvery(types.openDM, onOpenDm)
+  yield* takeEvery(types.sendMsg, onSendMsg)
 }
 
 

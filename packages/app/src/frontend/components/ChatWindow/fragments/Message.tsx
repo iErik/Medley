@@ -1,6 +1,9 @@
 import { memo } from 'react'
 import { useSelector } from '@store'
-import { useUser } from '@store/chat'
+import {
+  useUser,
+  MessageStatusEnum
+} from '@store/chat'
 
 import {
   If,
@@ -77,6 +80,11 @@ const Message = (props: {
   })
   const time = intl.format(date)
 
+  const isFailed =
+    props.content.status === MessageStatusEnum.Failed
+  const isPending =
+    props.content.status === MessageStatusEnum.Pending
+
   return (
     <MessageBox>
       <Flexbox
@@ -102,13 +110,13 @@ const Message = (props: {
               { props.username }
             </AuthorName>
 
-            <MessageTime>
-              {time}
+            <MessageTime >
+              { time }
             </MessageTime>
           </Flexbox>
         </If>
 
-        <MessageText>
+        <MessageText pending={isPending} failed={isFailed}>
           { parseMsg(props.content?.text) }
         </MessageText>
       </Flexbox>
@@ -132,7 +140,11 @@ const Root = styled('div', {
 const AuthorAvatar = styled('img', {
   width: 40,
   height: 40,
-  borderRadius: '100%',
+
+  // TODO: Maybe this alternative borderRadius should be in
+  // variable
+  borderRadius: 11,
+  //borderRadius: '100%',
   marginRight: 12
 })
 
@@ -198,7 +210,7 @@ const MessageBox = styled('div', {
   display: 'grid',
   gridTemplateColumns: '65px 1fr',
 
-  padding: '0 10px',
+  padding: '0 20px 0 10px',
 
   [`& > ${Flexbox} > ${MessageTime}`]: { opacity: 0 },
 
@@ -209,7 +221,8 @@ const MessageBox = styled('div', {
 })
 
 const MessageText = styled(Text, {
-  display: 'flex',
+  // TODO We need to find a solution for this
+  //display: 'flex',
 
   fontFamily:    '$sans',
   whiteSpace:    'pre-wrap',
@@ -221,10 +234,13 @@ const MessageText = styled(Text, {
   padding: '2px 0',
 
   '& > *': { flexShrink: 0 },
-  '& > .emoji': { margin: '0 2px' }
+  '& > .emoji': { margin: '0 2px' },
+
+  variants: {
+    pending: { true: { color: '$fg10' } },
+    failed: { true: { color: 'red' } },
+  }
 })
-
-
 
 
 export default memo(ChatMessage)

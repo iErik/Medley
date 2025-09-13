@@ -3,9 +3,10 @@ import { useState, useEffect, memo } from 'react'
 import { useSelector } from '@store'
 
 import {
-  type Message,
   ChannelType,
-  type Channel
+  type Message,
+  type Channel,
+  type MessageStatus,
 } from '@store/chat'
 
 import { useUser } from '@store/chat'
@@ -152,6 +153,7 @@ const ChatWindow = ({
 
           '& .os-viewport': {
             //padding: '0 20px !important',
+            paddingBottom: '20px !important',
             flexGrow: 'initial !important',
             overflowAnchor: 'auto',
           },
@@ -202,10 +204,10 @@ const ChannelStart = ({ channel }: { channel: Channel }) => {
   const name = 'name' in channel ? channel.name : ''
 
   return (
-    <>
+    <Flexbox column gap="5">
       <Text size="lg" weight="medium">#{name}</Text>
       <Text>This is the start of your conversation</Text>
-    </>
+    </Flexbox>
   )
 }
 
@@ -282,7 +284,7 @@ const Separator = styled('span', {
   fontWeight: 600,
 
   gap: 15,
-  margin: '10px 0 5px 0',
+  margin: '10px 20px 5px 20px',
 
   '&:before': { ...separatorStyle },
   '&:after': { ...separatorStyle }
@@ -309,6 +311,7 @@ export type ClumpedMessageContent = {
   text: string
   key: string
   createdAt: number
+  status: MessageStatus
 }
 
 export type ClumpedMessage = Omit<
@@ -400,6 +403,7 @@ const clumpContent = (
   id: message._id,
   key: message._id,
   text: message.content || '',
+  status: message.status,
   createdAt: message.createdAt
 })
 

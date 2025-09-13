@@ -23,6 +23,7 @@ const Chat = (props: ChatProps) => {
   const channelsFetched = useSelector(state =>
     state.chat.channelsFetched)
 
+  const sendMsg = useAction(actions.sendMsg)
   const selectChannel = useAction(actions.selectChannel)
   const fetchMsgsBefore = useAction(actions.fetchMsgsBefore)
 
@@ -44,6 +45,13 @@ const Chat = (props: ChatProps) => {
     fetchMsgsBefore(props.channelId, messageId)
   }
 
+  // TODO: Optimistic updates & Error Handling
+  const onMsgSend = (text: string) => {
+    sendMsg(props.channelId, {
+      content: text
+    })
+  }
+
   return (
     <Root>
       <If condition={showLoader}>
@@ -60,7 +68,7 @@ const Chat = (props: ChatProps) => {
         />
 
         <MessageInputWrapper>
-          <MessageInput />
+          <MessageInput onEnter={onMsgSend} />
         </MessageInputWrapper>
       </If>
     </Root>
@@ -89,9 +97,10 @@ const Root = styled('div', {
 
 
 const MessageInputWrapper = styled('div', {
-  padding: '20px 10px',
+  //padding: '20px 10px',
+  padding: '0 5px 5px 5px',
 
-  background: '$bg300'
+  //background: '$bg300'
 })
 
 export default Chat

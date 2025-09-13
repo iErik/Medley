@@ -10,7 +10,7 @@ import {
 import createSagaMiddleware from 'redux-saga'
 import logger from 'redux-logger'
 
-import serializer from '@middlewares/serializer'
+import mkSerializer from '@middlewares/serializer'
 import bindBonfire from '@store/connectBonfire'
 
 import {
@@ -50,7 +50,9 @@ const store = configureStore({
     defaultMiddlewares({
       immutableCheck: false,
       serializableCheck: false
-    }).concat(sagaMiddleware, /*logger*/),
+    }).concat(
+      sagaMiddleware,
+      mkSerializer(['auth.self', 'auth.authStage'])),
 
   ...(hasPreloadedState()
      ? { preloadedState: loadSerializedStore() }
