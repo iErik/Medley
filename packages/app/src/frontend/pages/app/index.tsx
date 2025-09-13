@@ -99,12 +99,13 @@ const Root = styled('div', {
   display: 'grid',
   height: '100%',
   width: '100%',
-  gridTemplateColumns: 'auto 1fr'
+  gridTemplateColumns: 'auto minmax(0px, 1fr)'
 })
 
 const Grid = styled('div', {
   display: 'grid',
   gridTemplateRows: `${HEADER_HEIGHT}px minmax(0, 1fr)`,
+  gridTemplateColumns: `minmax(0, 1fr)`,
   height: '100vh'
 })
 
