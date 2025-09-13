@@ -238,6 +238,11 @@ const TextEditor = ({
       onEnter(Node.string(editor), editor, ev)
   }
 
+  // As of the time I wrote this comment incorrectly list a
+  // prop named "value", the actual name of this prop is
+  // "initialValue", and in its absence Slate will throw an
+  // error. I'm keeping both "value" and "initialValue" here
+  // in any case, Slate isn't a controlled component
   return (
     <Slate
       editor={editor}
