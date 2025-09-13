@@ -218,6 +218,7 @@ const TextEditor = ({
   const [ editor ] = useState(() =>
     withReact(createEditor()))
 
+  console.log({ initialValue })
   const renderElement = useCallback((props) => {
     switch (props.element.type) {
       case 'code':
@@ -241,6 +242,7 @@ const TextEditor = ({
     <Slate
       editor={editor}
       value={initialValue}
+      initialValue={initialValue}
       className="text-editor"
     >
       <EditableEl
