@@ -79,6 +79,10 @@ a {
   text-decoration: none;
 }
 
+// TODO: Temporary solution to override Slate's styles,
+// we should probably find another approach, though.
+span { font-weight: inherit !important; }
+
 input,
 button,
 textarea,

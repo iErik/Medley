@@ -15,7 +15,6 @@ import {
   Slate,
   Editable,
   withReact,
-
   ReactEditor
 } from 'slate-react'
 
@@ -55,6 +54,13 @@ type CodeBlockType = {
 
 type CustomElement = ParagraphType | CodeBlockType
 
+export type OnEnterEvHandler = (
+  text: string,
+  editor: ReactEditor,
+  ev: React.KeyboardEvent<HTMLDivElement>
+) => any
+
+
 declare module 'slate' {
   interface CustomTypes {
     Editor: BaseEditor & ReactEditor
@@ -85,10 +91,21 @@ const applyMarks = (editor: ReactEditor): void => {
 // -----------
 
 const Paragraph = styled('p', {
+  display: 'grid',
+  alignItems: 'center',
+
   fontFamily: '$sans',
   fontWeight: '$medium',
-  color: '#333',
-  fontSize: '$base'
+  color: 'inherit',
+  fontSize: '$base',
+
+  // TODO: Review overflow styles here
+  overflow: 'hidden',
+  whiteSpace: 'prewrap',
+  maxWidth: '100%',
+  overflowWrap: 'break-word',
+
+  minHeight: '100%'
 })
 
 // -> Bold Node
@@ -105,12 +122,12 @@ const EditableEl = styled(Editable, {
   width: '100%',
 
   // Center text
-  display: 'flex',
+  display: 'grid',
   alignItems: 'center',
 
   fontFamily: '$sans',
   fontWeight: '$medium',
-  color: '#333',
+  color: '$fg80',
   fontSize: '$base'
 })
 
@@ -178,11 +195,7 @@ export interface TextEditorProps {
    * The handler to call when the user presses enter while
    * the input has focus
    */
-  onEnter?: (
-    value: string,
-    editor: ReactEditor,
-    ev: React.KeyboardEvent
-  ) => void
+  onEnter?: OnEnterEvHandler
 
   /**
    * An optional placeholder string for the field

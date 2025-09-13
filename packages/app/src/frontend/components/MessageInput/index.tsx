@@ -1,23 +1,21 @@
-import { ReactEditor } from 'slate-react'
+import { Editor as SlateEditor, Transforms } from 'slate'
 import { styled } from '@stitched'
-import Editor from './Editor'
+import Editor, { type OnEnterEvHandler } from './Editor'
 
 // -> Elements
 // -----------
 
+// TODO: Make height adapt to contents
 const Wrapper = styled('div', {
-  // TODO: Hardcoded values
-  $$bgColor: '#E0E0E0',
-
   display: 'flex',
 
   borderRadius: 10,
-  height: 45,
+  minHeight: 45,
   width: '100%',
 
-  paddingLeft: 20,
+  padding: '0 20px',
 
-  backgroundColor: '$$bgColor',
+  backgroundColor: '$bg500',
 
   minWidth: 300,
 
@@ -45,11 +43,7 @@ interface MessageInputProps extends JSX.IntrinsicAttributes {
    * The handler to call when the user presses enter while
    * the input has focus
    */
-  onEnter?: (
-    value: string,
-    editor: ReactEditor,
-    ev: React.KeyboardEvent
-  ) => void
+  onEnter?: OnEnterEvHandler
 
   /**
    * Optional class name to add to the component
@@ -72,15 +66,30 @@ const MessageInput = ({
   ...props
 }: MessageInputProps) => {
 
+  const handleEnter: OnEnterEvHandler =
+    (text, editor, ev) => {
+      Transforms.delete(editor, {
+        at: {
+          anchor: SlateEditor.start(editor, []),
+          focus: SlateEditor.end(editor, [])
+        }
+      })
+
+      onEnter(text, editor, ev)
+    }
+
+
   return (
     <Wrapper className="message-input" {...props}>
       <Editor
         placeholder={placeholder}
-        onEnter={onEnter}
+        onEnter={handleEnter}
       />
     </Wrapper>
+
   )
 }
+
 
 MessageInput.toString = () => '.message-input'
 export default MessageInput
