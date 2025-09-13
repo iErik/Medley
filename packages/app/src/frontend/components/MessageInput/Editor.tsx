@@ -69,11 +69,14 @@ declare module 'slate' {
   }
 }
 
+// TODO: This is overriding the selection
 const applyMarks = (editor: ReactEditor): void => {
   const editorContent: string = Node.string(editor)
   const textTokens = parser.extractTokens(editorContent, {
     preserveTokens: true
   })
+
+  const previousSelection = editor.selection
 
   Transforms.select(editor, {
     anchor: Editor.start(editor, []),
@@ -85,6 +88,11 @@ const applyMarks = (editor: ReactEditor): void => {
     type: 'leaf',
     text: token?.content || '',
   })))
+
+  if (previousSelection) {
+    Transforms.select(editor, previousSelection)
+    ReactEditor.focus(editor)
+  }
 }
 
 // -> Generics
