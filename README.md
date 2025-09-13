@@ -31,6 +31,8 @@ To run the application's electron app with the develeopment
 server you can run the following commands in sequence:
 
 ```bash
+git submodule init
+git submodule updatO
 pnpm install
 pnpm approve-builds # Allow electron to run post-install scripts
 pnpm run dev-app

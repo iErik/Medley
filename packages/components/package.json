@@ -17,8 +17,8 @@
   "typings": "src/main.d.ts",
   "license": "GPL-3",
   "dependencies": {
-    "@ierik/react-generics": "workspace:^",
-    "@ierik/ts-utils": "^1.0.1",
+    "@ierik/react-generics": "workspace:../react-generics",
+    "@ierik/ts-utils": "workspace:../ts-utils",
     "@stitches/react": "^1.2.8",
     "overlayscrollbars": "^2.1.1",
     "overlayscrollbars-react": "^0.5.0",
