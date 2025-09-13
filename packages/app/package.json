@@ -41,13 +41,11 @@
     "PORT": 3344
   },
   "dependencies": {
-    "@packages/components": "workspace:^",
     "@packages/api": "workspace:^",
+    "@packages/components": "workspace:^",
     "@packages/ts-utils": "workspace:../ts-utils",
-    "@lexical/react": "^0.9.1",
     "@reduxjs/toolkit": "^2.8.2",
     "@stitches/react": "^1.2.8",
-    "lexical": "^0.9.1",
     "overlayscrollbars-react": "^0.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -57,8 +55,8 @@
     "redux": "^5.0.1",
     "redux-logger": "^3.0.6",
     "redux-saga": "^1.3.0",
-    "slate": "^0.93.0",
-    "slate-react": "^0.93.0",
+    "slate": "^0.118.0",
+    "slate-react": "^0.117.4",
     "typed-redux-saga": "^1.5.0",
     "ulid": "^2.3.0",
     "wouter": "^3.7.1"
