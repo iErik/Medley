@@ -80,6 +80,9 @@ const mkServerBtnEl = (icon?: string) => styled('div', {
 
   width: 45,
   height: 45,
+
+  // TODO: Maybe this alternative borderRadius should be in
+  // variable
   borderRadius: 12,
   overflow: 'visible',
 

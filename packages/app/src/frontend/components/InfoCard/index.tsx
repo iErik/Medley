@@ -104,6 +104,8 @@ const Root = styled('div', {
 })
 
 const ImageEl = styled('div', {
+  // TODO: Maybe this alternative borderRadius should be in
+  // variable
   borderRadius: 11,
   width: 40,
   height: 40,
