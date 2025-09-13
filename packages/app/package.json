@@ -55,8 +55,8 @@
     "redux": "^5.0.1",
     "redux-logger": "^3.0.6",
     "redux-saga": "^1.3.0",
-    "slate": "^0.118.0",
-    "slate-react": "^0.117.4",
+    "slate": "^0.117.0",
+    "slate-react": "^0.117.0",
     "typed-redux-saga": "^1.5.0",
     "ulid": "^2.3.0",
     "wouter": "^3.7.1"
