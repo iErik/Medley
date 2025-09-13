@@ -261,14 +261,13 @@ export type RevoltMessage = {
   /* Array of user IDs mentioned in this message */
   mentions?: string[] | null
   /* Array of user ids mentioned in this message */
-  role_mentions: string[] | null
+  role_mentions?: string[] | null
   /* Array of message ids this is replying to */
   replies?: string[] | null
   /* User */
   user?: RevoltUser | null
   /* Server member */
   member?: RevoltMember | null
-
 
   /* Hashmap of emoji IDs to array of user IDs */
   reactions?: {
@@ -301,5 +300,5 @@ export type RevoltMessage = {
   /* Whether or not the message is pineed */
   pinned?: boolean | null
   /* Bitfield of message flags */
-  flags: Number
+  flags?: Number
 }

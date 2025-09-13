@@ -1,12 +1,19 @@
+import { mkUuid } from '@packages/ts-utils'
 import http from '@utils/http'
 import { withQueryParams } from '@utils/queryParams'
+
 
 import type {
   ClientContext,
   ContextSetter
 } from '@/types/Client'
 
-import { ServiceReturn } from '@/types/Delta'
+import type {
+  ServiceReturn,
+  GetMessagesQueryParams,
+  EditChannelParams,
+  SendMessageParams,
+} from '@/types/Delta'
 
 import type {
   RevoltChannel,
@@ -21,87 +28,6 @@ import type {
 
 // -> Types
 // --------
-
-type RemoveArg = 'Description' | 'Icon' | 'DefaultPermissions'
-
-type EditChannelParams = {
-  /**
-   * Channel name ([ 1 .. 32 ] characters)
-   */
-  name: string | null
-
-  /**
-   * Channel description ([ 0 .. 1024 ] characters)
-   */
-  description: string | null
-
-  /**
-   * Group owner
-   */
-  owner: string | null
-
-  /**
-   * The icon. Provide an Autumn attachment ID
-   * ([ 1 .. 128 ] characters)
-   */
-  icon: string | null
-
-  /**
-   * Whether this channel is age-restricted
-   */
-  nsfw: boolean | null
-
-  /**
-   * Whether this channel is archived
-   */
-  archived: boolean | null
-
-  /**
-   * Array of strings (FieldsChannel) [????]
-   */
-  remove: RemoveArg[] | null
-}
-
-type GetMessagesQueryParams = {
-  /**
-   * Maximum number of messages to fetch [1..100]
-   * For fetching nearby messages, this is (limit + 1)
-   */
-  limit?: number | null
-
-  /**
-   * Message ID before which messages should be fetched
-   * = 26 characters
-   */
-  before?: string | null
-
-  /**
-   * Message ID after which messages should be fetched
-   * = 26 characters
-   */
-  after?: string | null
-
-  /**
-   * Message sort direction
-   */
-  sort?: 'Relevance' | 'Latest' | 'Oldest'
-
-  /**
-   * Message ID to search around
-   *
-   * Specifying 'nearby' ignores 'before', 'after' and 'sort'.
-   * It will also take half of limite rounded as the limits
-   * to each side. It also fetches the message ID specified.
-   */
-  nearby?: string | null
-
-  /**
-   * Whether to include user (and member, if server channel)
-   * objects
-   */
-  include_users?: boolean | null
-}
-
 
 type GetMessagesResponseWithUsers = {
   type: 'IncludeUsers'
@@ -118,6 +44,7 @@ type GetMessagesResponseWithoutUsers = {
 type GetMessagesResponse
   = GetMessagesResponseWithUsers
   | GetMessagesResponseWithoutUsers
+
 
 // -> Module definition
 // --------------------
@@ -239,10 +166,13 @@ const DeltaChannels = (
 
   const sendMessage = async (
     channelId: string,
-    params: Record<string, any>
-  ): ServiceReturn<Record<string, any>> => {
-    const [ err, data ] = await http
-      .post(`channels/${channelId}/messages`, params)
+    { nonce, ... params }: SendMessageParams
+  ): ServiceReturn<RevoltMessage> => {
+    const [ err, data ] = await http.post(
+      `channels/${channelId}/messages`,
+      params,
+      { 'Idempotency-Key': nonce || mkUuid(16) }
+    )
 
     return [ err, data ]
   }

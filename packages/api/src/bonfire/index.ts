@@ -1,7 +1,7 @@
 import {
   secondsToMs,
   executeMap
-} from '@ierik/ts-utils'
+} from '@packages/ts-utils'
 
 import { ClientEvent, ServerEvent } from '@/types/Bonfire'
 import type {

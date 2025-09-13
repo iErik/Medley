@@ -33,7 +33,7 @@
     "vite-plugin-dts": "3"
   },
   "dependencies": {
-    "@ierik/ts-utils": "^1.0.4",
+    "@packages/ts-utils": "workspace:../ts-utils",
     "camelcase-keys": "^8.0.2"
   }
 }

@@ -7,6 +7,7 @@ export { getAssetUrl } from '@/utils/assets'
 // ----------------
 
 export * as Common from '@/types/Common'
+export * as Delta from '@/types/Delta'
 export * as Chat from '@/types/Chat'
 export * as User from '@/types/User'
 export * as Emoji from '@/types/Emoji'

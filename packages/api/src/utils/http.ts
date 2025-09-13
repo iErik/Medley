@@ -16,7 +16,12 @@ interface RequestOptions {
   headers?: HeadersInit
 }
 
-export type SlimRequestFn = (endpoint: string, data?: any) =>
+export type SlimRequestFn = (
+  endpoint: string,
+  data?: any,
+  headers?: Record<string, any>,
+  config?: Record<string, any>
+) =>
   Promise<ServiceReturn>
 
 export type HTTPRequestFunction = (
@@ -86,8 +91,12 @@ export const mkSlimRequest = (
   method: string
 ): SlimRequestFn => {
   const requestFn = mkRequest(method)
-  const slimRequestFn = (endpoint: string, data?: any) =>
-    requestFn(endpoint, { data })
+  const slimRequestFn = (
+    endpoint: string,
+    data?: any,
+    headers?: Record<string, any>,
+    config?: Record<string, any>
+  ) => requestFn(endpoint, { data, headers, config })
 
   return slimRequestFn
 }

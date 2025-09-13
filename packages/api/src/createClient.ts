@@ -1,4 +1,4 @@
-import { isType } from '@ierik/ts-utils'
+import { isType } from '@packages/ts-utils'
 
 import Bonfire from '@bonfire'
 //import * as delta from '@delta'
