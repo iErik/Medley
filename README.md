@@ -28,22 +28,48 @@ effort to bring complete funcionality to the application.
 ### Development server
 
 To run the application's electron app with the develeopment
-server you can run the following commands in sequence:
+server, there are a few steps you need to take:
+
+
+##### Step 1 - Initialize Submodules
 
 ```bash
 git submodule init
-git submodule updatO
-pnpm install
-pnpm approve-builds # Allow electron to run post-install scripts
-pnpm run dev-app
+git submodule update
 ```
 
-If you want to make modifications to the API package and
-have those be hot-reloaded into the app, you should also run
-in a separate terminal session:
+##### Step 2 - Install dependencies
 
 ```bash
-pnpm run watch-api
+pnpm install
+pnpm approve-builds # Allow electron to run post-install scripts
+```
+
+##### Step 3 - Add .env file to the API package
+
+You can just copy the contents of the existing `.env.default`
+to `.env` in the root of the API package:
+
+```bash
+cp packages/api/.env.default packages/api/.env
+```
+
+##### Step 4 - Build package dependencies
+
+You're gonna need to build 2 packages required to run the
+main app: ts-utils and api, both of these packages are
+located in this monorepo. To build each of them, you'll need
+to  run the build command for each:
+
+```bash
+pnpm -C packages/ts-utils build
+pnpm -C packages/api build
+```
+
+##### Step 5 - Run development server
+
+```bash
+pnpm dev-app
 ```
 
 ### Building
