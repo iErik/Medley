@@ -5,7 +5,7 @@ import installExtension, {
   REDUX_DEVTOOLS
 } from 'electron-devtools-installer'
 
-let mainWindow = null
+let mainWindow: BrowserWindow | null = null
 
 const installExtensions = async () => {
   const options = {
@@ -40,6 +40,22 @@ async function createWindow() {
     }
   })
 
+  if (import.meta.env.DEV) {
+    const pkg = await import('../../package.json')
+    const url = [
+      'http://',
+      `${pkg.env.HOST || '127.0.0.1'}:`,
+      pkg.env.PORT
+    ].join('')
+
+    mainWindow.loadURL(url)
+    mainWindow.webContents.openDevTools()
+
+  } else {
+    mainWindow.loadFile(join(__dirname, './index.html'))
+  }
+
+  /*
   if (app.isPackaged) {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   } else {
@@ -49,10 +65,11 @@ async function createWindow() {
     mainWindow.loadURL(url)
     mainWindow.webContents.openDevTools()
   }
+  */
 
   mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.show()
-    mainWindow.focus()
+    mainWindow!.show()
+    mainWindow!.focus()
   })
 
   mainWindow.on('closed', () => {

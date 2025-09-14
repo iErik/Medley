@@ -10,18 +10,21 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 await build({
   configFile: 'scripts/vite.config.mjs',
-  root: join(__dirname, '../src/main'),
+  root: join(__dirname, '../src/backend'),
   build: {
-    outDir: '../../dist/main'
+    emptyOutDir: true,
+    outDir: '../../dist'
   }
 })
 
+/*
 await build({
   configFile: 'scripts/vite.config.mjs',
   root: join(__dirname, '../src/preload'),
   build: {
-    outDir: '../../dist/preload'
+    outDir: '../dist/preload'
   }
 })
+*/
 
-await build({ configFile: 'src/renderer/vite.config.js' })
+await build({ configFile: 'src/frontend/vite.config.js' })

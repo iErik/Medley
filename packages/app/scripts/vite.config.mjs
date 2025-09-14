@@ -10,7 +10,7 @@ export default defineConfig({
     lib: {
       entry: 'index.ts',
       formats: [ 'cjs' ],
-      fileName: () => '[name].cjs'
+      fileName: () => 'main.cjs'
     },
     minify: process.env.NODE_ENV === 'production',
     emptyOutDir: true,

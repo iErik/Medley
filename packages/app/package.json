@@ -3,11 +3,12 @@
   "productName": "Medley",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/backend/index.cjs",
+  "main": "dist/backend/main.cjs",
   "type": "module",
   "scripts": {
     "prepare:icons": "svgr src/frontend/components/Icon/svg",
-    "dev": "node scripts/dev-server.mjs"
+    "dev": "node scripts/dev-server.mjs",
+    "build": "node scripts/build.mjs"
   },
   "author": "",
   "license": "GPL-2",

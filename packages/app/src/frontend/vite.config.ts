@@ -21,8 +21,7 @@ export default defineConfig({
   ],
   base: './',
   build: {
-    emptyOutDir: true,
-    outDir: '../../dist/renderer'
+    outDir: '../../dist'
   },
   resolve: {
     alias: {
