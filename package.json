@@ -5,7 +5,11 @@
   "author": "Erik Isidore <ericssonico@proton.me>",
   "license": "GPL-3",
   "homepage": "https://github.com/iErik/Medley#readme",
+  "workspaces": ["packages/*"],
   "scripts": {
+    "build-api": "pnpm -C packages/api build",
+    "build-utils": "pnpm -C packages/ts-utils build",
+    "build-deps": "pnpm run build-api && pnpm run build-utils",
     "watch-api": "pnpm -C packages/api watch",
     "dev-app": "pnpm -C packages/app dev",
     "build-app": "pnpm -C packages/app build",

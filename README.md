@@ -62,8 +62,8 @@ located in this monorepo. To build each of them, you'll need
 to  run the build command for each:
 
 ```bash
-pnpm -C packages/ts-utils build
-pnpm -C packages/api build
+# Runs the build command in the ts-utils and api packages
+pnpm build-deps
 ```
 
 ##### Step 5 - Run development server

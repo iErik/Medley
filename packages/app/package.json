@@ -1,22 +1,78 @@
 {
-  "name": "@ierik/medley",
+  "name": "medley",
   "productName": "Medley",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/backend/main.cjs",
+  "description": "A messaging client built for the Revolt platform",
+  "homepage": "https://github.com/iErik/Medley#readme",
+  "repository": "git+https://github.com/iErik/Medley.git",
+  "license": "GPL-3",
+  "main": "dist/main.cjs",
   "type": "module",
   "scripts": {
     "prepare:icons": "svgr src/frontend/components/Icon/svg",
     "dev": "node scripts/dev-server.mjs",
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "builder:linux": "electron-builder --linux --x64 -p never",
+    "builder:macos": "electron-builder --macos --x64 -p never",
+    "builder:win": "electron-builder --win --x64 -p never",
+    "builder:publish": "electron-builder publish"
   },
-  "author": "",
-  "license": "GPL-2",
+  "author": {
+    "name": "Erik Isidore",
+    "email": "ericssonico@proton.me",
+    "url": "https://github.com/ierik"
+  },
+  "build": {
+    "appId": "org.isidore.Medley",
+    "productName": "Tidder",
+    "artifactName": "${productName} Beta.${ext}",
+    "directories": {
+      "buildResources": "resources",
+      "output": "release",
+      "app": "."
+    },
+    "files": [
+      "dist/",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.social-networking",
+      "target": "zip"
+    },
+    "linux": {
+      "category": "Feed",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        },
+        {
+          "target": "rpm",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "win": {
+      "target": "portable"
+    }
+  },
   "engines": {
     "node": ">=14.18.2"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
+    "@electron-forge/cli": "^7.9.0",
+    "@electron-forge/maker-deb": "^7.9.0",
+    "@electron-forge/maker-squirrel": "^7.9.0",
+    "@electron-forge/maker-zip": "^7.9.0",
+    "@electron/packager": "^18.4.4",
     "@svgr/cli": "^8.1.0",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
@@ -24,8 +80,8 @@
     "@types/redux-logger": "^3.0.13",
     "@vitejs/plugin-react": "^3.1.0",
     "babel-loader": "^9.1.2",
-    "electron": "^37.2.3",
-    "electron-builder": "^26.0.12",
+    "electron": "37.2.3",
+    "electron-builder": "^26.0.20",
     "electron-devtools-installer": "^4.0.0",
     "immer": "^9.0.21",
     "sass": "^1.60.0",
@@ -42,8 +98,8 @@
     "PORT": 3344
   },
   "dependencies": {
-    "@packages/api": "workspace:^",
-    "@packages/components": "workspace:^",
+    "@packages/api": "workspace:../api",
+    "@packages/components": "workspace:../components",
     "@packages/ts-utils": "workspace:../ts-utils",
     "@reduxjs/toolkit": "^2.8.2",
     "@stitches/react": "^1.2.8",

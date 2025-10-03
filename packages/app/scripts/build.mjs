@@ -8,6 +8,7 @@ import { build } from 'vite'
 // so we have to do this little hack
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+// TODO: Copy package.json to dist folder
 await build({
   configFile: 'scripts/vite.config.mjs',
   root: join(__dirname, '../src/backend'),
