@@ -7,18 +7,16 @@
   "homepage": "https://github.com/iErik/Medley#readme",
   "workspaces": ["packages/*"],
   "scripts": {
+    "release-app": "pnpm build-deps && pnpm -C packages/app release",
     "build-api": "pnpm -C packages/api build",
     "build-utils": "pnpm -C packages/ts-utils build",
-    "build-deps": "pnpm run build-api && pnpm run build-utils",
+    "build-deps": "pnpm build-utils && pnpm build-api",
     "watch-api": "pnpm -C packages/api watch",
     "dev-app": "pnpm -C packages/app dev",
     "start": "pnpm build-deps && pnpm dev-app",
     "build-app": "pnpm -C packages/app build",
     "storybook": "storybook dev -p 5000",
-    "build-storybook": "storybook build",
-    "build-api": "pnpm -C packages/api build",
-    "build-utils": "pnpm -C packages/ts-utils build",
-    "build-deps": "pnpm build-utils && pnpm build-api"
+    "build-storybook": "storybook build"
   },
   "repository": {
     "type": "git",
