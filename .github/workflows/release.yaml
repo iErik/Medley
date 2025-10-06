@@ -1,0 +1,33 @@
+name: Build and release application's binaries
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+  steps:
+    - name: Clone repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: 'pnpm'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 9
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build supporting packages
+      run: pnpm build-deps
+
+    - name: Build app binaries and release
+      run: pnpm run release-app
