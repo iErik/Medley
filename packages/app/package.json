@@ -18,6 +18,7 @@
     "builder:linux": "electron-builder --linux --x64 -p never",
     "builder:macos": "electron-builder --macos --x64 -p never",
     "builder:win": "electron-builder --win --x64 -p never",
+    "builder:mwl": "electron-builder -mwl",
     "builder:publish": "electron-builder publish"
   },
   "author": {
