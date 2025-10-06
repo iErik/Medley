@@ -55,18 +55,6 @@ async function createWindow() {
     mainWindow.loadFile(join(__dirname, './index.html'))
   }
 
-  /*
-  if (app.isPackaged) {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-  } else {
-    const pkg = await import('../../package.json')
-    const url = `http://${pkg.env.HOST || '127.0.0.1'}:${pkg.env.PORT}`
-
-    mainWindow.loadURL(url)
-    mainWindow.webContents.openDevTools()
-  }
-  */
-
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow!.show()
     mainWindow!.focus()
