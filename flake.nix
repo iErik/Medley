@@ -15,6 +15,7 @@
         pnpm
         nodejs_24
         rpm
+        act
       ];
 
       buildInputs = [];
