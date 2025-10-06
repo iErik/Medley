@@ -8,9 +8,13 @@
   "scripts": {
     "watch-api": "pnpm -C packages/api watch",
     "dev-app": "pnpm -C packages/app dev",
+    "start": "pnpm build-deps && pnpm dev-app",
     "build-app": "pnpm -C packages/app build",
     "storybook": "storybook dev -p 5000",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "build-api": "pnpm -C packages/api build",
+    "build-utils": "pnpm -C packages/ts-utils build",
+    "build-deps": "pnpm build-utils && pnpm build-api"
   },
   "repository": {
     "type": "git",
