@@ -8,14 +8,18 @@
   outputs = { self, nixpkgs }: let
     system = "x86_64-darwin";
     pkgs = import nixpkgs { inherit system; };
+    githubToken = "";
   in {
     devShell.${system} = with pkgs; mkShell {
       nativeBuildInputs = [
         pnpm
-        nodejs-slim_24
+        nodejs_24
+        rpm
       ];
 
       buildInputs = [];
+
+      GH_TOKEN = githubToken;
     };
   };
 }
