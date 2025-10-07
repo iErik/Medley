@@ -22,3 +22,5 @@ node_modules/
 packages/api/lib
 packages/app/release
 packages/app/dist
+
+*DS_Store
