@@ -1,2 +1,3 @@
 --no-skip-checkout
+--no-cache-server
 --secret GITHUB_TOKEN=$GITHUB_TOKEN
