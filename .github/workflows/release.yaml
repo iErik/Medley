@@ -43,9 +43,9 @@ jobs:
           VITE_AUTUMN_API: ${{ vars.VITE_AUTUMN_API }}
         run: |
           touch packages/api/.env
-          echo VITE_BONFIRE_API=${{ vars.VITE_BONFIRE_API }} >> packages/api/env
-          echo VITE_DELTA_API=${{ vars.VITE_DELTA_API }} >> packages/api/env
-          echo VITE_AUTUMN_API=${{ vars.VITE_AUTUMN_API }} >> packages/api/env
+          echo VITE_BONFIRE_API=${{ vars.VITE_BONFIRE_API }} >> packages/api/.env
+          echo VITE_DELTA_API=${{ vars.VITE_DELTA_API }} >> packages/api/.env
+          echo VITE_AUTUMN_API=${{ vars.VITE_AUTUMN_API }} >> packages/api/.env
 
       - name: Build supporting packages
         run: pnpm build-deps
