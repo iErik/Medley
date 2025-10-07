@@ -8,7 +8,7 @@
   outputs = { self, nixpkgs }: let
     system = "x86_64-darwin";
     pkgs = import nixpkgs { inherit system; };
-    githubToken = "";
+    githubToken = "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";
   in {
     devShell.${system} = with pkgs; mkShell {
       nativeBuildInputs = [
@@ -20,6 +20,7 @@
 
       buildInputs = [];
 
+      GITHUB_TOKEN = githubToken;
       GH_TOKEN = githubToken;
     };
   };
