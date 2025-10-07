@@ -8,6 +8,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     container: electronuserland/builder:wine
+    environment: release
 
     steps:
       # Apparently this fixes an issue with the
@@ -34,6 +35,17 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Populate .env files
+        env:
+          VITE_BONFIRE_API: ${{ vars.VITE_BONFIRE_API }}
+          VITE_DELTA_API: ${{ vars.VITE_DELTA_API }}
+          VITE_AUTUMN_API: ${{ vars.VITE_AUTUMN_API }}
+        run: |
+          touch packages/api/.env
+          echo VITE_BONFIRE_API=${{ vars.VITE_BONFIRE_API }} >> packages/api/env
+          echo VITE_DELTA_API=${{ vars.VITE_DELTA_API }} >> packages/api/env
+          echo VITE_AUTUMN_API=${{ vars.VITE_AUTUMN_API }} >> packages/api/env
 
       - name: Build supporting packages
         run: pnpm build-deps
