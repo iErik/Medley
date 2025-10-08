@@ -18,7 +18,7 @@ const watchMain = () => {
     configFile: 'scripts/vite.config.mjs',
     root: join(__dirname, '../src/backend'),
     build: {
-      outDir: join(__dirname, '../dist/backend'),
+      outDir: join(__dirname, '../dist'),
       watch: true
     },
     plugins: [{
