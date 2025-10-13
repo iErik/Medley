@@ -7,6 +7,7 @@ export { default as Home } from "./Home";
 export { default as MessageNotif } from "./MessageNotif";
 export { default as People } from "./People";
 export { default as Search } from "./Search";
+export { default as SidebarLeft } from "./SidebarLeft";
 export { default as TextChannel } from "./TextChannel";
 export { default as UserAdd } from "./UserAdd";
 export { default as UserTag } from "./UserTag";
