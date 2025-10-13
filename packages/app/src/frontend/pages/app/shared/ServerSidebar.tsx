@@ -33,7 +33,6 @@ export default function ServerSidebar(props: Props) {
   const gotoServer = useNavigator('server')
   const gotoHome = useNavigator('home')
 
-
   const onSelectServer = (server: Server) => {
     const {
       _id: id,
@@ -54,8 +53,9 @@ export default function ServerSidebar(props: Props) {
   const onSelectDM = () => { }
 
   return (
-    <Root hidden={props.hidden}>
+    <Root>
       <ServerList
+        hidden={props.hidden}
         servers={servers}
         onSelectDM={onSelectDM}
         onSelectHome={onSelectHome}
@@ -78,11 +78,6 @@ const Root = styled('div', {
   transition: 'width 300ms ease',
 
   variants: {
-    hidden: {
-      true: {
-        width: 0,
-        //background: 'red'
-      }
-    }
+    hidden: { true: { width: 0 } }
   }
 })

@@ -22,6 +22,7 @@ import Icon from '@components/Icon'
 
 type ServerListProps = {
   servers: Server[]
+  hidden?: boolean
   onSelectHome: () => any
   onSelectDM: () => any
   onSelectServer: (server: Server) => any
@@ -37,7 +38,7 @@ export default function ServerList(props: ServerListProps) {
     />)
 
   return (
-    <Container column>
+    <Container column hidden={props.hidden}>
       <ServerBtn
         name="home"
         onClick={props.onSelectHome}
@@ -46,6 +47,10 @@ export default function ServerList(props: ServerListProps) {
       </ServerBtn>
 
       { serverBtns }
+
+      <Toggle>
+        <Icon icon="SidebarLeft" />
+      </Toggle>
     </Container>
   )
 }
@@ -55,6 +60,7 @@ export default function ServerList(props: ServerListProps) {
 /--------------------------------------------------------*/
 
 const Container = styled(Flexbox, {
+  position: 'relative',
   width: '$serverList',
   padding: '$serverListPad',
   gap: 10,
@@ -63,7 +69,17 @@ const Container = styled(Flexbox, {
   borderTopLeftRadius: '$baseRadius',
   borderBottomLeftRadius: '$baseRadius',
 
-  background: '$bg300'
+  background: '$bg300',
+
+  transition: 'width 300ms ease',
+
+  variants: {
+    hidden: {
+      true: {
+        width: 0
+      }
+    }
+  }
 })
 
 const mkBgStyles = (backgroundUrl: string) => ({
@@ -186,4 +202,31 @@ const ServerBtn = (props: {
   )
 }
 
+const Toggle = styled('button', {
+  position: 'absolute',
+  bottom: 2,
+  left: 2,
 
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+
+  background: '$bg500',
+  transition: 'background 300ms ease',
+  flexShrink: 0,
+  borderRadius: 5,
+
+  width: 'calc(100% - 4px)',
+  height: 45,
+
+  [`& ${Icon}`]: { },
+
+  '&:hover': { background: '$bg300' },
+
+  variants: {
+    active: {
+      true: { background: '$bg300' }
+    }
+  }
+})

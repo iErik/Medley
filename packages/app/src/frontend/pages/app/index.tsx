@@ -50,6 +50,8 @@ export default function App() {
   const [hideServers, setHideServers] = useState(false)
   const user = useSelf()
 
+  const isMacOs = true
+
   const toggleServers = () => {
     setHideServers(!hideServers)
   }
@@ -57,13 +59,15 @@ export default function App() {
   return (
     <Root>
       <Grid>
-        <HeaderbarLeft>
-          <Button onClick={toggleServers}>
-            <Icon
-              icon="ArrowSquareLeft"
-              size={25}
-            />
-          </Button>
+        <HeaderbarLeft macos={isMacOs}>
+          <If condition={!isMacOs}>
+            <Button onClick={toggleServers}>
+              <Icon
+                icon="ArrowSquareLeft"
+                size={25}
+              />
+            </Button>
+          </If>
 
           <If condition={!!user}>
             <UserCard user={user} />
@@ -116,15 +120,24 @@ const HeaderbarLeft = styled(Flexbox, {
   paddingTop: 5,
   gap: 5,
 
-  defaultVariants: {
-    vAlign: 'start',
-    direction: 'row'
-  }
+  '-webkit-app-region': 'drag',
+
+  variants: {
+    macos: {
+      true: {
+        paddingLeft: 80
+      }
+    }
+  },
+
+  defaultVariants: { }
 })
 
 const HeaderbarRight = styled(Flexbox, {
   height: HEADER_HEIGHT,
   padding: 5,
+
+  '-webkit-app-region': 'drag',
 
   defaultVariants: {
     vAlign: 'start',
