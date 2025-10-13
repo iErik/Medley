@@ -1,9 +1,15 @@
-import { join } from 'path'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { app, BrowserWindow, shell } from 'electron'
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
   REDUX_DEVTOOLS
 } from 'electron-devtools-installer'
+
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 
 let mainWindow: BrowserWindow | null = null
 
@@ -22,8 +28,10 @@ const installExtensions = async () => {
 }
 
 async function createWindow() {
+  console.log('Electron __dirname:', __dirname)
+
   mainWindow = new BrowserWindow({
-    width: 580,
+    width: 960,
     height: 780,
     minWidth: 960,
     minHeight: 260,
@@ -33,8 +41,17 @@ async function createWindow() {
     transparent: true,
     hasShadow: true,
 
+    titleBarStyle: 'hidden',
+    titleBarOverlay: true,
+    backgroundColor: '#15181F',
+    trafficLightPosition: {
+      x: 15,
+      y: 20
+    },
+
     webPreferences: {
       //preload: join(__dirname, '../preload/index.cjs'),
+      preload: join(__dirname, './preload.cjs'),
       experimentalFeatures: true,
       sandbox: false,
     }
