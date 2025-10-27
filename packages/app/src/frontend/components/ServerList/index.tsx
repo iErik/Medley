@@ -1,3 +1,5 @@
+import { useEffect, useState, useCallback } from 'react'
+
 import { type Server, } from '@store/chat'
 
 import { Flexbox } from '@packages/components'
@@ -20,15 +22,39 @@ import Icon from '@components/Icon'
 // 4 - Implement or integrate a tooltip component here for
 // the server/channel buttons
 
+type TimeoutId = ReturnType<typeof setTimeout>
+
+export const Visibility  = {
+  Hidden: 'hidden',
+  Visible: 'visible',
+  AutoHide: 'autohide'
+} as const
+
+export type VisibilityKey = keyof typeof Visibility
+export type VisibilityType = typeof Visibility[VisibilityKey]
+
 type ServerListProps = {
   servers: Server[]
-  hidden?: boolean
+  visibility: VisibilityType
+
   onSelectHome: () => any
   onSelectDM: () => any
   onSelectServer: (server: Server) => any
+  onPinSidebar: (pin: boolean) => any
 }
 
+
+const AUTOHIDE_TOLERANCE = 10
+// Delay to hide the sidebar in milliseconds
+const AUTOHIDE_DELAY = 300
+
 export default function ServerList(props: ServerListProps) {
+  const [ peek, setPeek ] = useState(false)
+  const [
+    autohideTimeout,
+    setAutohideTimeout
+  ] = useState<TimeoutId | null>(null)
+
   const serverBtns = props.servers.map(server =>
     <ServerBtn
       key={server._id}
@@ -37,21 +63,74 @@ export default function ServerList(props: ServerListProps) {
       onClick={props.onSelectServer.bind(null, server)}
     />)
 
+  const handlePinSidebar = () => {
+    console.log('handlePinSidebar')
+    props.onPinSidebar(!props.hidden)
+  }
+
+
+  const onMouseMove = useCallback((ev: MouseEvent) => {
+    /*
+    console.log('the mouse is moving: ', {
+      ev,
+      overlay,
+      visibility: props.visibility
+    })
+    */
+
+    if (props.visibility !== Visibility.AutoHide) {
+      console.log('onMouseMove: Exiting early')
+      return
+    }
+
+    if (ev.clientX <= AUTOHIDE_TOLERANCE && !peek) {
+      console.log('Peek set to true')
+      //overlay.current = true
+      setPeek(true)
+    }
+  }, [ props.visibility, peek ])
+
+  const onMouseLeave = (ev: React.MouseEvent) => {
+    console.log('oh my god!', { ev })
+    //setTimeout(() => setPeek(false), AUTOHIDE_DELAY)
+  }
+
+  const onMouseEnter = useCallback(() => {
+
+  }, [ autohideTimeout, setAutohideTimeout ])
+
+  useEffect(() => {
+    window.addEventListener('mousemove', onMouseMove)
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+    }
+  }, [ onMouseMove ])
+
+  console.log({ props })
+
   return (
-    <Container column hidden={props.hidden}>
-      <ServerBtn
-        name="home"
-        onClick={props.onSelectHome}
-      >
-        <Icon icon="Home" />
-      </ServerBtn>
+    <Wrapper
+      visibility={props.visibility}
+      autohide={peek ? 'show' : 'hide'}
+      onMouseLeave={onMouseLeave}
+      onMouseEnter={onMouseLeave}
+    >
+      <Container column>
+        <ServerBtn
+          name="home"
+          onClick={props.onSelectHome}
+        >
+          <Icon icon="Home" />
+        </ServerBtn>
 
-      { serverBtns }
+        { serverBtns }
 
-      <Toggle>
-        <Icon icon="SidebarLeft" />
-      </Toggle>
-    </Container>
+        <Toggle onClick={handlePinSidebar}>
+          <Icon icon="SidebarLeft" />
+        </Toggle>
+      </Container>
+    </Wrapper>
   )
 }
 
@@ -59,27 +138,56 @@ export default function ServerList(props: ServerListProps) {
 / -> Fragments                                            /
 /--------------------------------------------------------*/
 
+const Wrapper = styled('div', {
+  display: 'grid',
+  gridTemplateRows: '1fr',
+  overflow: 'hidden',
+  height: '100%',
+  transition: 'width 300ms ease',
+  zIndex: 10,
+  width: '$serverList',
+
+  marginRight: 2,
+
+  variants: {
+    // Deprecated:
+    hidden: { true: { width: 0 } },
+
+    visibility: {
+      hidden: { width: 0 },
+      visible: { width: 'auto' },
+      autohide: {
+        position: 'absolute',
+        borderRight: '2px solid $bg500',
+        boxShadow: '-5px -2px 15px rgba(0, 0, 0, 0.3)',
+        transition: 'left 300ms'
+      },
+    },
+
+    autohide: {
+      show: {
+        left: 0,
+        overflow: 'visible'
+      },
+
+      hide: {
+        left: -60
+      }
+    }
+  }
+})
+
 const Container = styled(Flexbox, {
   position: 'relative',
   width: '$serverList',
   padding: '$serverListPad',
   gap: 10,
-  marginRight: 2,
+  //marginRight: 2,
 
   borderTopLeftRadius: '$baseRadius',
   borderBottomLeftRadius: '$baseRadius',
 
   background: '$bg300',
-
-  transition: 'width 300ms ease',
-
-  variants: {
-    hidden: {
-      true: {
-        width: 0
-      }
-    }
-  }
 })
 
 const mkBgStyles = (backgroundUrl: string) => ({

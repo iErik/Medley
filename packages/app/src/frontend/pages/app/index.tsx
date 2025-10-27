@@ -56,6 +56,18 @@ export default function App() {
     setHideServers(!hideServers)
   }
 
+  const onPinSidebar = (pin: boolean) => {
+    console.log({ pin })
+    setHideServers(pin)
+  }
+
+  const sidebarVisibility = !hideServers
+    ? 'visible'
+    : isMacOs
+    ? 'autohide'
+    : 'hidden'
+
+
   return (
     <Root>
       <Grid>
@@ -75,7 +87,11 @@ export default function App() {
         </HeaderbarLeft>
 
         <LeftColumn>
-          <ServerSidebar hidden={hideServers} />
+          <ServerSidebar
+            visibility={sidebarVisibility}
+            hidden={hideServers}
+            onPinSidebar={onPinSidebar}
+          />
 
           { routeSlotsFor(SubRoutes, 'sidebar') }
         </LeftColumn>

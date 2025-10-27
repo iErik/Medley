@@ -1,10 +1,11 @@
 import { useNavigator } from '@/routes'
-
-import { styled } from '@stitched'
 import { useAction } from '@hooks'
 import { useSelector } from '@store'
 
-import ServerList from '@components/ServerList'
+import ServerList, {
+  Visibility,
+  type VisibilityType
+} from '@components/ServerList'
 
 import {
   type Server,
@@ -14,6 +15,8 @@ import {
 
 type Props = {
   hidden: boolean
+  visibility: VisibilityType
+  onPinSidebar: (pin: boolean) => any
 }
 
 // TODO <ServerSidebar>
@@ -52,32 +55,23 @@ export default function ServerSidebar(props: Props) {
 
   const onSelectDM = () => { }
 
+
   return (
-    <Root>
-      <ServerList
-        hidden={props.hidden}
-        servers={servers}
-        onSelectDM={onSelectDM}
-        onSelectHome={onSelectHome}
-        onSelectServer={onSelectServer}
-      />
-    </Root>
+    <ServerList
+      visibility={props.visibility}
+      servers={servers}
+      onSelectDM={onSelectDM}
+      onSelectHome={onSelectHome}
+      onSelectServer={onSelectServer}
+      onPinSidebar={props.onPinSidebar}
+    />
   )
 }
 
 /*--------------------------------------------------------/
-/ -> Fragments                                            /
+/ -> Re-exports                                           /
 /--------------------------------------------------------*/
 
+export { Visibility }
+export type { VisibilityType }
 
-const Root = styled('div', {
-  display: 'grid',
-  gridTemplateRows: '1fr',
-  overflow: 'hidden',
-  height: '100%',
-  transition: 'width 300ms ease',
-
-  variants: {
-    hidden: { true: { width: 0 } }
-  }
-})

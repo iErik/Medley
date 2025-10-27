@@ -10,8 +10,11 @@ import installExtension, {
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const IS_MACOS = process.platform === 'darwin'
+
 
 let mainWindow: BrowserWindow | null = null
+
 
 const installExtensions = async () => {
   const options = {
@@ -41,8 +44,8 @@ async function createWindow() {
     transparent: true,
     hasShadow: true,
 
-    titleBarStyle: 'hidden',
-    titleBarOverlay: true,
+    titleBarStyle: IS_MACOS ? 'hidden' : 'default',
+    titleBarOverlay: IS_MACOS ,
     backgroundColor: '#15181F',
     trafficLightPosition: {
       x: 15,
