@@ -3,14 +3,22 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs }: let
+  outputs = { self, nixpkgs, flake-utils }: let
     system = "x86_64-darwin";
-    pkgs = import nixpkgs { inherit system; };
-    githubToken = "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";
+    forEachSystem = flake-utils.lib.eachDefaultSystem;
+
+    getPkgs = system: import nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+    };
+  in forEachSystem (system: let
+    pkgs = getPkgs system;
   in {
-    devShell.${system} = with pkgs; mkShell {
+    devShells.default = with pkgs; mkShell {
       nativeBuildInputs = [
         pnpm
         nodejs_24
@@ -19,9 +27,6 @@
       ];
 
       buildInputs = [];
-
-      GITHUB_TOKEN = githubToken;
-      GH_TOKEN = githubToken;
     };
-  };
+  });
 }
