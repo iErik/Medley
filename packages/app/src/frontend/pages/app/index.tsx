@@ -67,7 +67,6 @@ export default function App() {
     ? 'autohide'
     : 'hidden'
 
-
   return (
     <Root>
       <Grid>
@@ -162,6 +161,7 @@ const HeaderbarRight = styled(Flexbox, {
 })
 
 const LeftColumn = styled(Flexbox, {
+  position: 'relative',
   paddingLeft: 5,
   paddingBottom: 5,
 
