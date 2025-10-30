@@ -15,8 +15,9 @@ import {
 
 type Props = {
   hidden: boolean
+  showToggle?: boolean
   visibility: VisibilityType
-  onPinSidebar: (pin: boolean) => any
+  onToggleVisibility: () => any
 }
 
 // TODO <ServerSidebar>
@@ -59,11 +60,12 @@ export default function ServerSidebar(props: Props) {
   return (
     <ServerList
       visibility={props.visibility}
+      showToggle={props.showToggle}
       servers={servers}
       onSelectDM={onSelectDM}
       onSelectHome={onSelectHome}
       onSelectServer={onSelectServer}
-      onPinSidebar={props.onPinSidebar}
+      onToggleVisibility={props.onToggleVisibility}
     />
   )
 }

@@ -14,6 +14,8 @@ import { FriendList } from './friends'
 import { ServerPanel } from './server'
 
 
+const IS_MAC = ElectronIPC.platform() === 'darwin'
+
 type RouteParams = { params: Record<string, any> }
 
 const SubRoutes = {
@@ -45,33 +47,30 @@ const SubRoutes = {
 }
 
 
+
 // TODO: Properly set max-width for sidebar slot
 export default function App() {
   const [hideServers, setHideServers] = useState(false)
   const user = useSelf()
 
-  const isMacOs = true
-
   const toggleServers = () => {
     setHideServers(!hideServers)
   }
 
-  const onPinSidebar = (pin: boolean) => {
-    console.log({ pin })
-    setHideServers(pin)
-  }
-
+  // The structure and behaviour of the layout differs on
+  // macOS because of the positioning of the
+  // "traffic lights" window controls
   const sidebarVisibility = !hideServers
     ? 'visible'
-    : isMacOs
+    : IS_MAC
     ? 'autohide'
     : 'hidden'
 
   return (
     <Root>
       <Grid>
-        <HeaderbarLeft macos={isMacOs}>
-          <If condition={!isMacOs}>
+        <HeaderbarLeft macos={IS_MAC}>
+          <If condition={!IS_MAC}>
             <Button onClick={toggleServers}>
               <Icon
                 icon="ArrowSquareLeft"
@@ -88,8 +87,9 @@ export default function App() {
         <LeftColumn>
           <ServerSidebar
             visibility={sidebarVisibility}
+            showToggle={IS_MAC}
             hidden={hideServers}
-            onPinSidebar={onPinSidebar}
+            onToggleVisibility={toggleServers}
           />
 
           { routeSlotsFor(SubRoutes, 'sidebar') }
@@ -97,7 +97,7 @@ export default function App() {
       </Grid>
 
       <Grid>
-        <HeaderbarRight>
+        <HeaderbarRight macos={IS_MAC}>
         </HeaderbarRight>
 
         <RightColumn>
@@ -135,11 +135,11 @@ const HeaderbarLeft = styled(Flexbox, {
   paddingTop: 5,
   gap: 5,
 
-  '-webkit-app-region': 'drag',
 
   variants: {
     macos: {
       true: {
+        '-webkit-app-region': 'drag',
         paddingLeft: 80
       }
     }
@@ -152,7 +152,9 @@ const HeaderbarRight = styled(Flexbox, {
   height: HEADER_HEIGHT,
   padding: 5,
 
-  '-webkit-app-region': 'drag',
+  variants: {
+    macos: { true: { '-webkit-app-region': 'drag', } }
+  },
 
   defaultVariants: {
     vAlign: 'start',
@@ -190,5 +192,6 @@ const Button = styled('button', {
   borderRadius: 5,
   flexShrink: 0,
 
+  cursor: 'pointer',
   width: '$serverList',
 })

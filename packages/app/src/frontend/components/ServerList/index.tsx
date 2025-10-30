@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 
 import { type Server, } from '@store/chat'
 
-import { Flexbox } from '@packages/components'
+import { If, Flexbox } from '@packages/components'
 import { styled } from '@stitched'
 
 import Icon from '@components/Icon'
@@ -36,11 +36,12 @@ export type VisibilityType = typeof Visibility[VisibilityKey]
 type ServerListProps = {
   servers: Server[]
   visibility: VisibilityType
+  showToggle: boolean
 
   onSelectHome: () => any
   onSelectDM: () => any
   onSelectServer: (server: Server) => any
-  onPinSidebar: (pin: boolean) => any
+  onToggleVisibility: () => any
 }
 
 
@@ -55,18 +56,14 @@ export default function ServerList(props: ServerListProps) {
     setAutohideTimeout
   ] = useState<TimeoutId | null>(null)
 
-  const serverBtns = props.servers.map(server =>
-    <ServerBtn
-      key={server._id}
-      serverIcon={server.icon?.src || undefined}
-      name={server.name}
-      onClick={props.onSelectServer.bind(null, server)}
-    />)
-
-  const handlePinSidebar = () => {
-    console.log('handlePinSidebar')
-    props.onPinSidebar(!props.hidden)
+  const handleToggleVisibility = () => {
+    if (props.onToggleVisibility)
+      props.onToggleVisibility()
   }
+
+  const shouldHide = props.visibility === Visibility.Hidden
+    || (props.visibility === Visibility.AutoHide && !peek)
+
 
   const onMouseMove = useCallback((ev: MouseEvent) => {
     if (props.visibility !== Visibility.AutoHide) {
@@ -74,13 +71,14 @@ export default function ServerList(props: ServerListProps) {
     }
 
     if (ev.clientX <= AUTOHIDE_TOLERANCE && !peek) {
-      console.log('Peek set to true')
       setPeek(true)
     }
   }, [ props.visibility, peek ])
 
-  const onMouseLeave = useCallback((ev: React.MouseEvent) => {
-    setAutohideTimeout(setTimeout(() => setPeek(false), AUTOHIDE_DELAY))
+  const onMouseLeave = useCallback(() => {
+    setAutohideTimeout(setTimeout(() => {
+      setPeek(false)
+    }, AUTOHIDE_DELAY))
   }, [ autohideTimeout, setAutohideTimeout ])
 
   const onMouseEnter = useCallback(() => {
@@ -98,12 +96,19 @@ export default function ServerList(props: ServerListProps) {
     }
   }, [ onMouseMove ])
 
-  console.log({ props })
+
+  const serverBtns = props.servers.map(server =>
+    <ServerBtn
+      key={server._id}
+      serverIcon={server.icon?.src || undefined}
+      name={server.name}
+      onClick={props.onSelectServer.bind(null, server)}
+    />)
+
 
   return (
     <Wrapper
-      visibility={props.visibility}
-      autohide={peek ? 'show' : 'hide'}
+      hidden={shouldHide}
       onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
     >
@@ -117,9 +122,11 @@ export default function ServerList(props: ServerListProps) {
 
         { serverBtns }
 
-        <Toggle onClick={handlePinSidebar}>
-          <Icon icon="SidebarLeft" />
-        </Toggle>
+        <If condition={props.showToggle}>
+          <Toggle onClick={handleToggleVisibility}>
+            <Icon icon="SidebarLeft" />
+          </Toggle>
+        </If>
       </Container>
     </Wrapper>
   )
@@ -147,25 +154,13 @@ const Wrapper = styled('div', {
     visibility: {
       hidden: { width: 0 },
       visible: { width: 'auto' },
-      autohide: {
-        //position: 'absolute',
-        //borderRight: '2px solid $bg500',
-        //boxShadow: '-5px -2px 15px rgba(0, 0, 0, 0.3)',
-        //transition: 'left 300ms'
-      },
+      autohide: { },
     },
 
     autohide: {
-      show: {
-        //width: 'auto'
-        //left: 0,
-        //overflow: 'visible'
-      },
+      show: { },
 
-      hide: {
-        //width: 0
-        //left: -60
-      }
+      hide: { }
     }
   },
 
