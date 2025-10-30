@@ -21,6 +21,7 @@ const watchMain = () => {
       outDir: join(__dirname, '../dist'),
       watch: true
     },
+    emptyOutDir: false,
     plugins: [{
       name: 'electron-main-watcher',
       writeBundle() {
@@ -35,14 +36,19 @@ const watchMain = () => {
   })
 }
 
-/*
 const watchPreload = server => build({
   configFile: 'scripts/vite.config.mjs',
-  root: join(__dirname, '../src/backend/preload'),
+  root: join(__dirname, '../src/backend'),
   build: {
-    outDir: join(__dirname, '../dist/main'),
-    watch: true
+    outDir: join(__dirname, '../dist'),
+    watch: true,
+    lib: {
+      entry: 'preload.ts',
+      formats: [ 'cjs' ],
+      fileName: () => 'preload.cjs'
+    }
   },
+  emptyOutDir: true,
   plugins: [{
     name: 'electron-reload-watcher',
     writeBundle() {
@@ -50,7 +56,6 @@ const watchPreload = server => build({
     }
   }]
 })
-*/
 
 // Server bootstrap
 const server = await createServer({
@@ -58,5 +63,5 @@ const server = await createServer({
 })
 
 await server.listen()
-//await watchPreload(server)
+await watchPreload(server)
 await watchMain()
