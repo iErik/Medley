@@ -68,35 +68,26 @@ export default function ServerList(props: ServerListProps) {
     props.onPinSidebar(!props.hidden)
   }
 
-
   const onMouseMove = useCallback((ev: MouseEvent) => {
-    /*
-    console.log('the mouse is moving: ', {
-      ev,
-      overlay,
-      visibility: props.visibility
-    })
-    */
-
     if (props.visibility !== Visibility.AutoHide) {
-      console.log('onMouseMove: Exiting early')
       return
     }
 
     if (ev.clientX <= AUTOHIDE_TOLERANCE && !peek) {
       console.log('Peek set to true')
-      //overlay.current = true
       setPeek(true)
     }
   }, [ props.visibility, peek ])
 
-  const onMouseLeave = (ev: React.MouseEvent) => {
-    console.log('oh my god!', { ev })
-    //setTimeout(() => setPeek(false), AUTOHIDE_DELAY)
-  }
+  const onMouseLeave = useCallback((ev: React.MouseEvent) => {
+    setAutohideTimeout(setTimeout(() => setPeek(false), AUTOHIDE_DELAY))
+  }, [ autohideTimeout, setAutohideTimeout ])
 
   const onMouseEnter = useCallback(() => {
+    if (!autohideTimeout) return
 
+    clearTimeout(autohideTimeout)
+    setAutohideTimeout(null)
   }, [ autohideTimeout, setAutohideTimeout ])
 
   useEffect(() => {
@@ -114,7 +105,7 @@ export default function ServerList(props: ServerListProps) {
       visibility={props.visibility}
       autohide={peek ? 'show' : 'hide'}
       onMouseLeave={onMouseLeave}
-      onMouseEnter={onMouseLeave}
+      onMouseEnter={onMouseEnter}
     >
       <Container column>
         <ServerBtn
@@ -157,24 +148,39 @@ const Wrapper = styled('div', {
       hidden: { width: 0 },
       visible: { width: 'auto' },
       autohide: {
-        position: 'absolute',
-        borderRight: '2px solid $bg500',
-        boxShadow: '-5px -2px 15px rgba(0, 0, 0, 0.3)',
-        transition: 'left 300ms'
+        //position: 'absolute',
+        //borderRight: '2px solid $bg500',
+        //boxShadow: '-5px -2px 15px rgba(0, 0, 0, 0.3)',
+        //transition: 'left 300ms'
       },
     },
 
     autohide: {
       show: {
-        left: 0,
-        overflow: 'visible'
+        //width: 'auto'
+        //left: 0,
+        //overflow: 'visible'
       },
 
       hide: {
-        left: -60
+        //width: 0
+        //left: -60
       }
     }
-  }
+  },
+
+  compoundVariants: [
+    {
+      visibility: 'autohide',
+      autohide: 'show',
+      css: { width: 'auto' }
+    },
+    {
+      visibility: 'autohide',
+      autohide: 'hide',
+      css: { width: 0 }
+    }
+  ]
 })
 
 const Container = styled(Flexbox, {
